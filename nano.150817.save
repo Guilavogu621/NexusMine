@@ -1,0 +1,28 @@
+Voici un démarrage ultra-court, étape par étape, pour sécuriser ton dépôt avant d’inviter tes amis :
+
+    Activer la protection de branche principale
+
+    Va dans Settings → Branches → Add branch protection rule.
+    Branch name pattern : main (ou ta branche par défaut).
+    Coche au minimum :
+        Require pull request before merging
+        Require approvals (1)
+        Require status checks to pass (si tu as des checks)
+        Require conversation resolution
+        Interdire force pushes et deletions sur la branche
+
+    Restreindre les pushes directs
+
+    Dans la même règle, “Restrict who can push” : laisse vide (personne) ou seulement les admins si vraiment nécessaire.
+
+    Vérifier les permissions Actions (si tu utilises GitHub Actions)
+
+    Settings → Actions → General
+    GITHUB_TOKEN permissions : par défaut “Read repository contents” (passe en “Read and write” uniquement si besoin).
+    Autorise seulement les Actions du marketplace dont tu as confiance.
+
+    Inviter les amis après protection
+
+    Settings → Collaborators & teams → Invite collaborator → choisis “Write” (ou “Maintainer” si tu leur fais confiance pour la config).
+
+Si tu veux, je peux te guider clic par clic sur l’interface, ou préparer un README/
