@@ -2,9 +2,9 @@
 Mixin de filtrage automatique par sites assignés.
 
 Logique:
-- ADMIN / SITE_MANAGER / ANALYST / MMG : voit TOUTES les données (pas de filtre)
+- ADMIN / ANALYST / MMG : voit TOUTES les données (pas de filtre)
   MMG = Ministère des Mines, contrôle réglementaire sur tous les sites
-- SUPERVISOR / OPERATOR : voit uniquement les données
+- SITE_MANAGER / SUPERVISOR / OPERATOR : voit uniquement les données
   liées à ses `assigned_sites`
 
 Usage dans un ViewSet:
@@ -27,7 +27,7 @@ class SiteScopedMixin:
                                         Défaut = ['ADMIN', 'MANAGER'].
     """
     site_field = 'site'
-    site_scope_exempt_roles = ['ADMIN', 'SITE_MANAGER', 'ANALYST', 'MMG']
+    site_scope_exempt_roles = ['ADMIN', 'ANALYST', 'MMG']
 
     def get_queryset(self):
         qs = super().get_queryset()

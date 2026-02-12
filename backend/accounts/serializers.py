@@ -34,9 +34,12 @@ class UserSerializer(serializers.ModelSerializer):
         return list(obj.assigned_sites.values('id', 'name', 'code'))
 
     def update(self, instance, validated_data):
-        """Gère la mise à jour des sites assignés (M2M)"""
+        """Gère la mise à jour des sites assignés (M2M) et is_staff"""
         sites = validated_data.pop('assigned_sites', None)
         instance = super().update(instance, validated_data)
+        # Synchroniser is_staff avec le rôle
+        instance.is_staff = (instance.role == 'ADMIN')
+        instance.save(update_fields=['is_staff'])
         if sites is not None:
             instance.assigned_sites.set(sites)
         return instance
@@ -86,6 +89,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         sites = validated_data.pop('assigned_sites', [])
         user = User(**validated_data)
         user.set_password(password)
+        # ADMIN doit avoir is_staff=True pour accéder au Django admin
+        if user.role == 'ADMIN':
+            user.is_staff = True
         user.save()
         if sites:
             user.assigned_sites.set(sites)
