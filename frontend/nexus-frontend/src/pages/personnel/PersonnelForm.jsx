@@ -1,17 +1,62 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  UserIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  CalendarIcon,
+  IdentificationIcon,
+  BriefcaseIcon,
+  CheckIcon,
+  UserCircleIcon,
+} from '@heroicons/react/24/outline';
 import api from '../../api/axios';
+import {
+  InputField,
+  SelectField,
+  Button,
+  Card,
+  FormSection,
+  Alert,
+  Badge,
+} from '../../components/ui';
+import PageHeader from '../../components/ui/PageHeader';
+import { LoadingSpinner, Avatar } from '../../components/ui/UIComponents';
+import useFormPermissions from '../../hooks/useFormPermissions';
+import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
+
+const STATUS_OPTIONS = [
+  { value: 'ACTIVE', label: 'Actif', color: 'success' },
+  { value: 'ON_LEAVE', label: 'En congé', color: 'warning' },
+  { value: 'INACTIVE', label: 'Inactif', color: 'default' },
+  { value: 'TERMINATED', label: 'Terminé', color: 'danger' },
+];
+
+const POSITION_OPTIONS = [
+  { value: 'OPERATOR', label: '👷 Opérateur' },
+  { value: 'TECHNICIAN', label: '🔧 Technicien' },
+  { value: 'ENGINEER', label: '👨‍💻 Ingénieur' },
+  { value: 'SUPERVISOR', label: '👔 Superviseur' },
+  { value: 'MANAGER', label: '💼 Manager' },
+  { value: 'DRIVER', label: '🚛 Chauffeur' },
+  { value: 'SECURITY', label: '🛡️ Agent de sécurité' },
+  { value: 'OTHER', label: '📋 Autre' },
+];
 
 export default function PersonnelForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const { readOnly, canSubmit, roleBanner } = useFormPermissions('personnel');
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const [sites, setSites] = useState([]);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   
   const [formData, setFormData] = useState({
     employee_id: '',
@@ -29,13 +74,21 @@ export default function PersonnelForm() {
     fetchSites();
     if (isEdit) {
       fetchPerson();
+    } else {
+      generateEmployeeId();
     }
   }, [id]);
+
+  const generateEmployeeId = () => {
+    const id = `EMP-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+    setFormData(prev => ({ ...prev, employee_id: id }));
+  };
 
   const fetchSites = async () => {
     try {
       const response = await api.get('/sites/');
-      setSites(response.data.results || response.data);
+      const sitesData = response.data.results || response.data;
+      setSites(sitesData.map(site => ({ value: site.id, label: site.name })));
     } catch (error) {
       console.error('Erreur lors du chargement des sites:', error);
     }
@@ -56,6 +109,10 @@ export default function PersonnelForm() {
         site: response.data.site || '',
         hire_date: response.data.hire_date || '',
       });
+      // Set existing photo preview
+      if (response.data.photo_url) {
+        setPhotoPreview(response.data.photo_url);
+      }
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
       setError('Impossible de charger les données');
@@ -67,6 +124,7 @@ export default function PersonnelForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
@@ -82,10 +140,28 @@ export default function PersonnelForm() {
 
       if (isEdit) {
         await api.put(`/personnel/${id}/`, dataToSend);
+        // Upload photo if new file selected
+        if (photoFile) {
+          const photoData = new FormData();
+          photoData.append('photo', photoFile);
+          await api.post(`/personnel/${id}/upload-photo/`, photoData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+        }
       } else {
-        await api.post('/personnel/', dataToSend);
+        const res = await api.post('/personnel/', dataToSend);
+        // Upload photo for newly created personnel
+        if (photoFile && res.data?.id) {
+          const photoData = new FormData();
+          photoData.append('photo', photoFile);
+          await api.post(`/personnel/${res.data.id}/upload-photo/`, photoData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+        }
       }
-      navigate('/personnel');
+      
+      setSuccess(true);
+      setTimeout(() => navigate('/personnel'), 1500);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       if (error.response?.data) {
@@ -101,226 +177,284 @@ export default function PersonnelForm() {
     }
   };
 
+  const getStatusColor = (status) => {
+    const colors = {
+      ACTIVE: 'bg-green-100 text-green-700',
+      ON_LEAVE: 'bg-yellow-100 text-yellow-700',
+      INACTIVE: 'bg-slate-100 text-slate-600',
+      TERMINATED: 'bg-red-100 text-red-700',
+    };
+    return colors[status] || colors.INACTIVE;
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner text="Chargement des données..." />;
   }
 
+  const fullName = `${formData.first_name} ${formData.last_name}`.trim();
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link
-          to="/personnel"
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeftIcon className="h-5 w-5 text-gray-500" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isEdit ? 'Modifier l\'employé' : 'Nouvel employé'}
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {isEdit ? 'Modifiez les informations' : 'Ajoutez un nouvel employé'}
-          </p>
-        </div>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-6 pb-8">
+      <PageHeader
+        title={isEdit ? 'Modifier l\'employé' : 'Nouvel employé'}
+        subtitle={isEdit ? 'Modifiez les informations de l\'employé' : 'Ajoutez un nouveau membre du personnel'}
+        backLink="/personnel"
+        icon={UserIcon}
+        iconColor="bg-amber-500"
+        breadcrumbs={[
+          { label: 'Personnel', link: '/personnel' },
+          { label: isEdit ? 'Modifier' : 'Nouveau' },
+        ]}
+      />
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm whitespace-pre-line">
-            {error}
-          </div>
-        )}
+      {success && (
+        <Alert type="success" title="Succès !">
+          {isEdit ? 'Employé modifié avec succès.' : 'Employé ajouté avec succès.'} Redirection...
+        </Alert>
+      )}
 
-        <div className="space-y-6">
-          {/* Matricule et Site */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="employee_id" className="block text-sm font-medium text-gray-700">
-                Matricule *
-              </label>
-              <input
-                type="text"
-                id="employee_id"
-                name="employee_id"
-                required
-                value={formData.employee_id}
+      {error && (
+        <Alert type="error" title="Erreur" onClose={() => setError(null)}>
+          <pre className="whitespace-pre-line font-sans">{error}</pre>
+        </Alert>
+      )}
+
+      <ReadOnlyBanner message={roleBanner} />
+
+      <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="space-y-6">
+        {/* Informations personnelles */}
+        <Card>
+          <FormSection
+            title="Informations personnelles"
+            description="Identité et coordonnées de l'employé"
+          >
+            <div className="flex flex-col md:flex-row gap-6 mt-4">
+              {/* Avatar / Photo upload */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative group cursor-pointer" onClick={() => !readOnly && document.getElementById('personnel-photo-input')?.click()}>
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Photo" className="h-20 w-20 rounded-xl object-cover ring-2 ring-slate-200" />
+                  ) : (
+                    <Avatar name={fullName || 'Nouveau'} size="xl" status={formData.status === 'ACTIVE' ? 'online' : 'offline'} />
+                  )}
+                  {!readOnly && (
+                    <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-white text-xs font-medium">📷 Photo</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  id="personnel-photo-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPhotoFile(file);
+                      setPhotoPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+                <span className="text-sm text-slate-500">{readOnly ? 'Photo' : 'Cliquer pour changer'}</span>
+              </div>
+
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField
+                  label="Matricule"
+                  name="employee_id"
+                  value={formData.employee_id}
+                  onChange={handleChange}
+                  required
+                  placeholder="EMP-2026-0001"
+                  icon={IdentificationIcon}
+                />
+
+                <SelectField
+                  label="Site d'affectation"
+                  name="site"
+                  value={formData.site}
+                  onChange={handleChange}
+                  required
+                  options={sites}
+                  placeholder="Sélectionner un site"
+                  icon={MapPinIcon}
+                />
+
+                <InputField
+                  label="Prénom"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ex: Mamadou"
+                  icon={UserCircleIcon}
+                />
+
+                <InputField
+                  label="Nom de famille"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ex: Diallo"
+                />
+              </div>
+            </div>
+          </FormSection>
+        </Card>
+
+        {/* Poste et statut */}
+        <Card>
+          <FormSection
+            title="Poste et statut"
+            description="Fonction et état de l'employé"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <SelectField
+                label="Poste / Fonction"
+                name="position"
+                value={formData.position}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                placeholder="EMP-001"
+                required
+                options={POSITION_OPTIONS}
+                placeholder="Sélectionner un poste"
+                icon={BriefcaseIcon}
               />
-            </div>
-            <div>
-              <label htmlFor="site" className="block text-sm font-medium text-gray-700">
-                Site d'affectation *
-              </label>
-              <select
-                id="site"
-                name="site"
-                required
-                value={formData.site}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-              >
-                <option value="">Sélectionner un site</option>
-                {sites.map((site) => (
-                  <option key={site.id} value={site.id}>{site.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
 
-          {/* Nom et Prénom */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-                Nom *
-              </label>
-              <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                required
-                value={formData.last_name}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                placeholder="Diallo"
-              />
+              <div>
+                <label className="block text-base font-semibold text-slate-700 mb-3">
+                  Statut *
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {STATUS_OPTIONS.map((option) => (
+                    <label
+                      key={option.value}
+                      className={`
+                        flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer
+                        border-2 transition-all duration-200
+                        ${formData.status === option.value 
+                          ? getStatusColor(option.value) + ' border-current'
+                          : 'bg-slate-50 border-slate-200/60 hover:border-gray-300'
+                        }
+                      `}
+                    >
+                      <input
+                        type="radio"
+                        name="status"
+                        value={option.value}
+                        checked={formData.status === option.value}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      <span className="font-medium text-base">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div>
-              <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-                Prénom *
-              </label>
-              <input
-                type="text"
-                id="first_name"
-                name="first_name"
-                required
-                value={formData.first_name}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                placeholder="Mamadou"
-              />
-            </div>
-          </div>
+          </FormSection>
+        </Card>
 
-          {/* Poste */}
-          <div>
-            <label htmlFor="position" className="block text-sm font-medium text-gray-700">
-              Fonction / Poste *
-            </label>
-            <input
-              type="text"
-              id="position"
-              name="position"
-              required
-              value={formData.position}
-              onChange={handleChange}
-              className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-              placeholder="Opérateur minier"
-            />
-          </div>
-
-          {/* Contact */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Téléphone
-              </label>
-              <input
-                type="tel"
-                id="phone"
+        {/* Contact */}
+        <Card>
+          <FormSection
+            title="Coordonnées"
+            description="Informations de contact"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <InputField
+                label="Téléphone"
                 name="phone"
+                type="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                placeholder="+224 620 00 00 00"
+                placeholder="Ex: +224 621 00 00 00"
+                icon={PhoneIcon}
+                helper="Format international recommandé"
               />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
+
+              <InputField
+                label="Email"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-                placeholder="email@exemple.com"
+                placeholder="Ex: m.diallo@nexusmine.com"
+                icon={EnvelopeIcon}
               />
             </div>
-          </div>
 
-          {/* Statut et Date d'embauche */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-                Statut *
-              </label>
-              <select
-                id="status"
-                name="status"
-                required
-                value={formData.status}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
-              >
-                <option value="ACTIVE">Actif</option>
-                <option value="ON_LEAVE">En congé</option>
-                <option value="INACTIVE">Inactif</option>
-                <option value="TERMINATED">Licencié</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="hire_date" className="block text-sm font-medium text-gray-700">
+            <div className="mt-6">
+              <label className="flex items-center gap-1 text-base font-semibold text-slate-700 mb-2">
+                <CalendarIcon className="h-4 w-4" />
                 Date d'embauche
               </label>
               <input
                 type="date"
-                id="hire_date"
                 name="hire_date"
                 value={formData.hire_date}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
+                className="block w-full md:w-1/3 rounded-xl border-0 py-3 px-4 bg-slate-50 text-slate-800 ring-1 ring-inset ring-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all duration-200 text-base hover:ring-gray-300"
               />
             </div>
+          </FormSection>
+        </Card>
+
+        {/* Résumé */}
+        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-indigo-200">
+          <div className="flex items-center gap-4">
+            <Avatar name={fullName || 'Nouveau'} size="lg" status={formData.status === 'ACTIVE' ? 'online' : 'offline'} />
+            <div className="flex-1">
+              <h4 className="font-semibold text-slate-800">{fullName || 'Nouvel employé'}</h4>
+              <p className="text-base text-slate-500">
+                {POSITION_OPTIONS.find(p => p.value === formData.position)?.label || 'Poste non défini'}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge variant="default">{formData.employee_id}</Badge>
+                <Badge variant={formData.status === 'ACTIVE' ? 'success' : formData.status === 'ON_LEAVE' ? 'warning' : 'danger'}>
+                  {STATUS_OPTIONS.find(s => s.value === formData.status)?.label}
+                </Badge>
+              </div>
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Actions */}
-        <div className="mt-6 flex items-center justify-end gap-3">
-          <Link
-            to="/personnel"
-            className="px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+        <div className="flex items-center justify-end gap-4 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => navigate('/personnel')}
           >
-            Annuler
-          </Link>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {saving ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Enregistrement...
-              </>
-            ) : (
-              isEdit ? 'Mettre à jour' : 'Créer l\'employé'
-            )}
-          </button>
+            {canSubmit ? 'Annuler' : '← Retour'}
+          </Button>
+          {canSubmit && (
+            <Button
+              type="submit"
+              variant="success"
+              loading={saving}
+              icon={CheckIcon}
+            >
+              {isEdit ? 'Enregistrer les modifications' : 'Ajouter l\'employé'}
+            </Button>
+          )}
         </div>
       </form>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        form > div {
+          animation: fadeIn 0.4s ease-out forwards;
+        }
+        form > div:nth-child(1) { animation-delay: 0.05s; opacity: 0; }
+        form > div:nth-child(2) { animation-delay: 0.1s; opacity: 0; }
+        form > div:nth-child(3) { animation-delay: 0.15s; opacity: 0; }
+        form > div:nth-child(4) { animation-delay: 0.2s; opacity: 0; }
+      `}</style>
     </div>
   );
 }

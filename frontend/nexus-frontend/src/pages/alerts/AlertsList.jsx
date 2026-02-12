@@ -8,6 +8,9 @@ import {
   EyeIcon,
   BellAlertIcon,
   CheckCircleIcon,
+  SparklesIcon,
+  FunnelIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -18,21 +21,36 @@ const typeLabels = {
   MAINTENANCE: 'Maintenance',
   ENVIRONMENTAL: 'Environnement',
   PRODUCTION: 'Production',
+  INCIDENT: 'Incident',
+  EQUIPMENT: 'Équipement',
+  STOCK: 'Stock',
   SYSTEM: 'Système',
 };
 
-const priorityLabels = {
+const typeEmojis = {
+  THRESHOLD_EXCEEDED: '📊',
+  SAFETY: '🛡️',
+  MAINTENANCE: '🔧',
+  ENVIRONMENTAL: '🌿',
+  PRODUCTION: '⚙️',
+  INCIDENT: '⚠️',
+  EQUIPMENT: '🧰',
+  STOCK: '📦',
+  SYSTEM: '💻',
+};
+
+const severityLabels = {
   LOW: 'Basse',
   MEDIUM: 'Moyenne',
   HIGH: 'Haute',
-  URGENT: 'Urgente',
+  CRITICAL: 'Critique',
 };
 
-const priorityColors = {
-  LOW: 'bg-gray-100 text-gray-800',
-  MEDIUM: 'bg-blue-100 text-blue-800',
-  HIGH: 'bg-orange-100 text-orange-800',
-  URGENT: 'bg-red-100 text-red-800',
+const severityConfig = {
+  LOW: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-gray-500' },
+  MEDIUM: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-indigo-500' },
+  HIGH: { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
+  CRITICAL: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
 };
 
 const statusLabels = {
@@ -43,12 +61,12 @@ const statusLabels = {
   ARCHIVED: 'Archivée',
 };
 
-const statusColors = {
-  NEW: 'bg-red-100 text-red-800',
-  READ: 'bg-blue-100 text-blue-800',
-  IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-  RESOLVED: 'bg-green-100 text-green-800',
-  ARCHIVED: 'bg-gray-100 text-gray-800',
+const statusConfig = {
+  NEW: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500' },
+  READ: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-indigo-500' },
+  IN_PROGRESS: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
+  RESOLVED: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
+  ARCHIVED: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-gray-500' },
 };
 
 export default function AlertsList() {
@@ -56,7 +74,7 @@ export default function AlertsList() {
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
-  const [filterPriority, setFilterPriority] = useState('');
+  const [filterSeverity, setFilterSeverity] = useState('');
   const [filterSite, setFilterSite] = useState('');
   const { isSupervisor } = useAuthStore();
 
@@ -65,7 +83,7 @@ export default function AlertsList() {
       setLoading(true);
       const params = new URLSearchParams();
       if (filterStatus) params.append('status', filterStatus);
-      if (filterPriority) params.append('priority', filterPriority);
+      if (filterSeverity) params.append('severity', filterSeverity);
       if (filterSite) params.append('site', filterSite);
       
       const [alertsRes, sitesRes] = await Promise.all([
@@ -84,7 +102,7 @@ export default function AlertsList() {
 
   useEffect(() => {
     fetchData();
-  }, [filterStatus, filterPriority, filterSite]);
+  }, [filterStatus, filterSeverity, filterSite]);
 
   const handleMarkRead = async (id) => {
     try {
@@ -118,171 +136,243 @@ export default function AlertsList() {
   };
 
   const newAlertsCount = alerts.filter(a => a.status === 'NEW').length;
+  const urgentAlertsCount = alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH').length;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">Alertes</h1>
-            {newAlertsCount > 0 && (
-              <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                {newAlertsCount} nouvelle{newAlertsCount > 1 ? 's' : ''}
-              </span>
+    <div className="space-y-6 pb-8">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden rounded-xl bg-white border border-slate-200/60 shadow-md">
+        <div className="relative px-8 py-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-sm">
+                <BellAlertIcon className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-semibold text-slate-800">Alertes</h1>
+                  {newAlertsCount > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-700">
+                      <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                      {newAlertsCount} nouvelle{newAlertsCount > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-slate-500">
+                  Gérez les alertes de vos sites miniers
+                </p>
+              </div>
+            </div>
+            {isSupervisor() && (
+              <Link
+                to="/alerts/new"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold shadow-sm"
+              >
+                <PlusIcon className="h-5 w-5" />
+                Nouvelle alerte
+              </Link>
             )}
           </div>
-          <p className="mt-1 text-sm text-gray-500">
-            Gérez les alertes de vos sites miniers
-          </p>
+          
+          {/* Stats row */}
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-slate-50 rounded-lg p-4">
+              <p className="text-base text-slate-500">Total alertes</p>
+              <p className="text-xl font-semibold text-slate-800">{alerts.length}</p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <p className="text-base text-slate-500">Nouvelles</p>
+              <p className="text-xl font-semibold text-orange-600">{newAlertsCount}</p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <p className="text-base text-slate-500">Urgentes</p>
+              <p className="text-xl font-semibold text-red-600">{urgentAlertsCount}</p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-4">
+              <p className="text-base text-slate-500">Résolues</p>
+              <p className="text-xl font-semibold text-green-600">{alerts.filter(a => a.status === 'RESOLVED').length}</p>
+            </div>
+          </div>
         </div>
-        {isSupervisor() && (
-          <Link
-            to="/alerts/new"
-            className="inline-flex items-center justify-center rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-500 transition-colors"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Nouvelle alerte
-          </Link>
-        )}
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-4">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <FunnelIcon className="h-5 w-5 text-slate-500" />
+          <span className="font-semibold text-slate-800">Filtres</span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <select
             value={filterSite}
             onChange={(e) => setFilterSite(e.target.value)}
-            className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-orange-600 sm:text-sm"
+            className="block w-full rounded-xl border-0 py-3 px-4 text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-500 sm:text-sm bg-slate-50 font-medium"
           >
-            <option value="">Tous les sites</option>
+            <option value="">📍 Tous les sites</option>
             {sites.map((site) => (
               <option key={site.id} value={site.id}>{site.name}</option>
             ))}
           </select>
 
           <select
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-orange-600 sm:text-sm"
+            value={filterSeverity}
+            onChange={(e) => setFilterSeverity(e.target.value)}
+            className="block w-full rounded-xl border-0 py-3 px-4 text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-500 sm:text-sm bg-slate-50 font-medium"
           >
-            <option value="">Toutes priorités</option>
-            <option value="LOW">Basse</option>
-            <option value="MEDIUM">Moyenne</option>
-            <option value="HIGH">Haute</option>
-            <option value="URGENT">Urgente</option>
+            <option value="">⚡ Toutes gravités</option>
+            <option value="LOW">🟢 Basse</option>
+            <option value="MEDIUM">🔵 Moyenne</option>
+            <option value="HIGH">🟠 Haute</option>
+            <option value="CRITICAL">🔴 Critique</option>
           </select>
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-orange-600 sm:text-sm"
+            className="block w-full rounded-xl border-0 py-3 px-4 text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-500 sm:text-sm bg-slate-50 font-medium"
           >
-            <option value="">Tous les statuts</option>
-            <option value="NEW">Nouvelle</option>
-            <option value="READ">Lue</option>
-            <option value="IN_PROGRESS">En cours</option>
-            <option value="RESOLVED">Résolue</option>
-            <option value="ARCHIVED">Archivée</option>
+            <option value="">📋 Tous les statuts</option>
+            <option value="NEW">🆕 Nouvelle</option>
+            <option value="READ">👁️ Lue</option>
+            <option value="IN_PROGRESS">⏳ En cours</option>
+            <option value="RESOLVED">✅ Résolue</option>
+            <option value="ARCHIVED">📦 Archivée</option>
           </select>
         </div>
       </div>
 
       {/* Alerts list */}
-      <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+            <div className="text-center">
+              <div className="relative">
+                <div className="w-12 h-12 border-4 border-indigo-200 rounded-full animate-spin border-t-indigo-600 mx-auto"></div>
+                <SparklesIcon className="h-5 w-5 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              </div>
+              <p className="mt-4 text-slate-500 font-medium">Chargement des alertes...</p>
+            </div>
           </div>
         ) : alerts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-            <BellAlertIcon className="h-12 w-12 mb-4" />
-            <p>Aucune alerte trouvée</p>
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="p-4 bg-indigo-100 rounded-full mb-4">
+              <BellAlertIcon className="h-12 w-12 text-indigo-600" />
+            </div>
+            <p className="text-xl font-semibold text-slate-800">Aucune alerte</p>
+            <p className="text-slate-500 mt-1">Aucune alerte ne correspond à vos critères</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
-            {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className={`p-4 hover:bg-gray-50 transition-colors ${
-                  alert.status === 'NEW' ? 'bg-orange-50' : ''
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${priorityColors[alert.priority]}`}>
-                        {priorityLabels[alert.priority]}
-                      </span>
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[alert.status]}`}>
-                        {statusLabels[alert.status]}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {typeLabels[alert.alert_type] || alert.alert_type}
-                      </span>
+          <div className="divide-y divide-gray-100">
+            {alerts.map((alertItem, index) => {
+              const prioConf = severityConfig[alertItem.severity] || severityConfig.LOW;
+              const statConf = statusConfig[alertItem.status] || statusConfig.NEW;
+              
+              return (
+                <div
+                  key={alertItem.id}
+                  className={`p-5 hover:bg-slate-50 transition-all duration-200 ${
+                    alertItem.status === 'NEW' ? 'bg-orange-50/50' : ''
+                  }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                      <div className={`p-3 rounded-xl ${prioConf.bg}`}>
+                        <span className="text-xl">{typeEmojis[alertItem.alert_type] || '🔔'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold ${prioConf.bg} ${prioConf.text}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${prioConf.dot} ${alertItem.severity === 'CRITICAL' || alertItem.severity === 'HIGH' ? 'animate-pulse' : ''}`}></span>
+                            {severityLabels[alertItem.severity]}
+                          </span>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold ${statConf.bg} ${statConf.text}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${statConf.dot}`}></span>
+                            {statusLabels[alertItem.status]}
+                          </span>
+                          <span className="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
+                            {typeLabels[alertItem.alert_type] || alertItem.alert_type}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-semibold text-slate-800 truncate">
+                          {alertItem.title}
+                        </h3>
+                        <p className="mt-1 text-base text-slate-500 line-clamp-2">
+                          {alertItem.message}
+                        </p>
+                        <div className="mt-3 flex items-center gap-4 text-sm text-slate-400">
+                          <span className="flex items-center gap-1">
+                            📍 {alertItem.site_name || 'Tous sites'}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            🕐 {new Date(alertItem.generated_at).toLocaleString('fr-FR')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-sm font-medium text-gray-900 truncate">
-                      {alert.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                      {alert.message}
-                    </p>
-                    <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
-                      <span>{alert.site_name || 'Tous sites'}</span>
-                      <span>{new Date(alert.generated_at).toLocaleString('fr-FR')}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {alert.status === 'NEW' && (
-                      <button
-                        onClick={() => handleMarkRead(alert.id)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                        title="Marquer comme lue"
+                    <div className="flex items-center gap-1.5">
+                      {alertItem.status === 'NEW' && (
+                        <button
+                          onClick={() => handleMarkRead(alertItem.id)}
+                          className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                          title="Marquer comme lue"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                      {alertItem.status !== 'RESOLVED' && alertItem.status !== 'ARCHIVED' && (
+                        <button
+                          onClick={() => handleResolve(alertItem.id)}
+                          className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                          title="Résoudre"
+                        >
+                          <CheckCircleIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                      <Link
+                        to={`/alerts/${alertItem.id}`}
+                        className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                        title="Voir détails"
                       >
                         <EyeIcon className="h-5 w-5" />
-                      </button>
-                    )}
-                    {alert.status !== 'RESOLVED' && alert.status !== 'ARCHIVED' && (
-                      <button
-                        onClick={() => handleResolve(alert.id)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors"
-                        title="Résoudre"
-                      >
-                        <CheckCircleIcon className="h-5 w-5" />
-                      </button>
-                    )}
-                    <Link
-                      to={`/alerts/${alert.id}`}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
-                      title="Voir détails"
-                    >
-                      <EyeIcon className="h-5 w-5" />
-                    </Link>
-                    {isSupervisor() && (
-                      <>
-                        <Link
-                          to={`/alerts/${alert.id}/edit`}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 transition-colors"
-                          title="Modifier"
-                        >
-                          <PencilSquareIcon className="h-5 w-5" />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(alert.id)}
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          title="Supprimer"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </>
-                    )}
+                      </Link>
+                      {isSupervisor() && (
+                        <>
+                          <Link
+                            to={`/alerts/${alertItem.id}/edit`}
+                            className="p-2 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200"
+                            title="Modifier"
+                          >
+                            <PencilSquareIcon className="h-5 w-5" />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(alertItem.id)}
+                            className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200"
+                            title="Supprimer"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .space-y-6 > * {
+          animation: fadeIn 0.4s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

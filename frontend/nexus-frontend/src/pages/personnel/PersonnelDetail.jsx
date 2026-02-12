@@ -10,6 +10,12 @@ import {
   MapPinIcon,
   CalendarIcon,
   IdentificationIcon,
+  SparklesIcon,
+  BriefcaseIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -21,12 +27,20 @@ const statusLabels = {
   TERMINATED: 'Licencié',
 };
 
-const statusColors = {
-  ACTIVE: 'bg-green-100 text-green-800',
-  ON_LEAVE: 'bg-yellow-100 text-yellow-800',
-  INACTIVE: 'bg-gray-100 text-gray-800',
-  TERMINATED: 'bg-red-100 text-red-800',
+const statusConfig = {
+  ACTIVE: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500', icon: CheckCircleIcon },
+  ON_LEAVE: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500', icon: ClockIcon },
+  INACTIVE: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-gray-500', icon: ClockIcon },
+  TERMINATED: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500', icon: ExclamationTriangleIcon },
 };
+
+const avatarColors = [
+  'from-purple-500 to-indigo-600',
+  'from-blue-500 to-cyan-600',
+  'from-emerald-500 to-teal-600',
+  'from-amber-500 to-orange-600',
+  'from-rose-500 to-pink-600',
+];
 
 export default function PersonnelDetail() {
   const { id } = useParams();
@@ -34,6 +48,7 @@ export default function PersonnelDetail() {
   const { isSupervisor } = useAuthStore();
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchPerson();
@@ -56,174 +71,277 @@ export default function PersonnelDetail() {
       return;
     }
     try {
+      setDeleting(true);
       await api.delete(`/personnel/${id}/`);
       navigate('/personnel');
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
       alert('Erreur lors de la suppression');
+      setDeleting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-full min-h-96">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-amber-200 rounded-full animate-spin border-t-amber-600 mx-auto"></div>
+            <SparklesIcon className="h-6 w-6 text-amber-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="mt-4 text-slate-500 font-medium">Chargement du personnel...</p>
+        </div>
       </div>
     );
   }
 
   if (!person) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Employé non trouvé</p>
-        <Link to="/personnel" className="mt-4 text-blue-600 hover:text-blue-500">
+      <div className="flex flex-col items-center justify-center h-full min-h-96">
+        <div className="p-4 bg-red-100 rounded-full mb-4">
+          <ExclamationTriangleIcon className="h-12 w-12 text-red-600" />
+        </div>
+        <p className="text-xl font-semibold text-slate-800">Employé non trouvé</p>
+        <p className="text-slate-500 mt-1">Cet employé n'existe pas ou a été supprimé</p>
+        <Link to="/personnel" className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 transition-colors">
+          <ArrowLeftIcon className="h-5 w-5" />
           Retour à la liste
         </Link>
       </div>
     );
   }
 
+  const config = statusConfig[person.status] || statusConfig.ACTIVE;
+  const StatusIcon = config.icon;
+  const avatarColor = avatarColors[parseInt(id) % avatarColors.length];
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const photoUrl = person.photo_url
+    ? (person.photo_url.startsWith('http') ? person.photo_url : `${API_BASE}${person.photo_url}`)
+    : null;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="max-w-5xl mx-auto space-y-8 pb-8">
+      {/* Premium Header avec bannière */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 shadow-2xl">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <pattern id="personnelGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100" height="100" fill="url(#personnelGrid)" />
+          </svg>
+        </div>
+        
+        {/* Gradient orbs */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-orange-400 opacity-10 blur-3xl"></div>
+        
+        <div className="relative px-8 py-8">
+          {/* Back button */}
           <Link
             to="/personnel"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-xl hover:bg-white/20 transition-all duration-200 mb-6"
           >
-            <ArrowLeftIcon className="h-5 w-5 text-gray-500" />
+            <ArrowLeftIcon className="h-4 w-4" />
+            <span className="text-sm font-medium">Retour au personnel</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-xl font-bold text-blue-600">
-                {person.first_name?.[0]}{person.last_name?.[0]}
-              </span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {person.last_name} {person.first_name}
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">{person.position}</p>
-            </div>
-          </div>
-        </div>
-        {isSupervisor() && (
-          <div className="flex items-center gap-2">
-            <Link
-              to={`/personnel/${id}/edit`}
-              className="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <PencilSquareIcon className="h-4 w-4 mr-2" />
-              Modifier
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-500 transition-colors"
-            >
-              <TrashIcon className="h-4 w-4 mr-2" />
-              Supprimer
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Main content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Details card */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Informations personnelles
-          </h2>
           
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-            <div className="flex items-start gap-3">
-              <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Matricule</dt>
-                <dd className="mt-1 text-sm text-gray-900">{person.employee_id}</dd>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="relative">
+                {photoUrl ? (
+                  <img
+                    src={photoUrl}
+                    alt={`${person.first_name} ${person.last_name}`}
+                    className="h-20 w-20 rounded-2xl object-cover shadow-xl ring-2 ring-white/30"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${avatarColor} items-center justify-center shadow-xl ${photoUrl ? 'hidden' : 'flex'}`}>
+                  <span className="text-2xl font-semibold text-white">
+                    {person.first_name?.[0]}{person.last_name?.[0]}
+                  </span>
+                </div>
+                <span className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full ${config.dot} border-4 border-amber-600`}></span>
               </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <UserIcon className="h-5 w-5 text-gray-400 mt-0.5" />
               <div>
-                <dt className="text-sm font-medium text-gray-500">Statut</dt>
-                <dd className="mt-1">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      statusColors[person.status] || 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
+                <h1 className="text-2xl font-bold text-white">
+                  {person.first_name} {person.last_name}
+                </h1>
+                <p className="mt-2 text-amber-100 flex items-center gap-2">
+                  <BriefcaseIcon className="h-4 w-4" />
+                  {person.position || 'Poste non défini'}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${config.bg} ${config.text}`}>
+                    <span className={`h-2 w-2 rounded-full ${config.dot}`}></span>
                     {statusLabels[person.status] || person.status}
                   </span>
-                </dd>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Site d'affectation</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {person.site_name || '—'}
-                </dd>
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium bg-white/20 text-white backdrop-blur-sm">
+                    <IdentificationIcon className="h-4 w-4" />
+                    {person.employee_id}
+                  </span>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <CalendarIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Date d'embauche</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {person.hire_date 
-                    ? new Date(person.hire_date).toLocaleDateString('fr-FR')
-                    : 'Non renseignée'}
-                </dd>
+            {isSupervisor() && (
+              <div className="flex items-center gap-3">
+                <Link
+                  to={`/personnel/${id}/edit`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-amber-700 rounded-xl font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <PencilSquareIcon className="h-4 w-4" />
+                  Modifier
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-500 text-white rounded-xl font-semibold shadow-lg hover:bg-red-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50"
+                >
+                  {deleting ? (
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <TrashIcon className="h-4 w-4" />
+                  )}
+                  Supprimer
+                </button>
               </div>
-            </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-            {person.phone && (
-              <div className="flex items-start gap-3">
-                <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Téléphone</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    <a href={`tel:${person.phone}`} className="text-blue-600 hover:text-blue-500">
-                      {person.phone}
-                    </a>
-                  </dd>
-                </div>
-              </div>
-            )}
+      {/* Main content grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Details card */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
+            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+              <h2 className="text-lg font-semibold text-slate-800">Informations personnelles</h2>
+            </div>
             
-            {person.email && (
-              <div className="flex items-start gap-3">
-                <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    <a href={`mailto:${person.email}`} className="text-blue-600 hover:text-blue-500">
-                      {person.email}
-                    </a>
-                  </dd>
+            <div className="p-6">
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
+                  <div className="p-2.5 bg-purple-100 rounded-xl">
+                    <IdentificationIcon className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <dt className="text-base font-semibold text-slate-500">Matricule</dt>
+                    <dd className="mt-1 text-base font-semibold text-slate-800">{person.employee_id}</dd>
+                  </div>
                 </div>
-              </div>
-            )}
-          </dl>
+                
+                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
+                  <div className="p-2.5 bg-emerald-100 rounded-xl">
+                    <StatusIcon className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <dt className="text-base font-semibold text-slate-500">Statut</dt>
+                    <dd className="mt-1">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${config.bg} ${config.text}`}>
+                        {statusLabels[person.status] || person.status}
+                      </span>
+                    </dd>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
+                  <div className="p-2.5 bg-blue-100 rounded-xl">
+                    <MapPinIcon className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <dt className="text-base font-semibold text-slate-500">Site d'affectation</dt>
+                    <dd className="mt-1 text-base font-semibold text-slate-800">
+                      {person.site_name || 'Non assigné'}
+                    </dd>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
+                  <div className="p-2.5 bg-amber-100 rounded-xl">
+                    <CalendarIcon className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <dt className="text-base font-semibold text-slate-500">Date d'embauche</dt>
+                    <dd className="mt-1 text-base font-semibold text-slate-800">
+                      {person.hire_date 
+                        ? new Date(person.hire_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                        : 'Non renseignée'}
+                    </dd>
+                  </div>
+                </div>
+              </dl>
+            </div>
+          </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Dates */}
-          <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Historique</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-sm">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
+          {/* Contact card */}
+          <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
+            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+              <h3 className="text-base font-semibold text-slate-800">Contact</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              {person.phone && (
+                <a
+                  href={`tel:${person.phone}`}
+                  className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl hover:bg-purple-50 transition-colors group"
+                >
+                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                    <PhoneIcon className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Téléphone</p>
+                    <p className="text-base font-semibold text-purple-600">{person.phone}</p>
+                  </div>
+                </a>
+              )}
+              
+              {person.email && (
+                <a
+                  href={`mailto:${person.email}`}
+                  className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl hover:bg-purple-50 transition-colors group"
+                >
+                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                    <EnvelopeIcon className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Email</p>
+                    <p className="text-base font-semibold text-purple-600 truncate">{person.email}</p>
+                  </div>
+                </a>
+              )}
+              
+              {!person.phone && !person.email && (
+                <div className="text-center py-4">
+                  <p className="text-base text-slate-500">Aucune information de contact</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* History card */}
+          <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
+            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+              <h3 className="text-base font-semibold text-slate-800">Historique</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-xl">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <CalendarIcon className="h-5 w-5 text-green-600" />
+                </div>
                 <div>
-                  <p className="text-gray-500">Créé le</p>
-                  <p className="font-medium text-gray-900">
+                  <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Créé le</p>
+                  <p className="text-base font-semibold text-slate-800 mt-0.5">
                     {new Date(person.created_at).toLocaleDateString('fr-FR', {
                       day: 'numeric',
                       month: 'long',
@@ -232,11 +350,13 @@ export default function PersonnelDetail() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
+              <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-xl">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <ClockIcon className="h-5 w-5 text-indigo-600" />
+                </div>
                 <div>
-                  <p className="text-gray-500">Modifié le</p>
-                  <p className="font-medium text-gray-900">
+                  <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Modifié le</p>
+                  <p className="text-base font-semibold text-slate-800 mt-0.5">
                     {new Date(person.updated_at).toLocaleDateString('fr-FR', {
                       day: 'numeric',
                       month: 'long',
@@ -249,6 +369,17 @@ export default function PersonnelDetail() {
           </div>
         </div>
       </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .max-w-5xl > * {
+          animation: fadeIn 0.4s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

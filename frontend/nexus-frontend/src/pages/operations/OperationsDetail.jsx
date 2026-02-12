@@ -9,9 +9,27 @@ import {
   CalendarIcon,
   ClockIcon,
   CubeIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  PlayIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+
+/* ---------------- CONFIG ---------------- */
+
+const validationLabels = {
+  PENDING: 'En attente',
+  APPROVED: 'Approuvée',
+  REJECTED: 'Rejetée',
+};
+
+const validationConfig = {
+  PENDING: { text: 'text-amber-400', bg: 'bg-amber-500/10', dot: 'bg-amber-400' },
+  APPROVED: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', dot: 'bg-emerald-400' },
+  REJECTED: { text: 'text-red-400', bg: 'bg-red-500/10', dot: 'bg-red-400' },
+};
 
 const typeLabels = {
   EXTRACTION: 'Extraction',
@@ -24,234 +42,247 @@ const typeLabels = {
   OTHER: 'Autre',
 };
 
-const statusLabels = {
-  PLANNED: 'Planifiée',
-  IN_PROGRESS: 'En cours',
-  COMPLETED: 'Terminée',
-  CANCELLED: 'Annulée',
+const typeEmojis = {
+  EXTRACTION: '⛏️',
+  DRILLING: '🔩',
+  BLASTING: '💥',
+  TRANSPORT: '🚛',
+  PROCESSING: '⚙️',
+  MAINTENANCE: '🔧',
+  INSPECTION: '🔍',
+  OTHER: '📋',
 };
 
-const statusColors = {
-  PLANNED: 'bg-blue-100 text-blue-800',
-  IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-  COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-gray-100 text-gray-800',
+const statusConfig = {
+  PLANNED: { text: 'text-sky-400', bg: 'bg-sky-500/10', dot: 'bg-sky-400', icon: ClockIcon },
+  IN_PROGRESS: { text: 'text-amber-400', bg: 'bg-amber-500/10', dot: 'bg-amber-400', icon: PlayIcon },
+  COMPLETED: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', dot: 'bg-emerald-400', icon: CheckCircleIcon },
+  CANCELLED: { text: 'text-slate-400', bg: 'bg-slate-500/10', dot: 'bg-slate-400', icon: XMarkIcon },
 };
+
+/* ---------------- COMPONENT ---------------- */
 
 export default function OperationsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSupervisor } = useAuthStore();
+  const { isSupervisor, isSiteManager } = useAuthStore();
+
   const [operation, setOperation] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   useEffect(() => {
-    fetchOperation();
+    api.get(`/operations/${id}/`)
+      .then(res => setOperation(res.data))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  const fetchOperation = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/operations/${id}/`);
-      setOperation(response.data);
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleDelete = async () => {
+    if (!confirm(`Supprimer l'opération ${operation.operation_code} ?`)) return;
+    setDeleting(true);
+    await api.delete(`/operations/${id}/`);
+    navigate('/operations');
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'opération "${operation.operation_code}" ?`)) {
+  const handleValidate = async (actionType) => {
+    if (actionType === 'reject' && !rejectReason.trim()) {
+      alert('Le motif de rejet est requis');
       return;
     }
     try {
-      await api.delete(`/operations/${id}/`);
-      navigate('/operations');
+      setValidating(true);
+      const payload = { action: actionType };
+      if (actionType === 'reject') payload.rejection_reason = rejectReason;
+      const res = await api.post(`/operations/${id}/validate/`, payload);
+      // Recharger les données
+      const updated = await api.get(`/operations/${id}/`);
+      setOperation(updated.data);
+      setShowRejectModal(false);
+      setRejectReason('');
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert('Erreur lors de la suppression');
+      console.error('Erreur de validation:', error);
+      alert(error.response?.data?.error || 'Erreur lors de la validation');
+    } finally {
+      setValidating(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex justify-center items-center min-h-96 text-slate-400">
+        Chargement…
       </div>
     );
   }
 
   if (!operation) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Opération non trouvée</p>
-        <Link to="/operations" className="mt-4 text-blue-600 hover:text-blue-500">
-          Retour à la liste
+      <div className="text-center py-20">
+        <ExclamationTriangleIcon className="h-12 w-12 mx-auto text-red-500" />
+        <p className="mt-4 text-lg font-semibold text-slate-200">Opération introuvable</p>
+        <Link to="/operations" className="mt-6 inline-flex items-center gap-2 text-indigo-400">
+          <ArrowLeftIcon className="h-4 w-4" /> Retour
         </Link>
       </div>
     );
   }
 
+  const cfg = statusConfig[operation.status];
+  const StatusIcon = cfg.icon;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            to="/operations"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <ArrowLeftIcon className="h-5 w-5 text-gray-500" />
-          </Link>
+    <div className="max-w-6xl mx-auto space-y-8 text-slate-100">
+
+      {/* HEADER */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between gap-6">
+        <div className="flex gap-4">
+          <div className="text-4xl">{typeEmojis[operation.operation_type]}</div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{operation.operation_code}</h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {typeLabels[operation.operation_type] || operation.operation_type}
+            <h1 className="text-xl font-bold">{operation.operation_code}</h1>
+            <p className="text-slate-400">{typeLabels[operation.operation_type]}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${cfg.bg} ${cfg.text}`}>
+                <span className={`h-2 w-2 rounded-full ${cfg.dot}`} />
+                <StatusIcon className="h-4 w-4" />
+                {operation.status}
+              </div>
+              {operation.validation_status && (
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${(validationConfig[operation.validation_status] || validationConfig.PENDING).bg} ${(validationConfig[operation.validation_status] || validationConfig.PENDING).text}`}>
+                  <span className={`h-2 w-2 rounded-full ${(validationConfig[operation.validation_status] || validationConfig.PENDING).dot}`} />
+                  {validationLabels[operation.validation_status] || operation.validation_status}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {/* Boutons Valider/Rejeter — ADMIN et SITE_MANAGER uniquement, si en attente */}
+          {isSiteManager() && operation.validation_status === 'PENDING' && (
+            <>
+              <button
+                onClick={() => handleValidate('approve')}
+                disabled={validating}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 inline-flex items-center gap-2 font-medium disabled:opacity-50"
+              >
+                <CheckCircleIcon className="h-4 w-4" />
+                {validating ? 'Validation…' : 'Valider'}
+              </button>
+              <button
+                onClick={() => setShowRejectModal(true)}
+                disabled={validating}
+                className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 inline-flex items-center gap-2 font-medium disabled:opacity-50"
+              >
+                <XMarkIcon className="h-4 w-4" />
+                Rejeter
+              </button>
+            </>
+          )}
+
+          {isSupervisor() && (
+            <>
+              <Link
+                to={`/operations/${id}/edit`}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 inline-flex items-center gap-2"
+              >
+                <PencilSquareIcon className="h-4 w-4" /> Modifier
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 inline-flex items-center gap-2"
+              >
+                <TrashIcon className="h-4 w-4" /> Supprimer
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* MODALE DE REJET */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md space-y-4">
+            <h3 className="text-lg font-bold text-slate-100">Motif du rejet</h3>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={4}
+              placeholder="Indiquez le motif du rejet…"
+              className="w-full rounded-xl bg-slate-800 border border-slate-700 text-slate-100 px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => { setShowRejectModal(false); setRejectReason(''); }}
+                className="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => handleValidate('reject')}
+                disabled={validating || !rejectReason.trim()}
+                className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:opacity-50 font-medium"
+              >
+                {validating ? 'Envoi…' : 'Confirmer le rejet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KPI */}
+      {operation.quantity_extracted && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center gap-4">
+          <CubeIcon className="h-8 w-8 text-indigo-400" />
+          <div>
+            <p className="text-slate-400">Quantité extraite</p>
+            <p className="text-2xl font-bold">
+              {Number(operation.quantity_extracted).toLocaleString()} t
             </p>
           </div>
         </div>
-        {isSupervisor() && (
-          <div className="flex items-center gap-2">
-            <Link
-              to={`/operations/${id}/edit`}
-              className="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50 transition-colors"
-            >
-              <PencilSquareIcon className="h-4 w-4 mr-2" />
-              Modifier
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="inline-flex items-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-500 transition-colors"
-            >
-              <TrashIcon className="h-4 w-4 mr-2" />
-              Supprimer
-            </button>
-          </div>
-        )}
-      </div>
+      )}
 
-      {/* Main content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Details card */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Détails de l'opération
-            </h2>
-            <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
-                statusColors[operation.status] || 'bg-gray-100 text-gray-800'
-              }`}
-            >
-              {statusLabels[operation.status] || operation.status}
-            </span>
-          </div>
-          
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-            <div className="flex items-start gap-3">
-              <ClipboardDocumentListIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Type</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {typeLabels[operation.operation_type] || operation.operation_type}
-                </dd>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Site</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {operation.site_name || '—'}
-                </dd>
-              </div>
-            </div>
+      {/* CONTENT */}
+      <div className="grid lg:grid-cols-3 gap-6">
 
-            <div className="flex items-start gap-3">
-              <CalendarIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Date</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {new Date(operation.date).toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </dd>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <ClockIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Horaires</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {operation.start_time || '—'} → {operation.end_time || '—'}
-                </dd>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <CubeIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Quantité extraite</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {operation.quantity_extracted 
-                    ? `${Number(operation.quantity_extracted).toLocaleString('fr-FR')} tonnes`
-                    : 'Non renseignée'}
-                </dd>
-              </div>
-            </div>
-          </dl>
+        {/* DETAILS */}
+        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <Detail icon={MapPinIcon} label="Site" value={operation.site_name || '—'} />
+          <Detail icon={CalendarIcon} label="Date" value={new Date(operation.date).toLocaleDateString()} />
+          <Detail icon={ClockIcon} label="Horaires" value={`${operation.start_time || '--'} → ${operation.end_time || '--'}`} />
 
           {operation.description && (
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Description</h3>
-              <p className="text-sm text-gray-600 whitespace-pre-line">
-                {operation.description}
-              </p>
+            <div className="pt-4 border-t border-slate-800">
+              <p className="text-slate-400 mb-1">Description</p>
+              <p className="text-slate-200 whitespace-pre-line">{operation.description}</p>
             </div>
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Dates */}
-          <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Historique</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-sm">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
-                <div>
-                  <p className="text-gray-500">Créé le</p>
-                  <p className="font-medium text-gray-900">
-                    {new Date(operation.created_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
-                <div>
-                  <p className="text-gray-500">Modifié le</p>
-                  <p className="font-medium text-gray-900">
-                    {new Date(operation.updated_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* SIDEBAR */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <p className="text-slate-400">Historique</p>
+          <p>Créé : {new Date(operation.created_at).toLocaleDateString()}</p>
+          <p>Modifié : {new Date(operation.updated_at).toLocaleDateString()}</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- SMALL COMPONENT ---------------- */
+
+function Detail({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="h-5 w-5 text-indigo-400 mt-1" />
+      <div>
+        <p className="text-slate-400 text-sm">{label}</p>
+        <p className="font-medium">{value}</p>
       </div>
     </div>
   );

@@ -57,7 +57,7 @@ const useAuthStore = create(
         try {
           const response = await api.get('/users/me/');
           set({ user: response.data, isAuthenticated: true });
-        } catch (error) {
+        } catch {
           get().logout();
         }
       },
@@ -70,11 +70,43 @@ const useAuthStore = create(
         return roles.includes(user.role);
       },
 
+      // Mettre à jour l'utilisateur
+      setUser: (userData) => set({ user: userData }),
+
       // Vérifier si admin
       isAdmin: () => get().user?.role === 'ADMIN',
       
-      // Vérifier si superviseur ou admin
-      isSupervisor: () => ['ADMIN', 'SUPERVISOR'].includes(get().user?.role),
+      // Vérifier si responsable de site minier
+      isSiteManager: () => ['ADMIN', 'SITE_MANAGER'].includes(get().user?.role),
+
+      // Vérifier si superviseur, site manager ou admin
+      isSupervisor: () => ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR'].includes(get().user?.role),
+
+      // Vérifier si analyste
+      isAnalyst: () => get().user?.role === 'ANALYST',
+
+      // Vérifier si MMG (audit)
+      isMMG: () => get().user?.role === 'MMG',
+
+      // Récupérer les sites assignés (détails)
+      getAssignedSites: () => get().user?.assigned_sites_details || [],
+
+      // Vérifier si l'utilisateur a accès à un site spécifique
+      hasSiteAccess: (siteId) => {
+        const user = get().user;
+        if (!user) return false;
+        // ADMIN, SITE_MANAGER et ANALYST voient tout
+        if (['ADMIN', 'SITE_MANAGER', 'ANALYST'].includes(user.role)) return true;
+        // Autres rôles : vérifier si le site est assigné
+        return (user.assigned_sites || []).includes(siteId);
+      },
+
+      // Vérifier si l'utilisateur voit tous les sites (ADMIN/SITE_MANAGER/ANALYST)
+      seesAllSites: () => {
+        const user = get().user;
+        if (!user) return false;
+        return ['ADMIN', 'SITE_MANAGER', 'ANALYST'].includes(user.role);
+      },
     }),
     {
       name: 'auth-storage',

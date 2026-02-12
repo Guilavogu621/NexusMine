@@ -18,6 +18,7 @@ class Report(models.Model):
     
     class ReportStatus(models.TextChoices):
         DRAFT = 'DRAFT', 'Brouillon'
+        PENDING_APPROVAL = 'PENDING_APPROVAL', 'En attente d\'approbation'
         GENERATED = 'GENERATED', 'Généré'
         VALIDATED = 'VALIDATED', 'Validé'
         PUBLISHED = 'PUBLISHED', 'Publié'

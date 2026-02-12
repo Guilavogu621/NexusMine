@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
+import useFormPermissions from '../../hooks/useFormPermissions';
+import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
 
 export default function AnalyticsForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const { readOnly, canSubmit, roleBanner } = useFormPermissions('analytics');
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -118,30 +121,32 @@ export default function AnalyticsForm() {
       <div className="flex items-center gap-4">
         <Link
           to="/analytics"
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
         >
-          <ArrowLeftIcon className="h-5 w-5 text-gray-500" />
+          <ArrowLeftIcon className="h-5 w-5 text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-800">
             {isEdit ? 'Modifier l\'indicateur' : 'Nouvel indicateur'}
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-base text-slate-500">
             {isEdit ? 'Modifiez les informations de l\'indicateur' : 'Créez un nouvel indicateur de performance'}
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
+      <ReadOnlyBanner message={roleBanner} />
+
+      <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm whitespace-pre-line">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-base whitespace-pre-line">
             {error}
           </div>
         )}
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="block text-base font-semibold text-slate-700">
               Nom de l'indicateur *
             </label>
             <input
@@ -151,14 +156,14 @@ export default function AnalyticsForm() {
               required
               value={formData.name}
               onChange={handleChange}
-              className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+              className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
               placeholder="Ex: Taux de production journalier"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="indicator_type" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="indicator_type" className="block text-base font-semibold text-slate-700">
                 Type d'indicateur *
               </label>
               <select
@@ -167,7 +172,7 @@ export default function AnalyticsForm() {
                 required
                 value={formData.indicator_type}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600"
               >
                 <option value="PRODUCTION">Production</option>
                 <option value="EFFICIENCY">Efficacité</option>
@@ -178,7 +183,7 @@ export default function AnalyticsForm() {
               </select>
             </div>
             <div>
-              <label htmlFor="site" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="site" className="block text-base font-semibold text-slate-700">
                 Site concerné
               </label>
               <select
@@ -186,7 +191,7 @@ export default function AnalyticsForm() {
                 name="site"
                 value={formData.site}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600"
               >
                 <option value="">Tous les sites</option>
                 {sites.map((site) => (
@@ -198,7 +203,7 @@ export default function AnalyticsForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="calculated_value" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="calculated_value" className="block text-base font-semibold text-slate-700">
                 Valeur actuelle
               </label>
               <input
@@ -208,12 +213,12 @@ export default function AnalyticsForm() {
                 step="0.01"
                 value={formData.calculated_value}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
                 placeholder="0.00"
               />
             </div>
             <div>
-              <label htmlFor="target_value" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="target_value" className="block text-base font-semibold text-slate-700">
                 Objectif
               </label>
               <input
@@ -223,12 +228,12 @@ export default function AnalyticsForm() {
                 step="0.01"
                 value={formData.target_value}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
                 placeholder="0.00"
               />
             </div>
             <div>
-              <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="unit" className="block text-base font-semibold text-slate-700">
                 Unité *
               </label>
               <input
@@ -238,7 +243,7 @@ export default function AnalyticsForm() {
                 required
                 value={formData.unit}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
                 placeholder="Ex: tonnes, %, heures"
               />
             </div>
@@ -246,7 +251,7 @@ export default function AnalyticsForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="threshold_warning" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="threshold_warning" className="block text-base font-semibold text-slate-700">
                 Seuil d'alerte (warning)
               </label>
               <input
@@ -256,12 +261,12 @@ export default function AnalyticsForm() {
                 step="0.01"
                 value={formData.threshold_warning}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
                 placeholder="Seuil d'avertissement"
               />
             </div>
             <div>
-              <label htmlFor="threshold_critical" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="threshold_critical" className="block text-base font-semibold text-slate-700">
                 Seuil critique
               </label>
               <input
@@ -271,14 +276,14 @@ export default function AnalyticsForm() {
                 step="0.01"
                 value={formData.threshold_critical}
                 onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
                 placeholder="Seuil critique"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="description" className="block text-base font-semibold text-slate-700">
               Description
             </label>
             <textarea
@@ -287,7 +292,7 @@ export default function AnalyticsForm() {
               rows={3}
               value={formData.description}
               onChange={handleChange}
-              className="mt-2 block w-full rounded-lg border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+              className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
               placeholder="Description de l'indicateur..."
             />
           </div>
@@ -296,17 +301,19 @@ export default function AnalyticsForm() {
         <div className="mt-6 flex items-center justify-end gap-3">
           <Link
             to="/analytics"
-            className="px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+            className="px-4 py-2.5 text-base font-medium text-slate-600 hover:text-slate-800 transition-colors"
           >
-            Annuler
+            {canSubmit ? 'Annuler' : '← Retour'}
           </Link>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {saving ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer l\'indicateur')}
-          </button>
+          {canSubmit && (
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer l\'indicateur')}
+            </button>
+          )}
         </div>
       </form>
     </div>

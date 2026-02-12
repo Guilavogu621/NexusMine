@@ -1,38 +1,56 @@
 @import "tailwindcss";
 
-/* Custom colors for NexusMine */
+/* NexusMine — Professional Mining Intelligence Palette */
 :root {
-  --nexus-primary: #1e40af;
-  --nexus-secondary: #059669;
+  --nexus-primary: #4f46e5;
+  --nexus-primary-dark: #4338ca;
+  --nexus-sidebar: #0f1729;
+  --nexus-text: #1e293b;
+  --nexus-text-secondary: #64748b;
+  --nexus-border: rgba(226, 232, 240, 0.6);
+  --nexus-success: #059669;
   --nexus-warning: #d97706;
-  --nexus-danger: #dc2626;
+  --nexus-danger: #e11d48;
 }
 
 /* Base styles */
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-slate-50 text-slate-800 antialiased;
   margin: 0;
   min-height: 100vh;
+
+  /* ✅ CORRECTION PRINCIPALE */
+  font-size: 16px;              /* ↑ lisibilité pro */
+  line-height: 1.6;             /* ↑ confort visuel */
+
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Custom scrollbar */
+/* Professional scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  @apply bg-slate-300/60 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400;
+  @apply bg-slate-400/60;
+}
+
+/* Selection color */
+::selection {
+  @apply bg-indigo-100 text-indigo-900;
 }

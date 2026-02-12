@@ -10,20 +10,45 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 ENV/
+env/
+*.egg-info/
+dist/
+build/
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
+db.sqlite3-journal
 media/
+staticfiles/
+*.pyc
+
+# Tests & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # OS
 .DS_Store
 Thumbs.db
+*.bak
+*.tmp
+
+# Reports & uploads
+reports/*.pdf
+reports/*.xlsx
+media/profile_photos/*
+!media/profile_photos/.gitkeep
+media/incident_photos/*
+!media/incident_photos/.gitkeep

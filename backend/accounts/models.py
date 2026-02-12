@@ -24,23 +24,40 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
+
+    ROLE_CHOICES = [
+        ("ADMIN", "Administrateur de la plateforme"),
+        ("SITE_MANAGER", "Responsable de site minier"),
+        ("SUPERVISOR", "Gestionnaire de Site"),
+        ("OPERATOR", "Technicien/Opérateur"),
+        ("ANALYST", "Analyste"),
+        ("MMG", "Autorité (MMG)"),
+    ]
 
     role = models.CharField(
         max_length=50,
-        choices=[
-            ("ADMIN", "Administrateur"),
-            ("SUPERVISOR", "Superviseur"),
-            ("OPERATOR", "Opérateur"),
-            ("ANALYST", "Analyste"),
-            ("REGULATOR", "Autorités/Gouvernement"),
-        ],
+        choices=ROLE_CHOICES,
         default="OPERATOR",
+    )
+
+    # Sites assignés — filtre automatique des données visibles
+    # ADMIN voit tout (ce champ est ignoré pour lui)
+    # Les autres rôles ne voient que les données liées à leurs sites
+    assigned_sites = models.ManyToManyField(
+        'mining_sites.MiningSite',
+        blank=True,
+        related_name='assigned_users',
+        verbose_name="Sites assignés",
+        help_text="Sites auxquels cet utilisateur a accès. Vide = aucun accès site (sauf ADMIN)."
     )
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
@@ -49,3 +66,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def get_site_ids(self):
+        """Retourne les IDs des sites assignés (cache-friendly)
+
+        - ADMIN, ANALYST, MMG voient toutes les données (pas de filtre)
+          MMG = Ministère des Mines, contrôle tous les sites
+        - SITE_MANAGER, SUPERVISOR, OPERATOR voient uniquement
+          les données de leurs sites assignés
+        """
+        if self.role in ('ADMIN', 'ANALYST', 'MMG'):
+            return None  # None = pas de filtre, voit tout
+        return list(self.assigned_sites.values_list('id', flat=True))
