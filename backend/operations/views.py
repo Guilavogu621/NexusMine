@@ -56,12 +56,11 @@ class ShiftViewSet(SiteScopedMixin, viewsets.ModelViewSet):
 
 class OperationViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des opérations
-    
+
     Permissions:
     - ADMIN: CRUD complet (config technique)
     - SITE_MANAGER: Lancement officiel, validation, clôture
-    - SUPERVISOR: CRUD opérations de ses sites
-    - OPERATOR: Création et lecture (saisie terrain)
+    - TECHNICIEN (ingénieur terrain): Création et lecture (saisie terrain)
     - ANALYST / MMG: Lecture seule
     Filtrage: Données filtrées par sites assignés
     """

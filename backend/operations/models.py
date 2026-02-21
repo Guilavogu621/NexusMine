@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
+from datetime import datetime
 
 
 class WorkZone(models.Model):
@@ -286,6 +288,21 @@ class Operation(models.Model):
         verbose_name = "Opération minière"
         verbose_name_plural = "Opérations minières"
         ordering = ['-date', '-created_at']
+    
+    def clean(self):
+        """Validations métier avant sauvegarde"""
+        super().clean()
+        # Valider que start_time < end_time si tous deux sont fournis
+        if self.date and self.start_time and self.end_time:
+            if self.start_time >= self.end_time:
+                raise ValidationError({
+                    'end_time': 'L\'heure de fin doit être après l\'heure de début.'
+                })
+    
+    def save(self, *args, **kwargs):
+        """Appeler clean() avant sauvegarde"""
+        self.clean()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.operation_code} - {self.get_operation_type_display()} ({self.date})"

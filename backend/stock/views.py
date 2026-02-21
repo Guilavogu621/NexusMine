@@ -17,12 +17,11 @@ from accounts.mixins import SiteScopedMixin
 
 class StockLocationViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des emplacements de stockage
-    
+
     Permissions:
     - ADMIN: Configuration système
     - SITE_MANAGER: Validation inventaires
-    - SUPERVISOR: Enregistrement entrées/sorties
-    - OPERATOR: Enregistrement extraction
+    - TECHNICIEN (ingénieur terrain): Enregistrement extraction
     - Autres: Lecture seule
     """
     site_field = 'site'

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Equipment, MaintenanceRecord
+from django.core.exceptions import ValidationError
 
 
 class MaintenanceRecordSerializer(serializers.ModelSerializer):
@@ -30,6 +31,19 @@ class MaintenanceRecordSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def validate(self, data):
+        """Validation au niveau du serializer"""
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        
+        if start_date and end_date:
+            if start_date >= end_date:
+                raise serializers.ValidationError({
+                    'end_date': 'La date de fin doit être après la date de début.'
+                })
+        
+        return data
 
 
 class MaintenanceRecordListSerializer(serializers.ModelSerializer):

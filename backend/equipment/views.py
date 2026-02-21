@@ -15,12 +15,11 @@ from accounts.mixins import SiteScopedMixin
 
 class EquipmentViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des équipements
-    
+
     Permissions:
     - ADMIN: CRUD complet
     - SITE_MANAGER: CRUD sur équipements de son site
-    - SUPERVISOR: CRUD sur équipements de ses sites
-    - OPERATOR: Mise à jour statut équipement
+    - TECHNICIEN (ingénieur terrain): Mise à jour statut équipement
     - Autres: Lecture seule
     Filtrage: Données filtrées par sites assignés
     """

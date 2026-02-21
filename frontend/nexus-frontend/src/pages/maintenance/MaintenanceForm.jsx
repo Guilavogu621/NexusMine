@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
+import DateRangeInput from '../../components/ui/DateRangeInput';
 
 const typeOptions = [
   { value: 'PREVENTIVE', label: 'Préventive' },
@@ -40,6 +41,8 @@ export default function MaintenanceForm() {
     hours_at_maintenance: '',
   });
 
+  const [dateRangeValid, setDateRangeValid] = useState(null);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -60,7 +63,16 @@ export default function MaintenanceForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setError(null);
+    // Validation finale des dates
+    if (formData.start_date && formData.end_date) {
+      const start = new Date(formData.start_date);
+      const end = new Date(formData.end_date);
+      if (start >= end) {
+        setError('La date de fin doit être après la date de début.');
+        setSaving(false);
+        return;
+      }
+    }
 
     try {
       const payload = {
@@ -73,6 +85,8 @@ export default function MaintenanceForm() {
       await api.post('/maintenance/', payload);
       navigate('/maintenance');
     } catch (err) {
+      console.error('Erreur sauvegarde:', err);
+      setError(err.response?.data?.detail || r) {
       console.error('Erreur sauvegarde:', err);
       setError('Impossible d\'enregistrer la maintenance');
     } finally {
@@ -165,40 +179,41 @@ export default function MaintenanceForm() {
               onChange={handleChange}
               required
               className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+        </div>
+
+        {/* Plage de dates avec validation */}
+        <div className="mt-6 border-t border-slate-200/60 pt-6">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Dates d'intervention</h3>
+          <DateRangeInput
+            startValue={formData.start_date}
+            endValue={formData.end_date}
+            onStartChange={(value) => setFormData({ ...formData, start_date: value })}
+            onEndChange={(value) => setFormData({ ...formData, end_date: value })}
+            startLabel="Date/heure de début"
+            endLabel="Date/heure de fin"
+            startName="start_date"
+            endName="end_date"
+            type="datetime-local"
+            showDuration={true}
+            onValidationChange={(validation) => setDateRangeValid(validation.isValid)}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div>
-            <label className="block text-base font-semibold text-slate-700">Heures compteur</label>
+            <label className="block text-base font-semibold text-slate-700">Coût (GNF)</label>
             <input
               type="number"
               step="0.01"
-              name="hours_at_maintenance"
-              value={formData.hours_at_maintenance}
+              name="cost"
+              value={formData.cost}
               onChange={handleChange}
               className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
             />
           </div>
-          <div>
-            <label className="block text-base font-semibold text-slate-700">Début</label>
-            <input
-              type="datetime-local"
-              name="start_date"
-              value={formData.start_date}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
-          <div>
-            <label className="block text-base font-semibold text-slate-700">Fin</label>
-            <input
-              type="datetime-local"
-              name="end_date"
-              value={formData.end_date}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
-          <div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 
             <label className="block text-base font-semibold text-slate-700">Coût (GNF)</label>
             <input
               type="number"

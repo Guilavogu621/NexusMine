@@ -1,9 +1,37 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowLeftIcon, 
+  ChartBarIcon, 
+  MapPinIcon, 
+  ExclamationTriangleIcon, 
+  CheckCircleIcon, 
+  AdjustmentsHorizontalIcon,
+  DocumentTextIcon,
+  ShieldExclamationIcon,
+  PresentationChartLineIcon
+} from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
+
+const typeLabels = {
+  PRODUCTION: 'Production',
+  EFFICIENCY: 'Efficacité',
+  SAFETY: 'Sécurité',
+  ENVIRONMENTAL: 'Environnement',
+  EQUIPMENT: 'Équipement',
+  FINANCIAL: 'Financier',
+};
+
+const typeEmojis = {
+  PRODUCTION: '⚙️',
+  EFFICIENCY: '⚡',
+  SAFETY: '🛡️',
+  ENVIRONMENTAL: '🌿',
+  EQUIPMENT: '🧰',
+  FINANCIAL: '💰',
+};
 
 export default function AnalyticsForm() {
   const { id } = useParams();
@@ -74,6 +102,8 @@ export default function AnalyticsForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (readOnly) return;
+    
     setError(null);
     setSaving(true);
 
@@ -101,221 +131,320 @@ export default function AnalyticsForm() {
           .join('\n');
         setError(errors);
       } else {
-        setError('Une erreur est survenue');
+        setError('Une erreur est survenue lors de l\'enregistrement.');
       }
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
+  const inputClasses = `w-full rounded-2xl py-4 px-5 bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-semibold text-slate-800 shadow-sm disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed`;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          to="/analytics"
-          className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-        >
-          <ArrowLeftIcon className="h-5 w-5 text-slate-500" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">
-            {isEdit ? 'Modifier l\'indicateur' : 'Nouvel indicateur'}
-          </h1>
-          <p className="mt-1 text-base text-slate-500">
-            {isEdit ? 'Modifiez les informations de l\'indicateur' : 'Créez un nouvel indicateur de performance'}
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-100 relative pb-12">
+      {/* Background decoration */}
+      <div className="fixed inset-0 opacity-40 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_75%,rgba(99,102,241,0.05),transparent_50%)]"></div>
       </div>
 
-      <ReadOnlyBanner message={roleBanner} />
+      <div className="relative max-w-5xl mx-auto pt-8 px-4 sm:px-6">
+        
+        {/* Header Premium */}
+        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 rounded-3xl shadow-2xl overflow-hidden mb-8 animate-fadeInDown">
+          <div className="absolute inset-0 opacity-10">
+             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <pattern id="analyticsGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+                  <path d="M 8 0 L 0 0 0 8" fill="none" stroke="white" strokeWidth="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="100" height="100" fill="url(#analyticsGrid)" />
+            </svg>
+          </div>
+          
+          <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <Link to="/analytics" className="p-3 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-white/30 transition-all shadow-lg">
+                <ArrowLeftIcon className="h-6 w-6" />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-white tracking-tight font-outfit">
+                  {isEdit ? 'Édition de l\'indicateur' : 'Nouvel Indicateur'}
+                </h1>
+                <p className="text-indigo-100 font-medium opacity-90 mt-1">
+                  {isEdit ? 'Configuration des paramètres du KPI' : 'Créez un nouveau marqueur de performance'}
+                </p>
+              </div>
+            </div>
+            
+            <div className={`hidden md:flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 shadow-xl`}>
+              <span className="text-2xl">{typeEmojis[formData.indicator_type] || '📊'}</span>
+              <div className="text-left">
+                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest">Catégorie</p>
+                <p className="text-sm font-bold text-white uppercase">{typeLabels[formData.indicator_type] || 'Inconnu'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-base whitespace-pre-line">
-            {error}
+        {/* Read Only Banner */}
+        {roleBanner && (
+          <div className="mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+            <ReadOnlyBanner message={roleBanner} />
           </div>
         )}
 
-        <div className="space-y-6">
-          <div>
-            <label htmlFor="name" className="block text-base font-semibold text-slate-700">
-              Nom de l'indicateur *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-              placeholder="Ex: Taux de production journalier"
-            />
+        {loading ? (
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl p-20 shadow-xl flex flex-col items-center justify-center">
+             <div className="relative w-16 h-16">
+                <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent"></div>
+             </div>
+             <p className="mt-6 text-slate-500 font-bold animate-pulse">Chargement de l'indicateur...</p>
           </div>
+        ) : (
+          <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="space-y-6">
+            {error && (
+              <div className="animate-fadeInUp bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-2xl shadow-lg flex items-start gap-3">
+                <ExclamationTriangleIcon className="h-6 w-6 text-red-500 shrink-0 mt-0.5" />
+                <p className="font-bold whitespace-pre-line">{error}</p>
+              </div>
+            )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="indicator_type" className="block text-base font-semibold text-slate-700">
-                Type d'indicateur *
-              </label>
-              <select
-                id="indicator_type"
-                name="indicator_type"
-                required
-                value={formData.indicator_type}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600"
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Colonne Principale : Définition & Description */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-2 bg-indigo-100 rounded-lg shadow-sm">
+                      <ChartBarIcon className="h-6 w-6 text-indigo-600" />
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 font-outfit">Identité visuelle & Classification</h2>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Nom de l'indicateur (KPI) *</label>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        disabled={readOnly}
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Ex: Taux de disponibilité des pelles..."
+                        className={inputClasses}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700 ml-1">Type d'indicateur *</label>
+                        <select
+                          name="indicator_type"
+                          required
+                          disabled={readOnly}
+                          value={formData.indicator_type}
+                          onChange={handleChange}
+                          className={`${inputClasses} appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1.5em] bg-[right_1rem_center] bg-no-repeat`}
+                        >
+                          {Object.entries(typeLabels).map(([val, label]) => (
+                            <option key={val} value={val}>{typeEmojis[val]} {label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700 ml-1">Site rattaché</label>
+                        <select
+                          name="site"
+                          disabled={readOnly}
+                          value={formData.site}
+                          onChange={handleChange}
+                          className={`${inputClasses} appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1.5em] bg-[right_1rem_center] bg-no-repeat`}
+                        >
+                          <option value="">📍 Applicatif global (Tous les sites)</option>
+                          {sites.map((site) => (
+                            <option key={site.id} value={site.id}>📍 {site.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-slate-100 rounded-lg shadow-sm">
+                      <DocumentTextIcon className="h-6 w-6 text-slate-600" />
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 font-outfit">Contexte & Description</h2>
+                  </div>
+                  <div className="space-y-2">
+                    <textarea
+                      name="description"
+                      rows={4}
+                      disabled={readOnly}
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Détaillez la méthode de calcul, la source des données ou le contexte de cet indicateur..."
+                      className={`${inputClasses} resize-none font-medium`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Colonne Secondaire : Chiffres & Seuils */}
+              <div className="space-y-6">
+                
+                {/* Block Métriques */}
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-emerald-100 rounded-lg shadow-sm">
+                      <PresentationChartLineIcon className="h-6 w-6 text-emerald-600" />
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-900 font-outfit">Métriques</h2>
+                  </div>
+
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Unité de mesure *</label>
+                      <input
+                        type="text"
+                        name="unit"
+                        required
+                        disabled={readOnly}
+                        value={formData.unit}
+                        onChange={handleChange}
+                        placeholder="Ex: %, tonnes, heures..."
+                        className={inputClasses}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Valeur Actuelle</label>
+                      <input
+                        type="number"
+                        name="calculated_value"
+                        step="0.01"
+                        disabled={readOnly}
+                        value={formData.calculated_value}
+                        onChange={handleChange}
+                        placeholder="0.00"
+                        className={`${inputClasses} text-2xl font-bold text-slate-900`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Objectif Cible</label>
+                      <input
+                        type="number"
+                        name="target_value"
+                        step="0.01"
+                        disabled={readOnly}
+                        value={formData.target_value}
+                        onChange={handleChange}
+                        placeholder="0.00"
+                        className={`${inputClasses} text-xl text-emerald-600 font-bold border-emerald-200 bg-emerald-50/30 focus:border-emerald-500`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Block Seuils */}
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-orange-100 rounded-lg shadow-sm">
+                      <ShieldExclamationIcon className="h-6 w-6 text-orange-600" />
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-900 font-outfit">Alertes & Seuils</h2>
+                  </div>
+
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-orange-400 uppercase tracking-widest ml-1">Seuil d'Avertissement (Warning)</label>
+                      <input
+                        type="number"
+                        name="threshold_warning"
+                        step="0.01"
+                        disabled={readOnly}
+                        value={formData.threshold_warning}
+                        onChange={handleChange}
+                        placeholder="0.00"
+                        className={`${inputClasses} border-orange-200 focus:border-orange-500 focus:ring-orange-500/10`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-red-400 uppercase tracking-widest ml-1">Seuil Critique</label>
+                      <input
+                        type="number"
+                        name="threshold_critical"
+                        step="0.01"
+                        disabled={readOnly}
+                        value={formData.threshold_critical}
+                        onChange={handleChange}
+                        placeholder="0.00"
+                        className={`${inputClasses} border-red-200 focus:border-red-500 focus:ring-red-500/10`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Barre d'actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-8 animate-fadeInUp" style={{ animationDelay: '0.5s' }}>
+              <Link
+                to="/analytics"
+                className="w-full sm:w-auto px-8 py-4 text-slate-500 font-bold hover:text-slate-800 transition-colors"
               >
-                <option value="PRODUCTION">Production</option>
-                <option value="EFFICIENCY">Efficacité</option>
-                <option value="SAFETY">Sécurité</option>
-                <option value="ENVIRONMENTAL">Environnement</option>
-                <option value="EQUIPMENT">Équipement</option>
-                <option value="FINANCIAL">Financier</option>
-              </select>
+                {canSubmit ? 'Annuler' : '← Retour aux indicateurs'}
+              </Link>
+              
+              {canSubmit && (
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-2xl font-bold shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
+                >
+                  {saving ? (
+                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <CheckCircleIcon className="h-6 w-6" />
+                  )}
+                  {isEdit ? 'Mettre à jour l\'indicateur' : 'Créer l\'indicateur'}
+                </button>
+              )}
             </div>
-            <div>
-              <label htmlFor="site" className="block text-base font-semibold text-slate-700">
-                Site concerné
-              </label>
-              <select
-                id="site"
-                name="site"
-                value={formData.site}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600"
-              >
-                <option value="">Tous les sites</option>
-                {sites.map((site) => (
-                  <option key={site.id} value={site.id}>{site.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+          </form>
+        )}
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="calculated_value" className="block text-base font-semibold text-slate-700">
-                Valeur actuelle
-              </label>
-              <input
-                type="number"
-                id="calculated_value"
-                name="calculated_value"
-                step="0.01"
-                value={formData.calculated_value}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label htmlFor="target_value" className="block text-base font-semibold text-slate-700">
-                Objectif
-              </label>
-              <input
-                type="number"
-                id="target_value"
-                name="target_value"
-                step="0.01"
-                value={formData.target_value}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label htmlFor="unit" className="block text-base font-semibold text-slate-700">
-                Unité *
-              </label>
-              <input
-                type="text"
-                id="unit"
-                name="unit"
-                required
-                value={formData.unit}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-                placeholder="Ex: tonnes, %, heures"
-              />
-            </div>
-          </div>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInDown { animation: fadeInDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-fill-mode: both; }
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="threshold_warning" className="block text-base font-semibold text-slate-700">
-                Seuil d'alerte (warning)
-              </label>
-              <input
-                type="number"
-                id="threshold_warning"
-                name="threshold_warning"
-                step="0.01"
-                value={formData.threshold_warning}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-                placeholder="Seuil d'avertissement"
-              />
-            </div>
-            <div>
-              <label htmlFor="threshold_critical" className="block text-base font-semibold text-slate-700">
-                Seuil critique
-              </label>
-              <input
-                type="number"
-                id="threshold_critical"
-                name="threshold_critical"
-                step="0.01"
-                value={formData.threshold_critical}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-                placeholder="Seuil critique"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="description" className="block text-base font-semibold text-slate-700">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
-              className="mt-2 block w-full rounded-lg border-0 py-3 px-3 text-base text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600"
-              placeholder="Description de l'indicateur..."
-            />
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-end gap-3">
-          <Link
-            to="/analytics"
-            className="px-4 py-2.5 text-base font-medium text-slate-600 hover:text-slate-800 transition-colors"
-          >
-            {canSubmit ? 'Annuler' : '← Retour'}
-          </Link>
-          {canSubmit && (
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {saving ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer l\'indicateur')}
-            </button>
-          )}
-        </div>
-      </form>
+        /* Disable arrow spinners on number inputs for a cleaner look */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
     </div>
   );
 }

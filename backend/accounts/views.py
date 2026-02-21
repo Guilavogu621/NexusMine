@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -10,11 +11,12 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    pagination_class = PageNumberPagination
     """ViewSet pour la gestion des utilisateurs"""
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     def get_queryset(self):
-        qs = User.objects.all().order_by('-date_joined')
+        qs = User.objects.all().order_by('-created_at')
         
         # Filtrage par recherche texte (nom, prénom, email)
         search = self.request.query_params.get('search', '').strip()

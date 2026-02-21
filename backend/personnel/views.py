@@ -12,11 +12,11 @@ from accounts.mixins import SiteScopedMixin
 
 class PersonnelViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion du personnel
-    
+
     Permissions:
     - ADMIN: CRUD complet + approbation/refus
     - SITE_MANAGER: CRUD sur le personnel de son site
-    - SUPERVISOR: CRUD sur le personnel de ses sites assignés
+    - TECHNICIEN (ingénieur terrain): CRUD sur le personnel de ses sites assignés
     - Autres: Lecture seule
     Filtrage: Données filtrées par sites assignés de l'utilisateur
     """

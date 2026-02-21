@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Alert(models.Model):
@@ -24,6 +26,16 @@ class Alert(models.Model):
         IN_PROGRESS = 'IN_PROGRESS', 'En cours de traitement'
         RESOLVED = 'RESOLVED', 'Résolue'
         ARCHIVED = 'ARCHIVED', 'Archivée'
+        DISMISSED = 'DISMISSED', 'Rejetée'
+        SNOOZED = 'SNOOZED', 'En attente'
+    
+    class Category(models.TextChoices):
+        OPERATIONAL = 'OPERATIONAL', 'Opérationnel'
+        SAFETY = 'SAFETY', 'Sécurité'
+        MAINTENANCE = 'MAINTENANCE', 'Maintenance'
+        ENVIRONMENTAL = 'ENVIRONMENTAL', 'Environnemental'
+        TECHNICAL = 'TECHNICAL', 'Technique'
+        ADMINISTRATIVE = 'ADMINISTRATIVE', 'Administratif'
     
     class Severity(models.TextChoices):
         LOW = 'LOW', 'Faible'
@@ -37,17 +49,65 @@ class Alert(models.Model):
         default=AlertType.SYSTEM,
         verbose_name="Type d'alerte"
     )
+    category = models.CharField(
+        max_length=20,
+        choices=Category.choices,
+        default=Category.TECHNICAL,
+        verbose_name="Catégorie",
+        db_index=True
+    )
     severity = models.CharField(
         max_length=20,
         choices=Severity.choices,
         default=Severity.MEDIUM,
-        verbose_name="Gravité"
+        verbose_name="Gravité",
+        db_index=True
     )
     status = models.CharField(
         max_length=20,
         choices=AlertStatus.choices,
         default=AlertStatus.NEW,
-        verbose_name="Statut"
+        verbose_name="Statut",
+        db_index=True
+    )
+    priority_order = models.IntegerField(
+        default=0,
+        db_index=True,
+        verbose_name="Ordre de priorité",
+        help_text="Plus élevé = priorité plus élevée"
+    )
+    is_dismissed = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Rejetée"
+    )
+    dismissed_at = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name="Date de rejet"
+    )
+    dismissed_by = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='dismissed_alerts',
+        verbose_name="Rejetée par"
+    )
+    expires_at = models.DateTimeField(
+        null=True, blank=True,
+        db_index=True,
+        verbose_name="Date d'expiration"
+    )
+    snoozed_until = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name="En attente jusqu'à"
+    )
+    # Déduplication
+    dedupe_key = models.CharField(
+        max_length=255,
+        null=True, blank=True,
+        db_index=True,
+        verbose_name="Clé de déduplication",
+        help_text="Utilisée pour regrouper les alertes identiques"
     )
     title = models.CharField(max_length=200, verbose_name="Titre")
     message = models.TextField(verbose_name="Message")
@@ -227,3 +287,106 @@ class AlertRule(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.get_alert_type_display()})"
+
+
+class UserNotificationPreferences(models.Model):
+    """
+    Préférences de notifications par utilisateur
+    """
+    user = models.OneToOneField(
+        'accounts.User',
+        on_delete=models.CASCADE,
+        related_name='notification_preferences',
+        verbose_name="Utilisateur"
+    )
+    
+    # Filtres actifs
+    enabled_categories = models.JSONField(
+        default=list,
+        verbose_name="Catégories activées",
+        help_text="['OPERATIONAL', 'SAFETY', ...]"
+    )
+    enabled_severity_levels = models.JSONField(
+        default=lambda: ["HIGH", "CRITICAL"],
+        verbose_name="Niveaux de gravité",
+        help_text="['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']"
+    )
+    enabled_alert_types = models.JSONField(
+        default=list,
+        verbose_name="Types d'alertes",
+        help_text="['THRESHOLD_EXCEEDED', 'SAFETY', ...]"
+    )
+    
+    # Throttling
+    max_alerts_per_hour = models.IntegerField(
+        default=100,
+        verbose_name="Max alertes par heure",
+        help_text="0 = pas de limite"
+    )
+    max_alerts_per_day = models.IntegerField(
+        default=500,
+        verbose_name="Max alertes par jour",
+        help_text="0 = pas de limite"
+    )
+    
+    # Groupement
+    group_by_category = models.BooleanField(
+        default=True,
+        verbose_name="Grouper par catégorie"
+    )
+    group_by_site = models.BooleanField(
+        default=True,
+        verbose_name="Grouper par site"
+    )
+    
+    # Notifications
+    email_on_critical = models.BooleanField(
+        default=True,
+        verbose_name="Email sur critique"
+    )
+    push_notifications = models.BooleanField(
+        default=True,
+        verbose_name="Notifications push"
+    )
+    sms_on_critical = models.BooleanField(
+        default=False,
+        verbose_name="SMS sur critique"
+    )
+    
+    # Options de snooze par défaut
+    default_snooze_minutes = models.IntegerField(
+        default=30,
+        verbose_name="Durée de snooze par défaut (min)"
+    )
+    
+    # Paramètres d'affichage
+    alerts_per_page = models.IntegerField(
+        default=20,
+        verbose_name="Alertes par page"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Préférences de notification"
+        verbose_name_plural = "Préférences de notification"
+    
+    def __str__(self):
+        return f"Préférences de {self.user.email}"
+    
+    def should_receive_alert(self, alert):
+        """Vérifier si l'utilisateur doit recevoir cette alerte"""
+        # Vérifier catégorie
+        if self.enabled_categories and alert.category not in self.enabled_categories:
+            return False
+        
+        # Vérifier gravité
+        if alert.severity not in self.enabled_severity_levels:
+            return False
+        
+        # Vérifier type
+        if self.enabled_alert_types and alert.alert_type not in self.enabled_alert_types:
+            return False
+        
+        return True

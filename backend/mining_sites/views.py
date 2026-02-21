@@ -14,11 +14,11 @@ User = get_user_model()
 
 class MiningSiteViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des sites miniers
-    
+
     Permissions:
     - ADMIN: CRUD complet
     - SITE_MANAGER: Peut modifier son site assigné (autorité locale)
-    - SUPERVISOR: Lecture + mise à jour limitée
+    - TECHNICIEN (ingénieur terrain): Lecture + mise à jour limitée
     - OWNER: Lecture multi-sites
     - Autres: Lecture des sites assignés uniquement
     """

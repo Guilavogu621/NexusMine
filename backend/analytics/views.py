@@ -117,7 +117,7 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
             .values('month')
             .annotate(total=Sum('quantity_extracted'))
         )
-        monthly_map = {m['month'].date(): (m['total'] or 0) for m in monthly}
+        monthly_map = {m['month']: (m['total'] or 0) for m in monthly}
 
         production_data = []
         for year, month in months:

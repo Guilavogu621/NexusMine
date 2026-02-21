@@ -17,14 +17,14 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   CpuChipIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 import useAuthStore from '../../stores/authStore';
 
 const roleLabels = {
   ADMIN: 'Administrateur',
-  SITE_MANAGER: 'Responsable de site',
-  SUPERVISOR: 'Gestionnaire de site',
-  OPERATOR: 'Technicien / Opérateur',
+  SITE_MANAGER: 'Chef de site / Gestionnaire',
+  TECHNICIEN: 'Technicien / Ingénieur terrain',
   ANALYST: 'Analyste',
   MMG: 'Ministère des Mines',
 };
@@ -35,12 +35,12 @@ const navigationGroups = [
     name: 'Dashboard',
     icon: HomeIcon,
     href: '/',
-    roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'],
   },
   {
     name: 'Sites & Zones',
     icon: MapPinIcon,
-    roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'],
     children: [
       { name: 'Sites Miniers', href: '/sites', icon: MapPinIcon },
       { name: 'Carte Guinée', href: '/sites/map', icon: GlobeAltIcon },
@@ -50,24 +50,24 @@ const navigationGroups = [
     name: 'Personnel',
     icon: UsersIcon,
     href: '/personnel',
-    roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'],
   },
   {
     name: 'Équipements',
     icon: WrenchScrewdriverIcon,
     href: '/equipment',
-    roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'],
   },
   {
     name: 'Opérations',
     icon: ClipboardDocumentListIcon,
     href: '/operations',
-    roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'],
   },
   {
     name: 'HSE & Environnement',
     icon: CloudIcon,
-    roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'],
     children: [
       { name: 'Incidents', href: '/incidents', icon: ExclamationTriangleIcon },
       { name: 'Environnement', href: '/environment', icon: CloudIcon },
@@ -78,8 +78,8 @@ const navigationGroups = [
     icon: ChartBarIcon,
     roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
     children: [
-      { name: 'Indicateurs', href: '/analytics', icon: ChartBarIcon, roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'] },
-      { name: 'Intelligence IA', href: '/intelligence', icon: CpuChipIcon, roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'ANALYST', 'MMG'] },
+      { name: 'Indicateurs', href: '/analytics', icon: ChartBarIcon, roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'] },
+      { name: 'Intelligence IA', href: '/intelligence', icon: CpuChipIcon, roles: ['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST', 'MMG'] },
       { name: 'Alertes', href: '/alerts', icon: BellIcon },
     ],
   },
@@ -100,6 +100,12 @@ const navigationGroups = [
     icon: Cog6ToothIcon,
     href: '/users',
     roles: ['ADMIN'],
+  },
+  {
+    name: 'Audit & Conformité',
+    icon: ShieldCheckIcon,
+    href: '/audit',
+    roles: ['MMG', 'ADMIN'],
   },
 ];
 

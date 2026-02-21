@@ -1,8 +1,44 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeftIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import {
+  ArrowLeftIcon,
+  UserIcon,
+  EnvelopeIcon,
+  ShieldCheckIcon,
+  KeyIcon,
+  MapPinIcon,
+  CheckCircleIcon,
+  SparklesIcon,
+  UserCircleIcon,
+  IdentificationIcon,
+  LockClosedIcon,
+} from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+
+const roleLabels = {
+  ADMIN: 'Administrateur',
+  SITE_MANAGER: 'Chef de site',
+  TECHNICIEN: 'Technicien',
+  ANALYST: 'Analyste',
+  MMG: 'Autorité MMG',
+};
+
+const roleEmojis = {
+  ADMIN: '👑',
+  SITE_MANAGER: '🏗️',
+  TECHNICIEN: '⚙️',
+  ANALYST: '📊',
+  MMG: '🏛️',
+};
+
+const roleConfig = {
+  ADMIN: { bg: 'bg-red-100/80', text: 'text-red-700', border: 'border-red-200', gradient: 'from-red-500 to-red-600' },
+  SITE_MANAGER: { bg: 'bg-sky-100/80', text: 'text-sky-700', border: 'border-sky-200', gradient: 'from-sky-500 to-sky-600' },
+  TECHNICIEN: { bg: 'bg-indigo-100/80', text: 'text-indigo-700', border: 'border-indigo-200', gradient: 'from-indigo-500 to-indigo-600' },
+  ANALYST: { bg: 'bg-emerald-100/80', text: 'text-emerald-700', border: 'border-emerald-200', gradient: 'from-emerald-500 to-emerald-600' },
+  MMG: { bg: 'bg-amber-100/80', text: 'text-amber-700', border: 'border-amber-200', gradient: 'from-amber-500 to-amber-600' },
+};
 
 export default function UsersForm() {
   const { id } = useParams();
@@ -19,7 +55,7 @@ export default function UsersForm() {
     email: '',
     first_name: '',
     last_name: '',
-    role: 'OPERATOR',
+    role: 'TECHNICIEN',
     is_active: true,
     password: '',
     password_confirm: '',
@@ -28,18 +64,14 @@ export default function UsersForm() {
 
   useEffect(() => {
     fetchSites();
-    if (isEdit) {
-      fetchData();
-    }
+    if (isEdit) fetchData();
   }, [id]);
 
   const fetchSites = async () => {
     try {
       const response = await api.get('/sites/');
       setAvailableSites(response.data.results || response.data);
-    } catch (err) {
-      console.error('Erreur chargement sites:', err);
-    }
+    } catch (err) { console.error('Erreur sites:', err); }
   };
 
   const fetchData = async () => {
@@ -47,323 +79,331 @@ export default function UsersForm() {
       setLoading(true);
       const response = await api.get(`/users/${id}/`);
       setFormData({
-        email: response.data.email || '',
-        first_name: response.data.first_name || '',
-        last_name: response.data.last_name || '',
-        role: response.data.role || 'OPERATOR',
-        is_active: response.data.is_active ?? true,
+        ...response.data,
         password: '',
         password_confirm: '',
         assigned_sites: response.data.assigned_sites || [],
       });
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-      setError('Impossible de charger les données');
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { setError('Impossible de charger les données'); }
+    finally { setLoading(false); }
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
-    // Validation
-    if (!isEdit && !formData.password) {
-      setError('Le mot de passe est requis pour un nouvel utilisateur');
-      return;
-    }
-
-    if (formData.password && formData.password !== formData.password_confirm) {
-      setError('Les mots de passe ne correspondent pas');
-      return;
-    }
+    if (!isEdit && !formData.password) return setError('Mot de passe requis');
+    if (formData.password !== formData.password_confirm) return setError('Les mots de passe ne correspondent pas');
 
     setSaving(true);
-
     try {
-      const dataToSend = {
-        email: formData.email,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        role: formData.role,
-        is_active: formData.is_active,
-        assigned_sites: formData.assigned_sites,
-      };
+      const dataToSend = { ...formData };
+      if (!formData.password) { delete dataToSend.password; delete dataToSend.password_confirm; }
+      if (formData.role === 'ADMIN') dataToSend.assigned_sites = [];
 
-      // Only include password if provided
-      if (formData.password) {
-        dataToSend.password = formData.password;
-        dataToSend.password_confirm = formData.password_confirm;
-      }
-
-      // ADMIN n'a pas besoin de sites assignés
-      if (formData.role === 'ADMIN') {
-        dataToSend.assigned_sites = [];
-      }
-
-      if (isEdit) {
-        await api.put(`/users/${id}/`, dataToSend);
-      } else {
-        await api.post('/users/', dataToSend);
-      }
+      isEdit ? await api.put(`/users/${id}/`, dataToSend) : await api.post('/users/', dataToSend);
       navigate('/users');
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-      if (error.response?.data) {
-        const errors = Object.entries(error.response.data)
-          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-          .join('\n');
-        setError(errors);
-      } else {
-        setError('Une erreur est survenue');
-      }
-    } finally {
-      setSaving(false);
-    }
+    } catch (err) {
+      setError(err.response?.data ? JSON.stringify(err.response.data) : 'Erreur lors de la sauvegarde');
+    } finally { setSaving(false); }
   };
 
-  if (!isAdmin()) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-red-500">Accès refusé. Réservé aux administrateurs.</p>
-      </div>
-    );
-  }
+  if (!isAdmin()) return <div className="p-10 text-center font-bold text-red-600">Accès refusé.</div>;
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
+  const rc = roleConfig[formData.role] || roleConfig.TECHNICIEN;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          to="/users"
-          className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-        >
-          <ArrowLeftIcon className="h-5 w-5 text-slate-500" />
-        </Link>
-        <div>
-          <h1 className="text-xl font-semibold text-slate-800">
-            {isEdit ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'}
-          </h1>
-          <p className="mt-1 text-base text-slate-500">
-            {isEdit ? 'Modifiez les informations' : 'Créez un nouveau compte utilisateur'}
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative pb-12">
+      {/* Background decoration */}
+      <div className="fixed inset-0 opacity-40 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(99,102,241,0.05),transparent_50%)]"></div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-6">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-base whitespace-pre-line">
-            {error}
+      <div className="relative max-w-4xl mx-auto pt-8 px-4 sm:px-6">
+        {/* Header Premium */}
+        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden mb-8 animate-fadeInDown">
+          <div className="absolute inset-0 opacity-10">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <pattern id="formGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+              <rect width="100" height="100" fill="url(#formGrid)" />
+            </svg>
           </div>
-        )}
-
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="first_name" className="block text-base font-semibold text-slate-600">
-                Prénom *
-              </label>
-              <input
-                type="text"
-                id="first_name"
-                name="first_name"
-                required
-                value={formData.first_name}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-3 text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-base"
-                placeholder="Prénom"
-              />
-            </div>
-            <div>
-              <label htmlFor="last_name" className="block text-base font-semibold text-slate-600">
-                Nom *
-              </label>
-              <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                required
-                value={formData.last_name}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-3 text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-base"
-                placeholder="Nom"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-base font-semibold text-slate-600">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-2 block w-full rounded-xl border-0 py-3 px-3 text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-base"
-              placeholder="email@exemple.com"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="role" className="block text-base font-semibold text-slate-600">
-                Rôle *
-              </label>
-              <select
-                id="role"
-                name="role"
-                required
-                value={formData.role}
-                onChange={handleChange}
-                className="mt-2 block w-full rounded-xl border-0 py-3 px-3 text-slate-800 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-500 text-base"
-              >
-                <option value="ADMIN">Administrateur de la plateforme</option>
-                <option value="SITE_MANAGER">Responsable de site minier</option>
-                <option value="SUPERVISOR">Gestionnaire de Site</option>
-                <option value="OPERATOR">Technicien/Opérateur</option>
-                <option value="ANALYST">Analyste</option>
-                <option value="MMG">Autorité (MMG)</option>
-              </select>
-            </div>
-            <div className="flex items-center">
-              <label className="flex items-center gap-3 mt-8">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  checked={formData.is_active}
-                  onChange={handleChange}
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="text-base font-semibold text-slate-600">Compte actif</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Sites assignés — visible uniquement si le rôle N'EST PAS ADMIN */}
-          {formData.role !== 'ADMIN' && (
-            <div className="border-t border-slate-200/60 pt-6">
-              <div className="flex items-center gap-2 mb-1">
-                <MapPinIcon className="h-4 w-4 text-slate-500" />
-                <h3 className="text-base font-semibold text-slate-800">Sites assignés</h3>
+          
+          <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <Link to="/users" className="p-3 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-white/30 transition-all">
+                <ArrowLeftIcon className="h-6 w-6" />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold text-white tracking-tight">
+                  {isEdit ? 'Modifier le profil' : 'Nouvel utilisateur'}
+                </h1>
+                <p className="text-blue-100 font-medium">
+                  {isEdit ? `ID: ${id}` : 'Configuration des accès de la plateforme'}
+                </p>
               </div>
-              <p className="text-sm text-slate-500 mb-4">
-                L'utilisateur ne verra que les données des sites sélectionnés ci-dessous.
-                {formData.assigned_sites.length === 0 && (
-                  <span className="text-amber-600 font-medium"> ⚠ Aucun site = aucun accès aux données.</span>
-                )}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto p-1">
-                {availableSites.map((site) => (
-                  <label
-                    key={site.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-150 ${
-                      formData.assigned_sites.includes(site.id)
-                        ? 'border-indigo-300 bg-indigo-50 ring-1 ring-indigo-200'
-                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
+            </div>
+            
+            {isEdit && (
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
+                <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${rc.gradient} flex items-center justify-center text-white font-bold shadow-lg`}>
+                  {formData.first_name?.[0]}{formData.last_name?.[0]}
+                </div>
+                <div className="text-left">
+                  <p className="text-xs font-bold text-blue-100 uppercase tracking-widest">Utilisateur</p>
+                  <p className="text-sm font-bold text-white uppercase">{formData.first_name} {formData.last_name}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {loading ? (
+           <div className="bg-white/80 backdrop-blur-md rounded-3xl p-20 shadow-xl flex flex-col items-center justify-center">
+             <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+             <p className="mt-4 text-slate-500 font-bold">Chargement du formulaire...</p>
+           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="animate-fadeInUp bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3">
+                <XCircleIcon className="h-6 w-6 flex-shrink-0" />
+                <p className="font-medium">{error}</p>
+              </div>
+            )}
+
+            {/* Section: Identité */}
+            <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <UserCircleIcon className="h-6 w-6 text-indigo-600" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 font-outfit">Informations personnelles</h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">Prénom *</label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    required
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    placeholder="Ex: Jean"
+                    className="w-full rounded-2xl py-3 px-4 bg-white/50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">Nom *</label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    required
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    placeholder="Ex: Dupont"
+                    className="w-full rounded-2xl py-3 px-4 bg-white/50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium"
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">Adresse Email *</label>
+                  <div className="relative">
+                    <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                     <input
-                      type="checkbox"
-                      checked={formData.assigned_sites.includes(site.id)}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          assigned_sites: e.target.checked
-                            ? [...prev.assigned_sites, site.id]
-                            : prev.assigned_sites.filter((s) => s !== site.id),
-                        }));
-                      }}
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      type="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="email@entreprise.com"
+                      className="w-full rounded-2xl py-3 pl-12 pr-4 bg-white/50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium"
                     />
-                    <div className="min-w-0">
-                      <p className="text-base font-semibold text-slate-700 truncate">{site.name}</p>
-                      {site.code && (
-                        <p className="text-sm text-slate-400">{site.code}</p>
-                      )}
-                    </div>
-                  </label>
-                ))}
+                  </div>
+                </div>
               </div>
-              {availableSites.length === 0 && (
-                <p className="text-base text-slate-400 italic">Aucun site disponible. Créez d'abord un site minier.</p>
+            </div>
+
+            {/* Section: Rôle & Statut */}
+            <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-emerald-100 rounded-lg">
+                  <ShieldCheckIcon className="h-6 w-6 text-emerald-600" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 font-outfit">Habilitations & Accès</h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">Rôle plateforme *</label>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl py-3 px-4 bg-white/50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-bold appearance-none"
+                  >
+                    {Object.entries(roleLabels).map(([v, l]) => (
+                      <option key={v} value={v}>{roleEmojis[v]} {l}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <label className="relative flex items-center gap-4 cursor-pointer group mt-6 md:mt-0">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        name="is_active"
+                        checked={formData.is_active}
+                        onChange={handleChange}
+                        className="sr-only peer"
+                      />
+                      <div className="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+                    </div>
+                    <span className="text-base font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                      Compte actif
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Sites Assignés */}
+              {formData.role !== 'ADMIN' && (
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPinIcon className="h-5 w-5 text-slate-400" />
+                    <h3 className="font-bold text-slate-800">Périmètre d'intervention (Sites)</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-52 overflow-y-auto p-1 custom-scrollbar">
+                    {availableSites.map(site => (
+                      <label
+                        key={site.id}
+                        className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                          formData.assigned_sites.includes(site.id)
+                            ? 'border-indigo-500 bg-indigo-50 shadow-md'
+                            : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.assigned_sites.includes(site.id)}
+                          onChange={(e) => {
+                            const sites = e.target.checked 
+                              ? [...formData.assigned_sites, site.id]
+                              : formData.assigned_sites.filter(s => s !== site.id);
+                            setFormData(prev => ({ ...prev, assigned_sites: sites }));
+                          }}
+                          className="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-800 truncate">{site.name}</p>
+                          <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{site.code || 'SITE'}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-          )}
 
-          <div className="border-t border-slate-200/60 pt-6">
-            <h3 className="text-base font-semibold text-slate-800 mb-4">
-              {isEdit ? 'Modifier le mot de passe (optionnel)' : 'Mot de passe'}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="password" className="block text-base font-semibold text-slate-600">
-                  Mot de passe {!isEdit && '*'}
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  required={!isEdit}
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-3 text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-base"
-                  placeholder="••••••••"
-                />
+            {/* Section: Sécurité */}
+            <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <KeyIcon className="h-6 w-6 text-amber-600" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 font-outfit">Sécurité du compte</h2>
               </div>
-              <div>
-                <label htmlFor="password_confirm" className="block text-base font-semibold text-slate-600">
-                  Confirmer {!isEdit && '*'}
-                </label>
-                <input
-                  type="password"
-                  id="password_confirm"
-                  name="password_confirm"
-                  required={!isEdit}
-                  value={formData.password_confirm}
-                  onChange={handleChange}
-                  className="mt-2 block w-full rounded-xl border-0 py-3 px-3 text-slate-800 ring-1 ring-inset ring-gray-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-base"
-                  placeholder="••••••••"
-                />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">
+                    {isEdit ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *'}
+                  </label>
+                  <div className="relative">
+                    <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                    <input
+                      type="password"
+                      name="password"
+                      required={!isEdit}
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="w-full rounded-2xl py-3 pl-12 pr-4 bg-white/50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 ml-1">Confirmer *</label>
+                  <input
+                    type="password"
+                    name="password_confirm"
+                    required={!isEdit}
+                    value={formData.password_confirm}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className="w-full rounded-2xl py-3 px-4 bg-white/50 border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-medium"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3">
-          <Link
-            to="/users"
-            className="px-4 py-3 text-base font-medium text-slate-600 hover:text-slate-800 transition-colors"
-          >
-            Annuler
-          </Link>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {saving ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer l\'utilisateur')}
-          </button>
-        </div>
-      </form>
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+              <Link
+                to="/users"
+                className="w-full sm:w-auto px-8 py-4 text-slate-600 font-bold hover:text-slate-900 transition-colors"
+              >
+                Annuler
+              </Link>
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-10 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:translate-y-0"
+              >
+                {saving ? (
+                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <CheckCircleIcon className="h-5 w-5" />
+                )}
+                {isEdit ? 'Enregistrer les modifications' : 'Créer l\'utilisateur'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInDown { animation: fadeInDown 0.7s ease-out forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; animation-fill-mode: both; }
+
+        select {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'%3E%3C/path%3E%3C/svg%3E");
+          background-position: right 1rem center;
+          background-repeat: no-repeat;
+          background-size: 1.5em 1.5em;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+      `}</style>
     </div>
   );
 }

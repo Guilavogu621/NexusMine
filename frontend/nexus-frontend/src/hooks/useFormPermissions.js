@@ -23,18 +23,18 @@ export default function useFormPermissions(module) {
   // ADMIN : accès total
   if (role === 'ADMIN') return full;
 
-  // SUPERVISOR (gestionnaire) : CRUD complet
-  if (role === 'SUPERVISOR') return full;
+  // SITE_MANAGER (gestionnaire) : CRUD complet
+  if (role === 'SITE_MANAGER') return full;
 
-  // SITE_MANAGER (propriétaire du site) : seulement opérations
+  // SITE_MANAGER (propriétaire du site) : CRUD personnel + opérations
   if (role === 'SITE_MANAGER') {
-    if (module === 'operations') return full;
+    if (module === 'operations' || module === 'personnel') return full;
     return {
       readOnly: true,
       canCreate: false,
       canEdit: false,
       canSubmit: false,
-      roleBanner: 'En tant que propriétaire du site, ce module est en lecture seule. Vous pouvez uniquement gérer les opérations.',
+      roleBanner: 'En tant que propriétaire du site, ce module est en lecture seule. Vous pouvez gérer les opérations et le personnel.',
     };
   }
 

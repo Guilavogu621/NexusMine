@@ -55,7 +55,7 @@ const statusConfig = {
 export default function ReportsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSupervisor, isSiteManager, isAnalyst } = useAuthStore();
+  const { isTechnicien, isSiteManager, isAnalyst } = useAuthStore();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -63,7 +63,7 @@ export default function ReportsDetail() {
   const [generatingExcel, setGeneratingExcel] = useState(false);
 
   // Générer PDF/Excel : ADMIN, SITE_MANAGER, SUPERVISOR, ANALYST
-  const canGenerate = isSupervisor() || isAnalyst();
+  const canGenerate = isTechnicien() || isAnalyst();
   // Modifier/Supprimer : ADMIN, SITE_MANAGER uniquement
   const canEditDelete = isSiteManager();
 

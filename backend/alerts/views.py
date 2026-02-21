@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -25,11 +25,11 @@ class AlertRuleViewSet(viewsets.ModelViewSet):
 
 class AlertViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des alertes
-    
+
     Permissions:
     - ADMIN: Configuration système
     - SITE_MANAGER: Déclenchement, clôture (autorité décisionnelle)
-    - SUPERVISOR: Gestion alertes de ses sites
+    - TECHNICIEN (ingénieur terrain): Lecture seule
     - Autres: Lecture seule
     Filtrage: Données filtrées par sites assignés
     """
@@ -59,8 +59,8 @@ class AlertViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def resolve(self, request, pk=None):
-        """Résoudre une alerte (ADMIN, SITE_MANAGER, SUPERVISOR uniquement)"""
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']:
+        """Résoudre une alerte (ADMIN, SITE_MANAGER uniquement)"""
+        if request.user.role not in ['ADMIN', 'SITE_MANAGER']:
             return Response(
                 {'error': 'Permission insuffisante pour résoudre cette alerte.'},
                 status=status.HTTP_403_FORBIDDEN

@@ -14,9 +14,9 @@ import {
   MapPinIcon,
   CalendarDaysIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon,
   XCircleIcon,
   WrenchIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -40,13 +40,6 @@ const statusDots = {
   MAINTENANCE: 'bg-amber-500',
   BREAKDOWN: 'bg-orange-500',
   RETIRED: 'bg-red-500',
-};
-
-const statusIcons = {
-  OPERATIONAL: CheckCircleIcon,
-  MAINTENANCE: WrenchIcon,
-  BREAKDOWN: CogIcon,
-  RETIRED: XCircleIcon,
 };
 
 const typeLabels = {
@@ -73,7 +66,6 @@ const typeEmojis = {
   OTHER: '🔧',
 };
 
-// Couleurs pour les types d'équipement
 const typeColors = {
   EXCAVATOR: 'from-amber-500 to-amber-600',
   TRUCK: 'from-blue-500 to-blue-600',
@@ -95,10 +87,11 @@ export default function EquipmentList() {
   const [filterType, setFilterType] = useState('');
   const [filterSite, setFilterSite] = useState('');
   const [viewMode, setViewMode] = useState('grid');
-  const { isSupervisor } = useAuthStore();
+  const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const navigate = useNavigate();
 
-  // Stats calculées
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+
   const stats = {
     total: equipment.length,
     operational: equipment.filter(e => e.status === 'OPERATIONAL').length,
@@ -135,422 +128,215 @@ export default function EquipmentList() {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet équipement ?')) {
-      return;
-    }
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet équipement ?')) return;
     try {
       await api.delete(`/equipment/${id}/`);
       fetchData();
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
       alert('Erreur lors de la suppression');
     }
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Background subtil */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-indigo-50/30"></div>
-      
-      <div className="space-y-6">
-        {/* Premium Header */}
-        <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200/60">
-          {/* Background decorations */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-tr from-blue-500/5 to-indigo-500/5 rounded-full translate-y-1/2 -translate-x-1/4"></div>
+    <div className="min-h-screen bg-slate-50/50 pb-12">
+      <div className="max-w-7xl mx-auto px-4 pt-8 space-y-6">
+        
+        {/* ── HEADER PREMIUM AZURE (Design Capture) ── */}
+        <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 shadow-xl animate-fadeInDown">
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           
-          <div className="relative p-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="relative p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm">
-                  <div className="absolute inset-0 rounded-2xl bg-white/20"></div>
-                  <WrenchScrewdriverIcon className="h-7 w-7 text-white relative" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-semibold text-slate-800">Équipements</h1>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-700">
-                      {equipment.length} unités
-                    </span>
-                  </div>
-                  <p className="mt-1 text-slate-500">Gérez les équipements de vos sites miniers</p>
-                </div>
+          <div className="relative p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-white/20 backdrop-blur-md rounded-[24px] shadow-lg">
+                <WrenchScrewdriverIcon className="h-8 w-8 text-white" />
               </div>
-              
-              <div className="flex items-center gap-3">
-                {/* View Toggle */}
-                <div className="flex items-center bg-slate-100 rounded-xl p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-600'}`}
-                  >
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-600'}`}
-                  >
-                    <ListBulletIcon className="h-5 w-5" />
-                  </button>
-                </div>
-                
-                {isSupervisor() && (
-                  <Link
-                    to="/equipment/new"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm"
-                  >
-                    <PlusIcon className="h-5 w-5" />
-                    Nouvel équipement
-                  </Link>
-                )}
+              <div>
+                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Gestion Parc Matériel</h1>
+                <p className="text-blue-100 font-medium opacity-90">Supervisez l'état et la disponibilité de vos actifs miniers</p>
               </div>
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
-              <div className="text-center p-3 rounded-xl bg-gray-50/50 hover:bg-slate-50 transition-colors">
-                <p className="text-xl font-semibold text-slate-800">{stats.total}</p>
-                <p className="text-base text-slate-500">Total</p>
-              </div>
-              <div className="text-center p-3 rounded-xl bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
-                <p className="text-xl font-semibold text-emerald-600">{stats.operational}</p>
-                <p className="text-base text-slate-500">Opérationnels</p>
-              </div>
-              <div className="text-center p-3 rounded-xl bg-amber-50/50 hover:bg-amber-50 transition-colors">
-                <p className="text-xl font-semibold text-amber-600">{stats.maintenance}</p>
-                <p className="text-base text-slate-500">Maintenance</p>
-              </div>
-              <div className="text-center p-3 rounded-xl bg-orange-50/50 hover:bg-orange-50 transition-colors">
-                <p className="text-xl font-semibold text-orange-600">{stats.breakdown}</p>
-                <p className="text-base text-slate-500">En panne</p>
-              </div>
+            <div className="flex items-center gap-3">
+               <div className="flex bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20">
+                  <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-white hover:bg-white/10'}`}>
+                    <Squares2X2Icon className="h-5 w-5" />
+                  </button>
+                  <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-white hover:bg-white/10'}`}>
+                    <ListBulletIcon className="h-5 w-5" />
+                  </button>
+               </div>
+               {canEdit && (
+                 <Link to="/equipment/new" className="px-6 py-3 bg-white text-blue-700 rounded-2xl font-black shadow-lg hover:scale-105 transition-all flex items-center gap-2">
+                   <PlusIcon className="h-5 w-5" /> Nouveau
+                 </Link>
+               )}
             </div>
+          </div>
+
+          {/* Quick Stats Overlay Header */}
+          <div className="relative px-8 pb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+             <QuickStat label="Total" value={stats.total} color="bg-white/10" />
+             <QuickStat label="Opérationnels" value={stats.operational} color="bg-emerald-500/20" dot="bg-emerald-400" />
+             <QuickStat label="Maintenance" value={stats.maintenance} color="bg-amber-500/20" dot="bg-amber-400" />
+             <QuickStat label="En Panne" value={stats.breakdown} color="bg-red-500/20" dot="bg-red-400" />
           </div>
         </div>
 
-        {/* Premium Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
+        {/* ── FILTRES STYLE CAPTURE ── */}
+        <div className="bg-[#f0f9ff] rounded-[32px] p-1 border border-blue-50 shadow-sm animate-fadeInUp">
+          <div className="bg-white rounded-[28px] p-4 flex flex-col lg:flex-row gap-4">
             <div className="relative flex-1">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
-              </div>
+              <MagnifyingGlassIcon className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher par nom, N° série..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
+                placeholder="Rechercher un équipement..."
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all outline-none font-medium"
               />
             </div>
-
-            {/* Site Filter */}
-            <div className="relative">
-              <select
-                value={filterSite}
-                onChange={(e) => setFilterSite(e.target.value)}
-                className="appearance-none w-full lg:w-44 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous les sites</option>
-                {sites.map((site) => (
-                  <option key={site.id} value={site.id}>{site.name}</option>
-                ))}
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Type Filter */}
-            <div className="relative">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="appearance-none w-full lg:w-44 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous types</option>
-                {Object.entries(typeLabels).map(([value, label]) => (
-                  <option key={value} value={value}>{typeEmojis[value]} {label}</option>
-                ))}
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Status Filter */}
-            <div className="relative">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="appearance-none w-full lg:w-44 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous statuts</option>
-                {Object.entries(statusLabels).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+            <div className="flex flex-wrap gap-3">
+              <FilterSelect value={filterSite} onChange={setFilterSite} options={sites.map(s => ({v: s.id, l: s.name}))} placeholder="Tous les sites" />
+              <FilterSelect value={filterType} onChange={setFilterType} options={Object.entries(typeLabels).map(([v,l]) => ({v, l: `${typeEmojis[v]} ${l}`}))} placeholder="Tous types" />
+              <FilterSelect value={filterStatus} onChange={setFilterStatus} options={Object.entries(statusLabels).map(([v,l]) => ({v, l}))} placeholder="Tous statuts" />
             </div>
           </div>
         </div>
 
-        {/* Content */}
+        {/* ── CONTENU ── */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200/60 p-5 animate-pulse">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-12 w-12 bg-gray-200 rounded-xl"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded w-1/2"></div>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-3 bg-slate-100 rounded"></div>
-                  <div className="h-3 bg-slate-100 rounded w-5/6"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div></div>
         ) : equipment.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-            <div className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl"></div>
-                <div className="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
-                  <WrenchScrewdriverIcon className="h-10 w-10 text-slate-400" />
-                </div>
-              </div>
-              <h3 className="mt-6 text-base font-semibold text-slate-800">Aucun équipement trouvé</h3>
-              <p className="mt-2 text-base text-slate-500 text-center max-w-sm">
-                Commencez par ajouter votre premier équipement.
-              </p>
-              {isSupervisor() && (
-                <Link
-                  to="/equipment/new"
-                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold rounded-xl shadow-sm"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                  Ajouter un équipement
-                </Link>
-              )}
-            </div>
+          <div className="text-center py-20 bg-white rounded-[32px] border border-blue-50">
+            <WrenchScrewdriverIcon className="h-16 w-16 mx-auto text-slate-300" />
+            <p className="mt-4 text-xl font-bold text-slate-800">Aucun équipement trouvé</p>
           </div>
         ) : viewMode === 'grid' ? (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {equipment.map((item) => {
-              const StatusIcon = statusIcons[item.status] || CogIcon;
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => navigate(`/equipment/${item.id}`)}
-                  className="group relative bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-md hover:border-indigo-200 transition-all duration-300 cursor-pointer"
-                >
-                  {/* Hover gradient */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/[0.02] group-hover:to-orange-500/[0.02] transition-all"></div>
-                  
-                  <div className="relative">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`relative p-3 rounded-xl bg-gradient-to-br ${typeColors[item.equipment_type] || 'from-gray-500 to-gray-600'} shadow-lg group-hover:scale-110 transition-transform`}>
-                          <WrenchScrewdriverIcon className="h-6 w-6 text-white" />
-                          <span className="absolute -bottom-1 -right-1 text-lg">
-                            {typeEmojis[item.equipment_type] || '🔧'}
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-800 group-hover:text-amber-600 transition-colors">
-                            {item.name}
-                          </h3>
-                          <p className="text-base text-slate-500 mt-0.5">
-                            {typeLabels[item.equipment_type] || item.equipment_type}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Status Badge */}
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${statusColors[item.status] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusDots[item.status] || 'bg-gray-500'}`}></span>
-                        {statusLabels[item.status] || item.status}
-                      </span>
-                    </div>
-
-                    {/* Details */}
-                    <div className="space-y-2 mb-4 pb-4 border-b border-slate-100">
-                      {item.serial_number && (
-                        <div className="flex items-center gap-2 text-base text-slate-500">
-                          <CogIcon className="h-4 w-4" />
-                          <span>N° {item.serial_number}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-base text-slate-500">
-                        <MapPinIcon className="h-4 w-4" />
-                        <span>{item.site_name || 'Non assigné'}</span>
-                      </div>
-                      {item.last_maintenance && (
-                        <div className="flex items-center gap-2 text-base text-slate-500">
-                          <CalendarDaysIcon className="h-4 w-4" />
-                          <span>Maintenance: {new Date(item.last_maintenance).toLocaleDateString('fr-FR')}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-between pt-1">
-                      <div className="flex items-center gap-2">
-                        <StatusIcon className={`h-5 w-5 ${item.status === 'OPERATIONAL' ? 'text-emerald-500' : item.status === 'RETIRED' ? 'text-red-500' : 'text-amber-500'}`} />
-                        <span className="text-sm text-slate-500">
-                          {item.status === 'OPERATIONAL' ? 'Prêt à l\'emploi' : 'Indisponible'}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/equipment/${item.id}`);
-                          }}
-                          className="p-2 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                          title="Voir"
-                        >
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                        {isSupervisor() && (
-                          <>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/equipment/${item.id}/edit`);
-                              }}
-                              className="p-2 rounded-lg text-indigo-500 hover:text-blue-700 hover:bg-indigo-50 transition-colors"
-                              title="Modifier"
-                            >
-                              <PencilSquareIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={(e) => handleDelete(item.id, e)}
-                              className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                              title="Supprimer"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeInUp">
+            {equipment.map((item) => (
+              <EquipmentCard key={item.id} item={item} navigate={navigate} canEdit={canEdit} onDelete={handleDelete} />
+            ))}
           </div>
         ) : (
-          /* List View */
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="bg-gray-50/80">
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Équipement
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Site
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Dernière maintenance
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {equipment.map((item) => (
-                    <tr 
-                      key={item.id} 
-                      onClick={() => navigate(`/equipment/${item.id}`)}
-                      className="hover:bg-indigo-50/30 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-4">
-                          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${typeColors[item.equipment_type] || 'from-gray-500 to-gray-600'} shadow-md`}>
-                            <WrenchScrewdriverIcon className="h-5 w-5 text-white" />
-                          </div>
-                          <div>
-                            <div className="font-medium text-slate-800">{item.name}</div>
-                            <div className="text-base text-slate-500">{item.serial_number}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-2 text-base text-slate-800">
-                          <span>{typeEmojis[item.equipment_type]}</span>
-                          {typeLabels[item.equipment_type] || item.equipment_type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-base text-slate-500">
-                          <MapPinIcon className="h-4 w-4" />
-                          {item.site_name || '—'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-slate-500">
-                        {item.last_maintenance ? new Date(item.last_maintenance).toLocaleDateString('fr-FR') : '—'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${statusColors[item.status] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${statusDots[item.status] || 'bg-gray-500'}`}></span>
-                          {statusLabels[item.status] || item.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/equipment/${item.id}`);
-                            }}
-                            className="p-2 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                            title="Voir"
-                          >
-                            <EyeIcon className="h-5 w-5" />
-                          </button>
-                          {isSupervisor() && (
-                            <>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/equipment/${item.id}/edit`);
-                                }}
-                                className="p-2 rounded-lg text-indigo-500 hover:text-blue-700 hover:bg-indigo-50 transition-colors"
-                                title="Modifier"
-                              >
-                                <PencilSquareIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={(e) => handleDelete(item.id, e)}
-                                className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                title="Supprimer"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
+          <div className="bg-[#f0f9ff] rounded-[32px] p-1 border border-blue-50 overflow-hidden animate-fadeInUp">
+             <div className="bg-white rounded-[28px] overflow-hidden">
+                <table className="min-w-full">
+                  <thead className="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Équipement</th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Site</th>
+                      <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Statut</th>
+                      <th className="px-6 py-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {equipment.map((item) => (
+                      <tr key={item.id} onClick={() => navigate(`/equipment/${item.id}`)} className="hover:bg-blue-50/50 transition-colors cursor-pointer group">
+                        <td className="px-6 py-4">
+                           <div className="flex items-center gap-4">
+                              <div className={`p-2 rounded-xl bg-gradient-to-br ${typeColors[item.equipment_type]} text-white text-lg shadow-sm`}>{typeEmojis[item.equipment_type]}</div>
+                              <div>
+                                <p className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{item.name}</p>
+                                <p className="text-xs text-slate-400 font-medium">S/N: {item.serial_number}</p>
+                              </div>
+                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-slate-600">{item.site_name || '—'}</td>
+                        <td className="px-6 py-4">
+                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusColors[item.status]}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${statusDots[item.status]}`}></span>
+                              {statusLabels[item.status]}
+                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                           <div className="flex justify-end gap-2">
+                             <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}/edit`); }} className="p-2 text-blue-500 hover:bg-blue-100 rounded-lg transition-all"><PencilSquareIcon className="h-5 w-5" /></button>
+                             <button onClick={(e) => handleDelete(item.id, e)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"><TrashIcon className="h-5 w-5" /></button>
+                           </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+             </div>
           </div>
         )}
+      </div>
+
+      <style>{`
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeInDown { animation: fadeInDown 0.6s ease-out forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+      `}</style>
+    </div>
+  );
+}
+
+/* ── HELPER COMPONENTS ── */
+
+function QuickStat({ label, value, color, dot }) {
+  return (
+    <div className={`${color} backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border border-white/10`}>
+      <div>
+        <p className="text-xs font-bold text-blue-100 uppercase opacity-80">{label}</p>
+        <p className="text-2xl font-black text-white">{value}</p>
+      </div>
+      {dot && <div className={`h-3 w-3 rounded-full ${dot} shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse`} />}
+    </div>
+  );
+}
+
+function FilterSelect({ value, onChange, options, placeholder }) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="appearance-none pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer transition-all"
+      >
+        <option value="">{placeholder}</option>
+        {options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+      </select>
+      <ChevronDownIcon className="absolute right-3 top-3.5 h-4 w-4 text-slate-400 pointer-events-none" />
+    </div>
+  );
+}
+
+function EquipmentCard({ item, navigate, canEdit, onDelete }) {
+  return (
+    <div onClick={() => navigate(`/equipment/${item.id}`)} className="group bg-[#f0f9ff] rounded-[32px] p-1 border border-blue-50 hover:shadow-xl transition-all cursor-pointer">
+      <div className="bg-white rounded-[28px] p-6 space-y-4">
+        <div className="flex justify-between items-start">
+          <div className={`p-4 rounded-[20px] bg-gradient-to-br ${typeColors[item.equipment_type]} text-3xl shadow-lg group-hover:scale-110 transition-transform`}>
+            {typeEmojis[item.equipment_type]}
+          </div>
+          <span className={`px-3 py-1 rounded-full text-xs font-black tracking-tight ${statusColors[item.status]}`}>
+            {statusLabels[item.status]}
+          </span>
+        </div>
+        
+        <div>
+          <h3 className="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">{item.name}</h3>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{typeLabels[item.equipment_type]}</p>
+        </div>
+
+        <div className="space-y-2 pt-2 border-t border-slate-50">
+           <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
+             <MapPinIcon className="h-4 w-4 text-red-500" /> {item.site_name || 'Non assigné'}
+           </div>
+           <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
+             <CogIcon className="h-4 w-4 text-blue-500" /> S/N: {item.serial_number}
+           </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+           <div className="flex gap-1">
+             <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}`); }} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><EyeIcon className="h-5 w-5" /></button>
+             {canEdit && <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}/edit`); }} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><PencilSquareIcon className="h-5 w-5" /></button>}
+           </div>
+           {canEdit && <button onClick={(e) => { e.stopPropagation(); onDelete(item.id, e); }} className="p-2 bg-red-50 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all"><TrashIcon className="h-5 w-5" /></button>}
+        </div>
       </div>
     </div>
   );

@@ -9,12 +9,14 @@ import {
   CalendarIcon,
   CpuChipIcon,
   TagIcon,
-  SparklesIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   ClockIcon,
   CogIcon,
   HashtagIcon,
+  ChevronLeftIcon,
+  InformationCircleIcon,
+  CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -51,312 +53,218 @@ const statusLabels = {
 };
 
 const statusConfig = {
-  OPERATIONAL: { bg: 'bg-blue-100', text: 'text-emerald-700', dot: 'bg-emerald-500', icon: CheckCircleIcon },
-  MAINTENANCE: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500', icon: WrenchScrewdriverIcon },
-  BREAKDOWN: { bg: 'bg-red-100', text: 'text-red-700', dot: 'bg-red-500', icon: ExclamationTriangleIcon },
-  RETIRED: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-gray-500', icon: ClockIcon },
+  OPERATIONAL: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', dot: 'bg-emerald-500', icon: CheckCircleIcon },
+  MAINTENANCE: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', dot: 'bg-amber-500', icon: WrenchScrewdriverIcon },
+  BREAKDOWN: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-100', dot: 'bg-orange-500', icon: ExclamationTriangleIcon },
+  RETIRED: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', dot: 'bg-slate-400', icon: ClockIcon },
 };
 
 export default function EquipmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSupervisor } = useAuthStore();
+  const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const [equipment, setEquipment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchEquipment();
-  }, [id]);
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+
+  useEffect(() => { fetchEquipment(); }, [id]);
 
   const fetchEquipment = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/equipment/${id}/`);
       setEquipment(response.data);
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { console.error(error); }
+    finally { setLoading(false); }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer "${equipment.name}" ?`)) {
-      return;
-    }
+    if (!window.confirm(`Supprimer définitivement "${equipment.name}" ?`)) return;
     try {
       setDeleting(true);
       await api.delete(`/equipment/${id}/`);
       navigate('/equipment');
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      alert('Erreur lors de la suppression');
-      setDeleting(false);
-    }
+    } catch (error) { alert('Erreur lors de la suppression'); setDeleting(false); }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full min-h-96">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-amber-200 rounded-full animate-spin border-t-amber-600 mx-auto"></div>
-            <SparklesIcon className="h-6 w-6 text-amber-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="mt-4 text-slate-500 font-medium">Chargement de l'équipement...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[400px]">
+      <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+  );
 
-  if (!equipment) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full min-h-96">
-        <div className="p-4 bg-red-100 rounded-full mb-4">
-          <ExclamationTriangleIcon className="h-12 w-12 text-red-600" />
-        </div>
-        <p className="text-2xl font-bold text-slate-800">Équipement non trouvé</p>
-        <p className="text-slate-500 mt-1">Cet équipement n'existe pas ou a été supprimé</p>
-        <Link to="/equipment" className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 transition-colors">
-          <ArrowLeftIcon className="h-5 w-5" />
-          Retour à la liste
-        </Link>
-      </div>
-    );
-  }
+  if (!equipment) return (
+    <div className="text-center py-20">
+       <ExclamationTriangleIcon className="h-16 w-16 mx-auto text-slate-300 mb-4" />
+       <h2 className="text-xl font-black text-slate-800">Équipement introuvable</h2>
+       <Link to="/equipment" className="text-blue-600 font-bold mt-4 inline-block">Retour à la liste</Link>
+    </div>
+  );
 
   const config = statusConfig[equipment.status] || statusConfig.OPERATIONAL;
-  const StatusIcon = config.icon;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-8">
-      {/* Premium Header avec bannière */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 shadow-2xl">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <pattern id="equipGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100" height="100" fill="url(#equipGrid)" />
-          </svg>
+    <div className="max-w-6xl mx-auto px-4 pb-12 space-y-6">
+      
+      {/* ── BOUTON RETOUR HAUT ── */}
+      <button 
+        onClick={() => navigate('/equipment')}
+        className="group flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-all font-black text-xs uppercase tracking-widest"
+      >
+        <div className="p-2 rounded-xl bg-white shadow-sm border border-slate-100 group-hover:border-blue-200 group-hover:bg-blue-50 transition-all">
+          <ChevronLeftIcon className="h-4 w-4" />
         </div>
+        Retour à la liste
+      </button>
+
+      {/* ── BANNIÈRE PREMIUM ── */}
+      <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 shadow-xl animate-fadeInDown">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
         
-        {/* Gradient orbs */}
-        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-orange-400 opacity-10 blur-3xl"></div>
-        
-        <div className="relative px-8 py-8">
-          {/* Back button */}
-          <Link
-            to="/equipment"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-xl hover:bg-white/20 transition-all duration-200 mb-6"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Retour aux équipements</span>
-          </Link>
-          
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-            <div className="flex items-center gap-5">
-              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
-                <span className="text-4xl">{typeEmojis[equipment.equipment_type] || '🔧'}</span>
+        <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <div className="p-6 bg-white/20 backdrop-blur-xl rounded-[32px] shadow-2xl ring-1 ring-white/30 transition-transform hover:rotate-3">
+               <span className="text-6xl drop-shadow-lg">{typeEmojis[equipment.equipment_type]}</span>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
+                 <BadgeBlur label={equipment.equipment_code} icon={HashtagIcon} />
+                 <BadgeBlur label={typeLabels[equipment.equipment_type]} icon={CogIcon} />
               </div>
-              <div>
-                <h1 className="text-2xl font-semibold text-white">{equipment.name}</h1>
-                <p className="mt-2 text-amber-100 flex items-center gap-2">
-                  <HashtagIcon className="h-4 w-4" />
-                  {equipment.equipment_code}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${config.bg} ${config.text}`}>
-                    <span className={`h-2 w-2 rounded-full ${config.dot}`}></span>
-                    {statusLabels[equipment.status] || equipment.status}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium bg-white/20 text-white backdrop-blur-sm">
-                    <CogIcon className="h-4 w-4" />
-                    {typeLabels[equipment.equipment_type] || equipment.equipment_type}
-                  </span>
-                </div>
+              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase">
+                {equipment.name}
+              </h1>
+              <div className="mt-6 flex items-center justify-center md:justify-start gap-4">
+                 <div className={`px-6 py-2 rounded-full font-black text-sm uppercase tracking-tighter shadow-lg ${config.bg} ${config.text} border-2 ${config.border} flex items-center gap-2`}>
+                   <span className={`h-2.5 w-2.5 rounded-full ${config.dot} animate-pulse`}></span>
+                   {statusLabels[equipment.status]}
+                 </div>
               </div>
             </div>
-            
-            {isSupervisor() && (
-              <div className="flex items-center gap-3">
-                <Link
-                  to={`/equipment/${id}/edit`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-amber-700 rounded-xl font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  <PencilSquareIcon className="h-4 w-4" />
-                  Modifier
-                </Link>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-500 text-white rounded-xl font-semibold shadow-lg hover:bg-red-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50"
-                >
-                  {deleting ? (
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <TrashIcon className="h-4 w-4" />
-                  )}
-                  Supprimer
-                </button>
-              </div>
-            )}
           </div>
+
+          {canEdit && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link to={`/equipment/${id}/edit`} className="px-8 py-4 bg-white text-blue-700 rounded-[22px] font-black shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2">
+                <PencilSquareIcon className="h-5 w-5" /> Modifier
+              </Link>
+              <button onClick={handleDelete} className="px-8 py-4 bg-red-500/20 backdrop-blur-md border border-red-400/30 text-white rounded-[22px] font-black hover:bg-red-500 transition-all flex items-center justify-center gap-2">
+                <TrashIcon className="h-5 w-5" /> Supprimer
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Details card */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-800">Informations de l'équipement</h2>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${config.bg} ${config.text}`}>
-                <StatusIcon className="h-4 w-4" />
-                {statusLabels[equipment.status] || equipment.status}
-              </span>
-            </div>
-            
-            <div className="p-6">
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="p-2.5 bg-amber-100 rounded-xl">
-                    <WrenchScrewdriverIcon className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <dt className="text-base font-semibold text-slate-500">Type</dt>
-                    <dd className="mt-1 text-base font-semibold text-slate-800 flex items-center gap-2">
-                      <span>{typeEmojis[equipment.equipment_type] || '🔧'}</span>
-                      {typeLabels[equipment.equipment_type] || equipment.equipment_type}
-                    </dd>
-                  </div>
+      {/* ── GRILLE DE DÉTAILS ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* COLONNE GAUCHE: INFOS TECHNIQUES */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-[#f0f9ff] rounded-[35px] p-1.5 border border-blue-50 shadow-sm">
+            <div className="bg-white rounded-[30px] p-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-3 bg-blue-50 rounded-2xl">
+                  <InformationCircleIcon className="h-6 w-6 text-blue-600" />
                 </div>
-                
-                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="p-2.5 bg-blue-100 rounded-xl">
-                    <MapPinIcon className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <div>
-                    <dt className="text-base font-semibold text-slate-500">Site d'affectation</dt>
-                    <dd className="mt-1 text-base font-semibold text-slate-800">
-                      {equipment.site_name || 'Non assigné'}
-                    </dd>
-                  </div>
-                </div>
+                <h2 className="text-xl font-black text-slate-800 tracking-tight">Fiche Technique Complète</h2>
+              </div>
 
-                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="p-2.5 bg-purple-100 rounded-xl">
-                    <CpuChipIcon className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <dt className="text-base font-semibold text-slate-500">Fabricant</dt>
-                    <dd className="mt-1 text-base font-semibold text-slate-800">
-                      {equipment.manufacturer || 'Non renseigné'}
-                    </dd>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="p-2.5 bg-cyan-100 rounded-xl">
-                    <TagIcon className="h-5 w-5 text-cyan-600" />
-                  </div>
-                  <div>
-                    <dt className="text-base font-semibold text-slate-500">Modèle</dt>
-                    <dd className="mt-1 text-base font-semibold text-slate-800">
-                      {equipment.model || 'Non renseigné'}
-                    </dd>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="p-2.5 bg-blue-100 rounded-xl">
-                    <HashtagIcon className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <div>
-                    <dt className="text-base font-semibold text-slate-500">Numéro de série</dt>
-                    <dd className="mt-1 text-base font-semibold text-slate-800">
-                      {equipment.serial_number || 'Non renseigné'}
-                    </dd>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="p-2.5 bg-rose-100 rounded-xl">
-                    <CalendarIcon className="h-5 w-5 text-rose-600" />
-                  </div>
-                  <div>
-                    <dt className="text-base font-semibold text-slate-500">Date de mise en service</dt>
-                    <dd className="mt-1 text-base font-semibold text-slate-800">
-                      {equipment.commissioning_date 
-                        ? new Date(equipment.commissioning_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-                        : 'Non renseignée'}
-                    </dd>
-                  </div>
-                </div>
-              </dl>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+                <DetailItem label="Site de déploiement" value={equipment.site_name} icon={MapPinIcon} color="text-red-500" />
+                <DetailItem label="Constructeur / Marque" value={equipment.manufacturer} icon={CpuChipIcon} color="text-blue-500" />
+                <DetailItem label="Modèle exact" value={equipment.model} icon={TagIcon} color="text-indigo-500" />
+                <DetailItem label="Numéro de série" value={equipment.serial_number} icon={HashtagIcon} color="text-slate-400" />
+                <DetailItem 
+                  label="Mise en service" 
+                  value={equipment.commissioning_date ? new Date(equipment.commissioning_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Non définie'} 
+                  icon={CalendarDaysIcon} 
+                  color="text-emerald-500" 
+                />
+                <DetailItem label="Catégorie" value={typeLabels[equipment.equipment_type]} icon={CogIcon} color="text-amber-500" />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Sidebar */}
+        {/* COLONNE DROITE: TIMELINE / HISTORIQUE */}
         <div className="space-y-6">
-          {/* History card */}
-          <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
-              <h3 className="text-base font-semibold text-slate-800">Historique</h3>
+          <div className="bg-[#f8fafc] rounded-[35px] p-8 border border-slate-100 shadow-sm">
+            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Traçabilité Système</h3>
+            
+            <div className="space-y-6">
+               <TimelineStep 
+                label="Date de Création" 
+                date={new Date(equipment.created_at).toLocaleString('fr-FR')} 
+                icon={CalendarIcon} 
+                bg="bg-emerald-50" 
+                text="text-emerald-600" 
+               />
+               <TimelineStep 
+                label="Dernière Mise à jour" 
+                date={new Date(equipment.updated_at).toLocaleString('fr-FR')} 
+                icon={ClockIcon} 
+                bg="bg-blue-50" 
+                text="text-blue-600" 
+               />
             </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-xl">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CalendarIcon className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Créé le</p>
-                  <p className="text-base font-semibold text-slate-800 mt-0.5">
-                    {new Date(equipment.created_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4 p-3 bg-slate-50 rounded-xl">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ClockIcon className="h-5 w-5 text-indigo-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Modifié le</p>
-                  <p className="text-base font-semibold text-slate-800 mt-0.5">
-                    {new Date(equipment.updated_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </div>
-              </div>
+
+            <div className="mt-10 p-5 bg-white rounded-2xl border border-slate-50 shadow-sm">
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-2">Note interne</p>
+               <p className="text-xs text-slate-600 leading-relaxed italic">
+                 Cet équipement est sous surveillance télémétrique. Toute modification du statut impacte directement le planning de production du site {equipment.site_name}.
+               </p>
             </div>
           </div>
         </div>
+
       </div>
 
-      {/* CSS Animations */}
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .max-w-5xl > * {
-          animation: fadeIn 0.4s ease-out forwards;
-        }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeInDown { animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}</style>
+    </div>
+  );
+}
+
+/* ── COMPOSANTS INTERNES ── */
+
+function BadgeBlur({ label, icon: Icon }) {
+  return (
+    <div className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-lg flex items-center gap-2 border border-white/10">
+      <Icon className="h-3.5 w-3.5 text-blue-200" />
+      <span className="text-[10px] font-black text-white uppercase tracking-widest">{label || 'N/A'}</span>
+    </div>
+  );
+}
+
+function DetailItem({ label, value, icon: Icon, color }) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className={`p-3 bg-slate-50 rounded-xl border border-slate-100`}>
+        <Icon className={`h-5 w-5 ${color}`} />
+      </div>
+      <div>
+        <dt className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</dt>
+        <dd className="text-base font-bold text-slate-800">{value || '—'}</dd>
+      </div>
+    </div>
+  );
+}
+
+function TimelineStep({ label, date, icon: Icon, bg, text }) {
+  return (
+    <div className="flex gap-4">
+      <div className={`h-10 w-10 shrink-0 rounded-full ${bg} ${text} flex items-center justify-center shadow-sm`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+        <p className="text-sm font-bold text-slate-700">{date}</p>
+      </div>
     </div>
   );
 }

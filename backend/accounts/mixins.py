@@ -3,9 +3,9 @@ Mixin de filtrage automatique par sites assignés.
 
 Logique:
 - ADMIN / ANALYST / MMG : voit TOUTES les données (pas de filtre)
-  MMG = Ministère des Mines, contrôle réglementaire sur tous les sites
-- SITE_MANAGER / SUPERVISOR / OPERATOR : voit uniquement les données
-  liées à ses `assigned_sites`
+    MMG = Ministère des Mines, contrôle réglementaire sur tous les sites
+- SITE_MANAGER / TECHNICIEN : voit uniquement les données
+    liées à ses `assigned_sites`
 
 Usage dans un ViewSet:
     from accounts.mixins import SiteScopedMixin

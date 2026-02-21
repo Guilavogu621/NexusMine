@@ -31,6 +31,7 @@ class ShiftSerializer(serializers.ModelSerializer):
         source='get_shift_type_display', read_only=True
     )
     site_name = serializers.CharField(source='site.name', read_only=True)
+    # 'supervisor' ici = chef de poste (champ de modèle, pas un rôle RBAC)
     supervisor_name = serializers.CharField(
         source='supervisor.full_name', read_only=True
     )
@@ -122,6 +123,21 @@ class OperationSerializer(serializers.ModelSerializer):
             'id', 'validation_date', 'validated_by',
             'created_at', 'updated_at'
         ]
+    
+    def validate(self, data):
+        """Validation au niveau du serializer"""
+        date = data.get('date')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        
+        # Cas 1: Les deux horaires sont fournis
+        if start_time and end_time:
+            if start_time >= end_time:
+                raise serializers.ValidationError({
+                    'end_time': 'L\'heure de fin doit être après l\'heure de début.'
+                })
+        
+        return data
 
 
 class OperationListSerializer(serializers.ModelSerializer):

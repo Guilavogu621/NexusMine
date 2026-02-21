@@ -28,12 +28,11 @@ class EnvironmentalThresholdViewSet(SiteScopedMixin, viewsets.ModelViewSet):
 
 class EnvironmentalDataViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des données environnementales
-    
+
     Permissions:
     - ADMIN: Configuration système
     - SITE_MANAGER: Application mesures correctives
-    - SUPERVISOR: Collecte et saisie
-    - OPERATOR: Collecte terrain
+    - TECHNICIEN (ingénieur terrain): Collecte terrain
     - MMG: Vérification conformité réglementaire
     Filtrage: Données filtrées par sites assignés
     """

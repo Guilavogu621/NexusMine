@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 from accounts.views import UserViewSet
+from accounts.audit_views import AuditLogViewSet, LockedStatusViewSet
 from accounts.password_reset import password_reset_request, password_reset_confirm
 from nexus_backend.chatbot import chatbot_message
 from mining_sites.views import MiningSiteViewSet
@@ -39,6 +40,9 @@ router.register(r'reports', ReportViewSet)
 router.register(r'stock-locations', StockLocationViewSet)
 router.register(r'stock-movements', StockMovementViewSet)
 router.register(r'stock-summary', StockSummaryViewSet)
+# Audit & Conformité (MMG)
+router.register(r'audit-logs', AuditLogViewSet, basename='auditlog')
+router.register(r'locked-statuses', LockedStatusViewSet, basename='lockedstatus')
 
 urlpatterns = [
     # JWT Authentication

@@ -87,6 +87,9 @@ const UsersList = lazy(() => import('./pages/users').then(m => ({ default: m.Use
 const UsersForm = lazy(() => import('./pages/users').then(m => ({ default: m.UsersForm })));
 const UsersDetail = lazy(() => import('./pages/users').then(m => ({ default: m.UsersDetail })));
 
+// Audit & Compliance
+const AuditDashboard = lazy(() => import('./pages/audit/AuditDashboard'));
+
 function App() {
   const { checkAuth, isAuthenticated } = useAuthStore();
 
@@ -142,13 +145,13 @@ function App() {
         {/* Personnel */}
         <Route path="/personnel" element={<PersonnelList />} />
         <Route path="/personnel/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
             <PersonnelForm />
           </ProtectedRoute>
         } />
         <Route path="/personnel/:id" element={<PersonnelDetail />} />
         <Route path="/personnel/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
             <PersonnelForm />
           </ProtectedRoute>
         } />
@@ -156,13 +159,13 @@ function App() {
         {/* Équipements */}
         <Route path="/equipment" element={<EquipmentList />} />
         <Route path="/equipment/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
             <EquipmentForm />
           </ProtectedRoute>
         } />
         <Route path="/equipment/:id" element={<EquipmentDetail />} />
         <Route path="/equipment/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <EquipmentForm />
           </ProtectedRoute>
         } />
@@ -170,13 +173,13 @@ function App() {
         {/* Opérations */}
         <Route path="/operations" element={<OperationsList />} />
         <Route path="/operations/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <OperationsForm />
           </ProtectedRoute>
         } />
         <Route path="/operations/:id" element={<OperationsDetail />} />
         <Route path="/operations/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <OperationsForm />
           </ProtectedRoute>
         } />
@@ -184,13 +187,13 @@ function App() {
         {/* Incidents */}
         <Route path="/incidents" element={<IncidentsList />} />
         <Route path="/incidents/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <IncidentsForm />
           </ProtectedRoute>
         } />
         <Route path="/incidents/:id" element={<IncidentsDetail />} />
         <Route path="/incidents/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
             <IncidentsForm />
           </ProtectedRoute>
         } />
@@ -198,13 +201,13 @@ function App() {
         {/* Environnement */}
         <Route path="/environment" element={<EnvironmentList />} />
         <Route path="/environment/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SUPERVISOR', 'OPERATOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <EnvironmentForm />
           </ProtectedRoute>
         } />
         <Route path="/environment/:id" element={<EnvironmentDetail />} />
         <Route path="/environment/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <EnvironmentForm />
           </ProtectedRoute>
         } />
@@ -212,13 +215,13 @@ function App() {
         {/* Alertes */}
         <Route path="/alerts" element={<AlertsList />} />
         <Route path="/alerts/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
             <AlertsForm />
           </ProtectedRoute>
         } />
         <Route path="/alerts/:id" element={<AlertsDetail />} />
         <Route path="/alerts/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
             <AlertsForm />
           </ProtectedRoute>
         } />
@@ -226,13 +229,13 @@ function App() {
         {/* Rapports */}
         <Route path="/reports" element={<ReportsList />} />
         <Route path="/reports/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'ANALYST']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN']}>
             <ReportsForm />
           </ProtectedRoute>
         } />
         <Route path="/reports/:id" element={<ReportsDetail />} />
         <Route path="/reports/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN']}>
             <ReportsForm />
           </ProtectedRoute>
         } />
@@ -240,7 +243,7 @@ function App() {
         {/* Stock */}
         <Route path="/stock" element={<StockList />} />
         <Route path="/stock/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SUPERVISOR', 'OPERATOR']}>
+          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
             <StockForm />
           </ProtectedRoute>
         } />
@@ -352,6 +355,13 @@ function App() {
         <Route path="/users/:id/edit" element={
           <ProtectedRoute roles={['ADMIN']}>
             <UsersForm />
+          </ProtectedRoute>
+        } />
+
+        {/* Audit & Compliance (MMG + ADMIN) */}
+        <Route path="/audit" element={
+          <ProtectedRoute roles={['MMG', 'ADMIN']}>
+            <AuditDashboard />
           </ProtectedRoute>
         } />
       </Route>

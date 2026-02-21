@@ -28,18 +28,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
 
     ROLE_CHOICES = [
-        ("ADMIN", "Administrateur de la plateforme"),
-        ("SITE_MANAGER", "Responsable de site minier"),
-        ("SUPERVISOR", "Gestionnaire de Site"),
-        ("OPERATOR", "Technicien/Opérateur"),
-        ("ANALYST", "Analyste"),
-        ("MMG", "Autorité (MMG)"),
+        ("ADMIN", "Administrateur"),
+        ("SITE_MANAGER", "Gestionnaire de site"),
+        ("TECHNICIEN", "Technicien/Ingénieur"),
+        ("ANALYST", "Analyste/Décideur"),
+        ("MMG", "Autorité MMG"),
     ]
 
     role = models.CharField(
         max_length=50,
         choices=ROLE_CHOICES,
-        default="OPERATOR",
+        default="TECHNICIEN",
     )
 
     # Sites assignés — filtre automatique des données visibles
@@ -68,13 +67,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def get_site_ids(self):
-        """Retourne les IDs des sites assignés (cache-friendly)
+                """Retourne les IDs des sites assignés (cache-friendly)
 
-        - ADMIN, ANALYST, MMG voient toutes les données (pas de filtre)
-          MMG = Ministère des Mines, contrôle tous les sites
-        - SITE_MANAGER, SUPERVISOR, OPERATOR voient uniquement
-          les données de leurs sites assignés
-        """
-        if self.role in ('ADMIN', 'ANALYST', 'MMG'):
-            return None  # None = pas de filtre, voit tout
-        return list(self.assigned_sites.values_list('id', flat=True))
+                - ADMIN, ANALYST, MMG voient toutes les données (pas de filtre)
+                    MMG = Ministère des Mines, contrôle tous les sites
+                - SITE_MANAGER, TECHNICIEN voient uniquement
+                    les données de leurs sites assignés
+                """
+                if self.role in ('ADMIN', 'ANALYST', 'MMG'):
+                        return None  # None = pas de filtre, voit tout
+                return list(self.assigned_sites.values_list('id', flat=True))

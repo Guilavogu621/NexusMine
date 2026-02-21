@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from nexus_backend.validators import validate_maintenance_dates
 
 
 class Equipment(models.Model):
@@ -242,6 +244,21 @@ class MaintenanceRecord(models.Model):
         verbose_name = "Historique de maintenance"
         verbose_name_plural = "Historique des maintenances"
         ordering = ['-scheduled_date']
+    
+    def clean(self):
+        """Validations métier avant sauvegarde"""
+        super().clean()
+        # Valider que start_date < end_date
+        if self.start_date and self.end_date:
+            if self.start_date >= self.end_date:
+                raise ValidationError({
+                    'end_date': 'La date de fin doit être après la date de début.'
+                })
+    
+    def save(self, *args, **kwargs):
+        """Appeler clean() avant sauvegarde"""
+        self.clean()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.maintenance_code} - {self.equipment.equipment_code}"

@@ -210,7 +210,7 @@ export default function PersonnelList() {
                   </button>
                 </div>
                 
-                {isSupervisor() && (
+                {(isSupervisor() || isAdmin()) && (
                   <Link
                     to="/personnel/new"
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm"
@@ -349,7 +349,7 @@ export default function PersonnelList() {
               <p className="mt-2 text-base text-slate-500 text-center max-w-sm">
                 Commencez par ajouter votre premier employé.
               </p>
-              {isSupervisor() && (
+              {(isSupervisor() || isAdmin()) && (
                 <Link
                   to="/personnel/new"
                   className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl shadow-sm"

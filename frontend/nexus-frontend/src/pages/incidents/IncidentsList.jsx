@@ -7,16 +7,12 @@ import {
   TrashIcon,
   EyeIcon,
   ExclamationTriangleIcon,
+  SparklesIcon,
+  FunnelIcon,
+  XMarkIcon,
   ChevronDownIcon,
-  Squares2X2Icon,
-  ListBulletIcon,
   MapPinIcon,
   CalendarDaysIcon,
-  FireIcon,
-  BoltIcon,
-  ShieldExclamationIcon,
-  WrenchIcon,
-  GlobeAmericasIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -42,13 +38,13 @@ const typeEmojis = {
 };
 
 const typeColors = {
-  ACCIDENT: 'from-red-500 to-red-600',
-  EQUIPMENT_FAILURE: 'from-orange-500 to-orange-600',
-  ENVIRONMENTAL: 'from-emerald-500 to-emerald-600',
-  SECURITY: 'from-purple-500 to-purple-600',
-  LANDSLIDE: 'from-amber-600 to-amber-700',
-  FIRE: 'from-red-600 to-red-700',
-  OTHER: 'from-gray-500 to-gray-600',
+  ACCIDENT: { bg: 'bg-red-100/80', text: 'text-red-700', gradient: 'from-red-500 to-red-600', badge: 'bg-red-200 text-red-800' },
+  EQUIPMENT_FAILURE: { bg: 'bg-orange-100/80', text: 'text-orange-700', gradient: 'from-orange-500 to-orange-600', badge: 'bg-orange-200 text-orange-800' },
+  ENVIRONMENTAL: { bg: 'bg-emerald-100/80', text: 'text-emerald-700', gradient: 'from-emerald-500 to-emerald-600', badge: 'bg-emerald-200 text-emerald-800' },
+  SECURITY: { bg: 'bg-purple-100/80', text: 'text-purple-700', gradient: 'from-purple-500 to-purple-600', badge: 'bg-purple-200 text-purple-800' },
+  LANDSLIDE: { bg: 'bg-amber-100/80', text: 'text-amber-700', gradient: 'from-amber-500 to-amber-600', badge: 'bg-amber-200 text-amber-800' },
+  FIRE: { bg: 'bg-red-100/80', text: 'text-red-700', gradient: 'from-red-500 to-red-600', badge: 'bg-red-200 text-red-800' },
+  OTHER: { bg: 'bg-gray-100/80', text: 'text-gray-700', gradient: 'from-gray-500 to-gray-600', badge: 'bg-gray-200 text-gray-800' },
 };
 
 const severityLabels = {
@@ -59,17 +55,10 @@ const severityLabels = {
 };
 
 const severityColors = {
-  LOW: 'bg-green-100 text-green-700 ring-green-600/20',
-  MEDIUM: 'bg-yellow-100 text-yellow-700 ring-yellow-600/20',
-  HIGH: 'bg-orange-100 text-orange-700 ring-orange-600/20',
-  CRITICAL: 'bg-red-100 text-red-700 ring-red-600/20',
-};
-
-const severityDots = {
-  LOW: 'bg-green-500',
-  MEDIUM: 'bg-yellow-500',
-  HIGH: 'bg-orange-500',
-  CRITICAL: 'bg-red-500',
+  LOW: { bg: 'bg-green-100/80', text: 'text-green-700', gradient: 'from-green-500 to-green-600', badge: 'bg-green-200 text-green-800' },
+  MEDIUM: { bg: 'bg-yellow-100/80', text: 'text-yellow-700', gradient: 'from-yellow-500 to-yellow-600', badge: 'bg-yellow-200 text-yellow-800' },
+  HIGH: { bg: 'bg-orange-100/80', text: 'text-orange-700', gradient: 'from-orange-500 to-orange-600', badge: 'bg-orange-200 text-orange-800' },
+  CRITICAL: { bg: 'bg-red-100/80', text: 'text-red-700', gradient: 'from-red-500 to-red-600', badge: 'bg-red-200 text-red-800' },
 };
 
 const statusLabels = {
@@ -80,17 +69,10 @@ const statusLabels = {
 };
 
 const statusColors = {
-  REPORTED: 'bg-indigo-50 text-indigo-700 ring-blue-600/20',
-  INVESTIGATING: 'bg-amber-100 text-amber-700 ring-amber-600/20',
-  RESOLVED: 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
-  CLOSED: 'bg-slate-100 text-slate-600 ring-gray-600/20',
-};
-
-const statusDots = {
-  REPORTED: 'bg-indigo-500',
-  INVESTIGATING: 'bg-amber-500',
-  RESOLVED: 'bg-emerald-500',
-  CLOSED: 'bg-gray-500',
+  REPORTED: { bg: 'bg-indigo-100/80', text: 'text-indigo-700', gradient: 'from-indigo-500 to-indigo-600', badge: 'bg-indigo-200 text-indigo-800' },
+  INVESTIGATING: { bg: 'bg-amber-100/80', text: 'text-amber-700', gradient: 'from-amber-500 to-amber-600', badge: 'bg-amber-200 text-amber-800' },
+  RESOLVED: { bg: 'bg-emerald-100/80', text: 'text-emerald-700', gradient: 'from-emerald-500 to-emerald-600', badge: 'bg-emerald-200 text-emerald-800' },
+  CLOSED: { bg: 'bg-slate-100/80', text: 'text-slate-700', gradient: 'from-slate-500 to-slate-600', badge: 'bg-slate-200 text-slate-800' },
 };
 
 export default function IncidentsList() {
@@ -101,11 +83,11 @@ export default function IncidentsList() {
   const [filterStatus, setFilterStatus] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('');
   const [filterSite, setFilterSite] = useState('');
-  const [viewMode, setViewMode] = useState('grid');
-  const { isSupervisor, hasRole } = useAuthStore();
+  const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const navigate = useNavigate();
 
-  // Stats calculées
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+
   const stats = {
     total: incidents.length,
     critical: incidents.filter(i => i.severity === 'CRITICAL').length,
@@ -121,12 +103,10 @@ export default function IncidentsList() {
       if (filterStatus) params.append('status', filterStatus);
       if (filterSeverity) params.append('severity', filterSeverity);
       if (filterSite) params.append('site', filterSite);
-      
       const [incidentsRes, sitesRes] = await Promise.all([
         api.get(`/incidents/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
       setIncidents(incidentsRes.data.results || incidentsRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -140,8 +120,7 @@ export default function IncidentsList() {
     fetchData();
   }, [search, filterStatus, filterSeverity, filterSite]);
 
-  const handleDelete = async (id, code, e) => {
-    e.stopPropagation();
+  const handleDelete = async (id, code) => {
     if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'incident "${code}" ?`)) {
       return;
     }
@@ -154,393 +133,318 @@ export default function IncidentsList() {
     }
   };
 
+  const clearFilters = () => {
+    setSearch('');
+    setFilterSite('');
+    setFilterSeverity('');
+    setFilterStatus('');
+  };
+
+  const hasActiveFilters = search || filterSite || filterSeverity || filterStatus;
+
   return (
-    <div className="space-y-6">
-        {/* Premium Header */}
-        <div className="relative overflow-hidden bg-white rounded-xl shadow-sm border border-slate-200/60">
-          <div className="relative p-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="relative p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg">
-                  <ExclamationTriangleIcon className="h-7 w-7 text-white relative" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+      {/* Background pattern */}
+      <div className="fixed inset-0 opacity-40 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
+      </div>
+      <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Header Premium */}
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
+          {/* SVG Grid Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <pattern id="envListGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="100" height="100" fill="url(#envListGrid)" />
+            </svg>
+          </div>
+          {/* Animated Orbs */}
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-indigo-400 opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+          <div className="relative px-8 py-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+              <div className="flex items-start gap-5">
+                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                  <ExclamationTriangleIcon className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-semibold text-slate-800">Incidents</h1>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-700">
-                      {incidents.length} incidents
-                    </span>
-                  </div>
-                  <p className="mt-1 text-slate-500">Gérez les incidents de vos sites miniers</p>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+                    Incidents
+                  </h1>
+                  <p className="mt-2 text-blue-100 font-medium">
+                    Gérez les incidents de vos sites miniers
+                  </p>
                 </div>
               </div>
-              
+              {canEdit && (
+                <Link
+                  to="/incidents/new"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 flex-shrink-0"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                  Déclarer un incident
+                </Link>
+              )}
+            </div>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-2">Total incidents</p>
+                <p className="text-3xl font-bold text-white font-outfit">{stats.total}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-2">🔴 Critiques</p>
+                <p className="text-3xl font-bold text-white font-outfit">{stats.critical}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-2">🟠 En investigation</p>
+                <p className="text-3xl font-bold text-white font-outfit">{stats.investigating}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-2">🟢 Résolus</p>
+                <p className="text-3xl font-bold text-white font-outfit">{stats.resolved}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Filters Section */}
+        <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl hover:border-white/40 transition-all duration-500 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                {/* View Toggle */}
-                <div className="flex items-center bg-slate-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-600'}`}
-                  >
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-600'}`}
-                  >
-                    <ListBulletIcon className="h-5 w-5" />
-                  </button>
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <FunnelIcon className="h-5 w-5 text-indigo-600" />
                 </div>
-                
-                {hasRole(['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR']) && (
-                  <Link
-                    to="/incidents/new"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm"
+                <span className="font-bold text-slate-900">Filtres & Recherche</span>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="ml-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-all"
                   >
-                    <PlusIcon className="h-5 w-5" />
-                    Déclarer un incident
-                  </Link>
+                    <XMarkIcon className="h-4 w-4" />
+                    Effacer
+                  </button>
                 )}
               </div>
             </div>
-
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200/60">
-              <div className="text-center p-3 rounded-lg bg-gray-50">
-                <p className="text-xl font-semibold text-slate-800">{stats.total}</p>
-                <p className="text-base text-slate-500">Total</p>
+            <div className="space-y-4">
+              {/* Search Bar */}
+              <div className="relative group/search">
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within/search:text-indigo-600 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Rechercher par code..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="block w-full rounded-xl py-3 pl-12 pr-4 text-slate-900 bg-white/50 border border-slate-200/60 placeholder:text-slate-500 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium"
+                />
               </div>
-              <div className="text-center p-3 rounded-lg bg-gray-50">
-                <p className="text-xl font-semibold text-red-600">{stats.critical}</p>
-                <p className="text-base text-slate-500">Critiques</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-gray-50">
-                <p className="text-xl font-semibold text-orange-600">{stats.investigating}</p>
-                <p className="text-base text-slate-500">En investigation</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-gray-50">
-                <p className="text-xl font-semibold text-green-600">{stats.resolved}</p>
-                <p className="text-base text-slate-500">Résolus</p>
+              {/* Selects */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <select
+                  value={filterSite}
+                  onChange={(e) => setFilterSite(e.target.value)}
+                  className="rounded-xl py-3 px-4 text-slate-900 bg-white/50 border border-slate-200/60 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium cursor-pointer appearance-none pr-8"
+                >
+                  <option value="">📍 Tous les sites</option>
+                  {sites.map((site) => (
+                    <option key={site.id} value={site.id}>{site.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterSeverity}
+                  onChange={(e) => setFilterSeverity(e.target.value)}
+                  className="rounded-xl py-3 px-4 text-slate-900 bg-white/50 border border-slate-200/60 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium cursor-pointer appearance-none pr-8"
+                >
+                  <option value="">🔴 Toutes gravités</option>
+                  <option value="LOW">🟢 Faible</option>
+                  <option value="MEDIUM">🟡 Moyen</option>
+                  <option value="HIGH">🟠 Élevé</option>
+                  <option value="CRITICAL">🔴 Critique</option>
+                </select>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="rounded-xl py-3 px-4 text-slate-900 bg-white/50 border border-slate-200/60 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium cursor-pointer appearance-none pr-8"
+                >
+                  <option value="">📊 Tous statuts</option>
+                  {Object.entries(statusLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Premium Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
-              </div>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher par code..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
-              />
-            </div>
-
-            {/* Site Filter */}
-            <div className="relative">
-              <select
-                value={filterSite}
-                onChange={(e) => setFilterSite(e.target.value)}
-                className="appearance-none w-full lg:w-44 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous les sites</option>
-                {sites.map((site) => (
-                  <option key={site.id} value={site.id}>{site.name}</option>
-                ))}
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Severity Filter */}
-            <div className="relative">
-              <select
-                value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
-                className="appearance-none w-full lg:w-40 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Toutes gravités</option>
-                <option value="LOW">🟢 Faible</option>
-                <option value="MEDIUM">🟡 Moyen</option>
-                <option value="HIGH">🟠 Élevé</option>
-                <option value="CRITICAL">🔴 Critique</option>
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Status Filter */}
-            <div className="relative">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="appearance-none w-full lg:w-44 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous statuts</option>
-                {Object.entries(statusLabels).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
+        {/* Data Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200/60 p-5 animate-pulse">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-12 w-12 bg-gray-200 rounded-xl"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded w-1/2"></div>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-3 bg-slate-100 rounded"></div>
-                  <div className="h-3 bg-slate-100 rounded w-5/6"></div>
-                </div>
+          <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-12 shadow-lg flex items-center justify-center min-h-[400px]">
+            <div className="text-center space-y-4">
+              <div className="relative w-20 h-20 mx-auto">
+                <div className="absolute inset-0 rounded-full border-4 border-slate-200 animate-spin border-t-indigo-600 border-r-indigo-500"></div>
+                <SparklesIcon className="h-8 w-8 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
               </div>
-            ))}
+              <p className="text-slate-600 font-semibold">Chargement des données...</p>
+            </div>
           </div>
         ) : incidents.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-            <div className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl"></div>
-                <div className="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
-                  <ExclamationTriangleIcon className="h-10 w-10 text-slate-400" />
-                </div>
+          <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-12 shadow-lg flex flex-col items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="p-4 bg-indigo-100 rounded-full mb-6 inline-block">
+                <ExclamationTriangleIcon className="h-12 w-12 text-indigo-600" />
               </div>
-              <h3 className="mt-6 text-base font-semibold text-slate-800">Aucun incident trouvé</h3>
-              <p className="mt-2 text-base text-slate-500 text-center max-w-sm">
-                Bonne nouvelle ! Aucun incident n'a été signalé.
-              </p>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Aucun incident</h3>
+              <p className="text-slate-600 mb-6">Bonne nouvelle ! Aucun incident n'a été signalé.</p>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:bg-indigo-700 transition-all duration-300"
+                >
+                  Effacer les filtres
+                </button>
+              )}
             </div>
-          </div>
-        ) : viewMode === 'grid' ? (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {incidents.map((incident) => (
-              <div
-                key={incident.id}
-                onClick={() => navigate(`/incidents/${incident.id}`)}
-                className="group relative bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-md hover:border-indigo-200 transition-all duration-300 cursor-pointer"
-              >
-                {/* Severity indicator bar */}
-                <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-2xl ${
-                  incident.severity === 'CRITICAL' ? 'bg-red-500' :
-                  incident.severity === 'HIGH' ? 'bg-orange-500' :
-                  incident.severity === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'
-                }`}></div>
-                
-                {/* Hover gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/0 to-blue-500/0 group-hover:from-indigo-500/[0.02] group-hover:to-blue-500/[0.02] transition-all"></div>
-                
-                <div className="relative pt-2">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`relative p-3 rounded-xl bg-gradient-to-br ${typeColors[incident.incident_type] || 'from-gray-500 to-gray-600'} shadow-lg group-hover:scale-110 transition-transform`}>
-                        <ExclamationTriangleIcon className="h-6 w-6 text-white" />
-                        <span className="absolute -bottom-1 -right-1 text-lg">
-                          {typeEmojis[incident.incident_type] || '⚠️'}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">
-                          {incident.incident_code}
-                        </h3>
-                        <p className="text-base text-slate-500 mt-0.5">
-                          {typeLabels[incident.incident_type] || incident.incident_type}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Severity Badge */}
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${severityColors[incident.severity] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${severityDots[incident.severity] || 'bg-gray-500'}`}></span>
-                      {severityLabels[incident.severity] || incident.severity}
-                    </span>
-                  </div>
-
-                  {/* Details */}
-                  <div className="space-y-2 mb-4 pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-2 text-base text-slate-500">
-                      <MapPinIcon className="h-4 w-4" />
-                      <span>{incident.site_name || incident.site?.name || 'Non assigné'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-base text-slate-500">
-                      <CalendarDaysIcon className="h-4 w-4" />
-                      <span>{new Date(incident.date).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-medium ring-1 ring-inset ${statusColors[incident.status] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusDots[incident.status] || 'bg-gray-500'}`}></span>
-                        {statusLabels[incident.status] || incident.status}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-end gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/incidents/${incident.id}`);
-                      }}
-                      className="p-2 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                      title="Voir"
-                    >
-                      <EyeIcon className="h-5 w-5" />
-                    </button>
-                    {isSupervisor() && (
-                      <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/incidents/${incident.id}/edit`);
-                          }}
-                          className="p-2 rounded-lg text-indigo-500 hover:text-blue-700 hover:bg-indigo-50 transition-colors"
-                          title="Modifier"
-                        >
-                          <PencilSquareIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={(e) => handleDelete(incident.id, incident.incident_code, e)}
-                          className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                          title="Supprimer"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         ) : (
-          /* List View */
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="bg-gray-50/80">
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Incident
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Site
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Gravité
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {incidents.map((incident) => (
-                    <tr 
-                      key={incident.id} 
-                      onClick={() => navigate(`/incidents/${incident.id}`)}
-                      className="hover:bg-indigo-50/30 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-4">
-                          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${typeColors[incident.incident_type] || 'from-gray-500 to-gray-600'} shadow-md`}>
-                            <ExclamationTriangleIcon className="h-5 w-5 text-white" />
-                          </div>
-                          <div className="font-medium text-slate-800">{incident.incident_code}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeInUp">
+            {incidents.map((incident, index) => {
+              const typeConf = typeColors[incident.incident_type] || typeColors.OTHER;
+              const severityConf = severityColors[incident.severity] || severityColors.LOW;
+              const statusConf = statusColors[incident.status] || statusColors.CLOSED;
+              return (
+                <div
+                  key={incident.id}
+                  className="group relative bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-500 overflow-hidden"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* Gradient accent bar */}
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${typeConf.gradient}`}></div>
+                  {/* Hover gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        <span className="text-3xl">{typeEmojis[incident.incident_type] || '⚠️'}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${typeConf.badge}`}>
+                            {typeLabels[incident.incident_type] || incident.incident_type}
+                          </span>
+                          <p className="text-sm text-slate-500 mt-2 font-medium truncate">
+                            {incident.site_name || incident.site?.name || 'Site non défini'}
+                          </p>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-2 text-base text-slate-800">
-                          <span>{typeEmojis[incident.incident_type]}</span>
-                          {typeLabels[incident.incident_type] || incident.incident_type}
+                      </div>
+                    </div>
+                    {/* Code Display */}
+                    <div className={`text-center py-5 bg-gradient-to-r ${typeConf.gradient} rounded-xl mb-4 shadow-sm group-hover:shadow-md transition-shadow`}>
+                      <p className="text-3xl font-bold text-white font-outfit">
+                        {incident.incident_code}
+                      </p>
+                    </div>
+                    {/* Details */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+                        <span className="text-sm text-slate-500">📅 Date</span>
+                        <span className="text-sm font-bold text-slate-900">
+                          {new Date(incident.date).toLocaleDateString('fr-FR')}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-base text-slate-500">
-                          <MapPinIcon className="h-4 w-4" />
-                          {incident.site_name || incident.site?.name || '—'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-base text-slate-500">
-                        {new Date(incident.date).toLocaleDateString('fr-FR')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${severityColors[incident.severity] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${severityDots[incident.severity] || 'bg-gray-500'}`}></span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+                        <span className="text-sm text-slate-500">🔴 Gravité</span>
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${severityConf.badge}`}>
                           {severityLabels[incident.severity] || incident.severity}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${statusColors[incident.status] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${statusDots[incident.status] || 'bg-gray-500'}`}></span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+                        <span className="text-sm text-slate-500">📊 Statut</span>
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold ${statusConf.badge}`}>
                           {statusLabels[incident.status] || incident.status}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      </div>
+                    </div>
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200/60">
+                      <button
+                        onClick={() => navigate(`/incidents/${incident.id}`)}
+                        className="p-2 rounded-lg bg-blue-100/80 text-blue-600 hover:bg-blue-200 transition-all duration-200"
+                        title="Voir"
+                      >
+                        <EyeIcon className="h-4 w-4" />
+                      </button>
+                      {canEdit && (
+                        <>
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/incidents/${incident.id}`);
-                            }}
-                            className="p-2 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                            title="Voir"
+                            onClick={() => navigate(`/incidents/${incident.id}/edit`)}
+                            className="p-2 rounded-lg bg-amber-100/80 text-amber-600 hover:bg-amber-200 transition-all duration-200"
+                            title="Modifier"
                           >
-                            <EyeIcon className="h-5 w-5" />
+                            <PencilSquareIcon className="h-4 w-4" />
                           </button>
-                          {isSupervisor() && (
-                            <>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/incidents/${incident.id}/edit`);
-                                }}
-                                className="p-2 rounded-lg text-indigo-500 hover:text-blue-700 hover:bg-indigo-50 transition-colors"
-                                title="Modifier"
-                              >
-                                <PencilSquareIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={(e) => handleDelete(incident.id, incident.incident_code, e)}
-                                className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                title="Supprimer"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          <button
+                            onClick={() => handleDelete(incident.id, incident.incident_code)}
+                            className="p-2 rounded-lg bg-red-100/80 text-red-600 hover:bg-red-200 transition-all duration-200"
+                            title="Supprimer"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
+      {/* Animations CSS */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+        .font-outfit {
+          font-family: 'Outfit', sans-serif;
+        }
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeInDown {
+          animation: fadeInDown 0.7s ease-out forwards;
+        }
+        .animate-fadeInUp {
+          animation: fadeInUp 0.6s ease-out forwards;
+          animation-fill-mode: both;
+        }
+        /* Select styling */
+        select {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'%3E%3C/path%3E%3C/svg%3E");
+          background-position: right 0.5rem center;
+          background-repeat: no-repeat;
+          background-size: 1.5em 1.5em;
+          padding-right: 2.5rem;
+        }
+      `}</style>
+    </div>
   );
 }

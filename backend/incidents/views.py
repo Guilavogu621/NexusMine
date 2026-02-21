@@ -13,12 +13,11 @@ from accounts.mixins import SiteScopedMixin
 
 class IncidentViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des incidents
-    
+
     Permissions:
     - ADMIN: Configuration système
     - SITE_MANAGER: Déclaration, gestion, clôture (premier responsable légal)
-    - SUPERVISOR: Gestion incidents de ses sites
-    - OPERATOR: Signalement (création + lecture)
+    - TECHNICIEN (ingénieur terrain): Signalement (création + lecture)
     - ANALYST: Lecture + analyse post-incident
     - MMG: Lecture seule, audit incidents majeurs
     Filtrage: Données filtrées par sites assignés
@@ -45,7 +44,7 @@ class IncidentViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def send_alert(self, request, pk=None):
         """Envoyer une alerte pour l'incident"""
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']:
+        if request.user.role not in ['ADMIN', 'SITE_MANAGER']:
             return Response(
                 {'error': 'Permission insuffisante pour envoyer une alerte.'},
                 status=status.HTTP_403_FORBIDDEN

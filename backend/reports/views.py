@@ -9,17 +9,18 @@ from .models import Report
 from .serializers import ReportSerializer, ReportListSerializer
 from accounts.permissions import CanManageReports
 from accounts.mixins import SiteScopedMixin
+from nexus_backend.pdf_export import PDFExportMixin
 
 
-class ReportViewSet(SiteScopedMixin, viewsets.ModelViewSet):
+class ReportViewSet(PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des rapports
-    
+
     Permissions:
     - ADMIN: CRUD complet
     - SITE_MANAGER: Validation des rapports du site
-    - SUPERVISOR: Création + lecture
+    - TECHNICIEN (ingénieur terrain): Création + lecture
     - ANALYST: Création rapports d'analyse
-    - OPERATOR / MMG: Lecture seule
+    - MMG: Lecture seule
     Filtrage: Données filtrées par sites assignés
     """
     site_field = 'site'
@@ -39,10 +40,10 @@ class ReportViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Logique de création:
-        - OPERATOR: Rapport créé avec statut PENDING_APPROVAL (nécessite validation par SUPERVISOR/SITE_MANAGER)
-        - Autres rôles (ADMIN, SITE_MANAGER, SUPERVISOR, ANALYST): Rapport créé directement en DRAFT (pas d'approbation requise)
+        - TECHNICIEN (ingénieur terrain): Rapport créé avec statut PENDING_APPROVAL (nécessite validation par SITE_MANAGER)
+        - Autres rôles (ADMIN, SITE_MANAGER, ANALYST): Rapport créé directement en DRAFT (pas d'approbation requise)
         """
-        if self.request.user.role == 'OPERATOR':
+        if self.request.user.role == 'TECHNICIEN':
             serializer.save(generated_by=self.request.user, status=Report.ReportStatus.PENDING_APPROVAL)
         else:
             serializer.save(generated_by=self.request.user)
@@ -51,9 +52,9 @@ class ReportViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     def generate_pdf(self, request, pk=None):
         """Générer un PDF pour le rapport
         
-        Seuls ADMIN, SITE_MANAGER, SUPERVISOR, ANALYST peuvent générer.
+        Seuls ADMIN, SITE_MANAGER, ANALYST peuvent générer.
         """
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'ANALYST']:
+        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'ANALYST']:
             return Response(
                 {'error': 'Permission insuffisante pour générer un rapport.'},
                 status=status.HTTP_403_FORBIDDEN
@@ -123,12 +124,12 @@ class ReportViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         """
-        Approuver un rapport créé par un OPERATOR.
-        Seuls SITE_MANAGER, SUPERVISOR peuvent approuver.
+        Approuver un rapport créé par un TECHNICIEN (ingénieur terrain).
+        Seul SITE_MANAGER peut approuver.
         """
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']:
+        if request.user.role not in ['ADMIN', 'SITE_MANAGER']:
             return Response(
-                {'error': 'Seuls les gestionnaires peuvent approuver des rapports.'},
+                {'error': 'Seuls les responsables de site peuvent approuver des rapports.'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -149,12 +150,12 @@ class ReportViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def reject(self, request, pk=None):
         """
-        Rejeter un rapport créé par un OPERATOR.
-        Seuls SITE_MANAGER, SUPERVISOR peuvent rejeter.
+        Rejeter un rapport créé par un TECHNICIEN (ingénieur terrain).
+        Seul SITE_MANAGER peut rejeter.
         """
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']:
+        if request.user.role not in ['ADMIN', 'SITE_MANAGER']:
             return Response(
-                {'error': 'Seuls les gestionnaires peuvent rejeter des rapports.'},
+                {'error': 'Seuls les responsables de site peuvent rejeter des rapports.'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -174,10 +175,10 @@ class ReportViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def generate_excel(self, request, pk=None):
         """Générer un fichier Excel pour le rapport
-        
-        Seuls ADMIN, SITE_MANAGER, SUPERVISOR, ANALYST peuvent générer.
+
+        Seuls ADMIN, SITE_MANAGER, ANALYST peuvent générer.
         """
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'ANALYST']:
+        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'ANALYST']:
             return Response(
                 {'error': 'Permission insuffisante pour générer un rapport.'},
                 status=status.HTTP_403_FORBIDDEN

@@ -9,14 +9,15 @@ import {
   HashtagIcon,
   CheckIcon,
   CubeIcon,
+  InformationCircleIcon,
+  IdentificationIcon,
+  BeakerIcon
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import {
   InputField,
   SelectField,
   Button,
-  Card,
-  FormSection,
   Alert,
   Badge,
 } from '../../components/ui';
@@ -24,6 +25,8 @@ import PageHeader from '../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../components/ui/UIComponents';
 import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
+
+/* ---------------- CONFIG ---------------- */
 
 const EQUIPMENT_TYPES = [
   { value: 'EXCAVATOR', label: '🏗️ Pelle excavatrice' },
@@ -38,11 +41,35 @@ const EQUIPMENT_TYPES = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'OPERATIONAL', label: 'Opérationnel', color: 'success' },
-  { value: 'MAINTENANCE', label: 'En maintenance', color: 'warning' },
-  { value: 'BREAKDOWN', label: 'En panne', color: 'danger' },
-  { value: 'RETIRED', label: 'Hors service', color: 'default' },
+  { value: 'OPERATIONAL', label: 'Opérationnel', color: 'emerald' },
+  { value: 'MAINTENANCE', label: 'Maintenance', color: 'amber' },
+  { value: 'BREAKDOWN', label: 'En panne', color: 'orange' },
+  { value: 'RETIRED', label: 'Hors service', color: 'red' },
 ];
+
+/* ---------------- STYLED COMPONENTS ---------------- */
+
+const FormCardSection = ({ icon: Icon, title, description, children, delay }) => (
+  <div 
+    className="bg-[#f0f9ff] rounded-[32px] overflow-hidden mb-8 border border-blue-50 shadow-sm animate-fadeIn"
+    style={{ animationDelay: `${delay}s`, opacity: 0, animationFillMode: 'forwards' }}
+  >
+    <div className="px-8 py-5 flex items-center gap-4">
+      <div className="p-2.5 bg-blue-100 rounded-2xl shadow-inner">
+        <Icon className="h-6 w-6 text-blue-600" />
+      </div>
+      <div>
+        <h2 className="font-black text-slate-800 text-lg tracking-tight">{title}</h2>
+        <p className="text-xs font-bold text-blue-400 uppercase tracking-widest leading-none mt-1">{description}</p>
+      </div>
+    </div>
+    <div className="bg-white m-1.5 rounded-[26px] p-8 shadow-sm space-y-6">
+      {children}
+    </div>
+  </div>
+);
+
+/* ---------------- MAIN COMPONENT ---------------- */
 
 export default function EquipmentForm() {
   const { id } = useParams();
@@ -70,15 +97,12 @@ export default function EquipmentForm() {
 
   useEffect(() => {
     fetchSites();
-    if (isEdit) {
-      fetchEquipment();
-    } else {
-      generateEquipmentCode();
-    }
+    if (isEdit) fetchEquipment();
+    else generateEquipmentCode();
   }, [id]);
 
   const generateEquipmentCode = () => {
-    const code = `EQP-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+    const code = `EQP-${Math.floor(1000 + Math.random() * 9000)}`;
     setFormData(prev => ({ ...prev, equipment_code: code }));
   };
 
@@ -87,9 +111,7 @@ export default function EquipmentForm() {
       const response = await api.get('/sites/');
       const sitesData = response.data.results || response.data;
       setSites(sitesData.map(site => ({ value: site.id, label: site.name })));
-    } catch (error) {
-      console.error('Erreur lors du chargement des sites:', error);
-    }
+    } catch (error) { console.error(error); }
   };
 
   const fetchEquipment = async () => {
@@ -107,12 +129,8 @@ export default function EquipmentForm() {
         model: response.data.model || '',
         serial_number: response.data.serial_number || '',
       });
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-      setError('Impossible de charger les données');
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { setError('Impossible de charger les données'); }
+    finally { setLoading(false); }
   };
 
   const handleChange = (e) => {
@@ -125,274 +143,205 @@ export default function EquipmentForm() {
     e.preventDefault();
     setError(null);
     setSaving(true);
-
     try {
-      const dataToSend = {
-        ...formData,
-        commissioning_date: formData.commissioning_date || null,
-      };
-
-      if (isEdit) {
-        await api.put(`/equipment/${id}/`, dataToSend);
-      } else {
-        await api.post('/equipment/', dataToSend);
-      }
-      
+      const dataToSend = { ...formData, commissioning_date: formData.commissioning_date || null };
+      if (isEdit) await api.put(`/equipment/${id}/`, dataToSend);
+      else await api.post('/equipment/', dataToSend);
       setSuccess(true);
       setTimeout(() => navigate('/equipment'), 1500);
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-      if (error.response?.data) {
-        const errors = Object.entries(error.response.data)
-          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-          .join('\n');
-        setError(errors);
-      } else {
-        setError('Une erreur est survenue');
-      }
-    } finally {
-      setSaving(false);
-    }
+    } catch (err) {
+      setError(err.response?.data ? JSON.stringify(err.response.data) : 'Une erreur est survenue');
+    } finally { setSaving(false); }
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      OPERATIONAL: 'bg-green-100 text-green-700 border-green-200',
-      MAINTENANCE: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      BREAKDOWN: 'bg-orange-100 text-orange-700 border-orange-200',
-      RETIRED: 'bg-red-100 text-red-700 border-red-200',
-    };
-    return colors[status] || colors.RETIRED;
-  };
-
-  if (loading) {
-    return <LoadingSpinner text="Chargement de l'équipement..." />;
-  }
+  if (loading) return <LoadingSpinner text="Chargement..." />;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-8">
-      <PageHeader
-        title={isEdit ? 'Modifier l\'équipement' : 'Nouvel équipement'}
-        subtitle={isEdit ? 'Modifiez les informations de l\'équipement' : 'Ajoutez un nouvel équipement au parc'}
-        backLink="/equipment"
-        icon={WrenchScrewdriverIcon}
-        iconColor="bg-amber-500"
-        breadcrumbs={[
-          { label: 'Équipements', link: '/equipment' },
-          { label: isEdit ? 'Modifier' : 'Nouveau' },
-        ]}
-      />
-
-      {success && (
-        <Alert type="success" title="Succès !">
-          {isEdit ? 'Équipement modifié avec succès.' : 'Équipement ajouté avec succès.'} Redirection...
-        </Alert>
-      )}
-
-      {error && (
-        <Alert type="error" title="Erreur" onClose={() => setError(null)}>
-          <pre className="whitespace-pre-line font-sans">{error}</pre>
-        </Alert>
-      )}
+    <div className="max-w-5xl mx-auto px-4 pb-12">
+      
+      {/* ── HEADER PREMIUM AZURE ── */}
+      <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-r from-blue-600 to-indigo-700 shadow-xl mb-10 animate-fadeInDown">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+        <div className="relative p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-6 text-center md:text-left">
+            <div className="p-4 bg-white/20 backdrop-blur-md rounded-[28px] shadow-lg">
+              <WrenchScrewdriverIcon className="h-10 w-10 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tight">
+                {isEdit ? 'Édition Matériel' : 'Nouvel Équipement'}
+              </h1>
+              <p className="text-blue-100 font-medium opacity-90">
+                {isEdit ? `Modification de ${formData.equipment_code}` : 'Enregistrement d\'un nouvel actif au parc'}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Badge variant="white" className="!bg-white/10 !text-white border-0 px-4 py-2">
+              ID: {formData.equipment_code || 'Auto-généré'}
+            </Badge>
+          </div>
+        </div>
+      </div>
 
       <ReadOnlyBanner message={roleBanner} />
 
-      <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="space-y-6">
-        {/* Identification */}
-        <Card>
-          <FormSection
-            title="Identification"
-            description="Informations de base de l'équipement"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              <InputField
-                label="Code équipement"
-                name="equipment_code"
-                value={formData.equipment_code}
-                onChange={handleChange}
-                required
-                placeholder="EQP-0001"
-                icon={HashtagIcon}
-                disabled={readOnly}
-              />
+      {success && <Alert type="success" title="Enregistré !" className="mb-6 animate-bounce" />}
+      {error && <Alert type="error" title="Erreur" onClose={() => setError(null)} className="mb-6">{error}</Alert>}
 
-              <InputField
-                label="Nom de l'équipement"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                placeholder="Ex: Excavatrice Caterpillar 390F"
-                icon={CubeIcon}
-                disabled={readOnly}
-              />
+      <form onSubmit={readOnly ? (e) => e.preventDefault() : handleSubmit} className="space-y-4">
+        
+        {/* SECTION 1: IDENTIFICATION */}
+        <FormCardSection 
+          icon={IdentificationIcon} 
+          title="Identification" 
+          description="Renseignements administratifs"
+          delay={0.1}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <InputField
+              label="Code Equipement"
+              name="equipment_code"
+              value={formData.equipment_code}
+              onChange={handleChange}
+              required
+              icon={HashtagIcon}
+              disabled={readOnly}
+            />
+            <InputField
+              label="Désignation"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder="Ex: Excavatrice Cat 390"
+              icon={CubeIcon}
+              disabled={readOnly}
+            />
+            <SelectField
+              label="Catégorie de matériel"
+              name="equipment_type"
+              value={formData.equipment_type}
+              onChange={handleChange}
+              required
+              options={EQUIPMENT_TYPES}
+              disabled={readOnly}
+            />
+            <SelectField
+              label="Site d'affectation"
+              name="site"
+              value={formData.site}
+              onChange={handleChange}
+              required
+              options={sites}
+              icon={MapPinIcon}
+              disabled={readOnly}
+            />
+          </div>
+        </FormCardSection>
 
-              <SelectField
-                label="Type d'équipement"
-                name="equipment_type"
-                value={formData.equipment_type}
-                onChange={handleChange}
-                required
-                options={EQUIPMENT_TYPES}
-                disabled={readOnly}
-              />
+        {/* SECTION 2: STATUT OPÉRATIONNEL */}
+        <FormCardSection 
+          icon={BeakerIcon} 
+          title="État de Disponibilité" 
+          description="Statut opérationnel en temps réel"
+          delay={0.2}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {STATUS_OPTIONS.map((opt) => (
+              <label
+                key={opt.value}
+                className={`
+                  relative flex flex-col items-center p-6 rounded-[24px] cursor-pointer border-2 transition-all duration-300
+                  ${formData.status === opt.value 
+                    ? `bg-${opt.color}-50 border-${opt.color}-500 shadow-md scale-105` 
+                    : 'bg-slate-50 border-slate-100 opacity-60 hover:opacity-100 hover:border-slate-300'}
+                `}
+              >
+                <input
+                  type="radio"
+                  name="status"
+                  value={opt.value}
+                  checked={formData.status === opt.value}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <CogIcon className={`h-8 w-8 mb-2 ${formData.status === opt.value ? `text-${opt.color}-600` : 'text-slate-400'}`} />
+                <span className={`text-sm font-black uppercase tracking-tight ${formData.status === opt.value ? `text-${opt.color}-700` : 'text-slate-500'}`}>
+                  {opt.label}
+                </span>
+                {formData.status === opt.value && (
+                   <div className={`absolute top-2 right-2 h-4 w-4 bg-${opt.color}-500 rounded-full flex items-center justify-center`}>
+                      <CheckIcon className="h-3 w-3 text-white stroke-[4px]" />
+                   </div>
+                )}
+              </label>
+            ))}
+          </div>
+        </FormCardSection>
 
-              <SelectField
-                label="Site d'affectation"
-                name="site"
-                value={formData.site}
-                onChange={handleChange}
-                required
-                options={sites}
-                placeholder="Sélectionner un site"
-                icon={MapPinIcon}
-                disabled={readOnly}
-              />
-            </div>
-          </FormSection>
-        </Card>
+        {/* SECTION 3: FICHE TECHNIQUE */}
+        <FormCardSection 
+          icon={InformationCircleIcon} 
+          title="Fiche Technique" 
+          description="Informations constructeur"
+          delay={0.3}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <InputField label="Fabricant" name="manufacturer" value={formData.manufacturer} onChange={handleChange} icon={BuildingStorefrontIcon} disabled={readOnly} />
+            <InputField label="Modèle" name="model" value={formData.model} onChange={handleChange} disabled={readOnly} />
+            <InputField label="Numéro de Série" name="serial_number" value={formData.serial_number} onChange={handleChange} disabled={readOnly} />
+          </div>
 
-        {/* Statut */}
-        <Card>
-          <FormSection
-            title="État de l'équipement"
-            description="Statut opérationnel actuel"
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-              {STATUS_OPTIONS.map((option) => (
-                <label
-                  key={option.value}
-                  className={`
-                    flex items-center justify-center gap-2 p-4 rounded-xl cursor-pointer
-                    border-2 transition-all duration-200 text-center
-                    ${formData.status === option.value 
-                      ? getStatusColor(option.value) + ' border-current shadow-sm'
-                      : 'bg-slate-50 border-slate-200/60 hover:border-gray-300'
-                    }
-                  `}
-                >
-                  <input
-                    type="radio"
-                    name="status"
-                    value={option.value}
-                    checked={formData.status === option.value}
-                    onChange={handleChange}
-                    className="sr-only"
-                  />
-                  <div>
-                    <CogIcon className={`h-6 w-6 mx-auto mb-1 ${formData.status === option.value ? '' : 'text-slate-400'}`} />
-                    <span className="font-medium text-base">{option.label}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </FormSection>
-        </Card>
-
-        {/* Détails techniques */}
-        <Card>
-          <FormSection
-            title="Détails techniques"
-            description="Informations du fabricant et modèle"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-              <InputField
-                label="Fabricant"
-                name="manufacturer"
-                value={formData.manufacturer}
-                onChange={handleChange}
-                placeholder="Ex: Caterpillar"
-                icon={BuildingStorefrontIcon}
-              />
-
-              <InputField
-                label="Modèle"
-                name="model"
-                value={formData.model}
-                onChange={handleChange}
-                placeholder="Ex: 390F L"
-              />
-
-              <InputField
-                label="Numéro de série"
-                name="serial_number"
-                value={formData.serial_number}
-                onChange={handleChange}
-                placeholder="Ex: CAT0390FL12345"
-              />
-            </div>
-
-            <div className="mt-6">
-              <label className="flex items-center gap-1 text-base font-semibold text-slate-700 mb-2">
-                <CalendarIcon className="h-4 w-4" />
-                Date de mise en service
+          <div className="mt-8 pt-8 border-t border-slate-50 flex flex-col md:flex-row items-end gap-6">
+            <div className="w-full md:w-1/3">
+              <label className="flex items-center gap-2 text-sm font-black text-slate-400 uppercase tracking-widest mb-3">
+                <CalendarIcon className="h-4 w-4" /> Date de mise en service
               </label>
               <input
                 type="date"
                 name="commissioning_date"
                 value={formData.commissioning_date}
                 onChange={handleChange}
-                className="block w-full md:w-1/3 rounded-xl border-0 py-3 px-4 bg-slate-50 text-slate-800 ring-1 ring-inset ring-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all duration-200 text-base hover:ring-gray-300"
+                disabled={readOnly}
+                className="w-full rounded-[18px] border-0 py-4 px-5 bg-slate-50 text-slate-800 font-bold ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 transition-all outline-none"
               />
             </div>
-          </FormSection>
-        </Card>
-
-        {/* Résumé */}
-        <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-xl ${getStatusColor(formData.status)}`}>
-              <WrenchScrewdriverIcon className="h-6 w-6" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-slate-800">{formData.name || 'Nouvel équipement'}</h4>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Badge variant="default">{formData.equipment_code}</Badge>
-                <Badge variant={formData.status === 'OPERATIONAL' ? 'success' : formData.status === 'MAINTENANCE' ? 'warning' : 'danger'}>
-                  {STATUS_OPTIONS.find(s => s.value === formData.status)?.label}
-                </Badge>
-                <Badge variant="purple">
-                  {EQUIPMENT_TYPES.find(t => t.value === formData.equipment_type)?.label}
-                </Badge>
-              </div>
+            <div className="flex-1 bg-blue-50/50 rounded-[22px] p-5 flex items-center gap-4 border border-blue-100">
+               <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center text-xl shadow-sm">💡</div>
+               <p className="text-xs text-blue-800 font-bold leading-relaxed italic opacity-80">
+                 Ces informations permettent de calculer automatiquement le cycle de vie et les périodes de révision majeure du matériel.
+               </p>
             </div>
           </div>
-        </Card>
+        </FormCardSection>
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-4 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => navigate('/equipment')}
-          >
-            {canSubmit ? 'Annuler' : '← Retour'}
+        {/* ACTIONS */}
+        <div className="flex items-center justify-between gap-4 pt-10 animate-fadeInUp">
+          <Button type="button" variant="ghost" onClick={() => navigate('/equipment')} className="!rounded-2xl font-black text-slate-400 hover:text-slate-600">
+            {canSubmit ? 'Annuler' : '← Retour au parc'}
           </Button>
+          
           {canSubmit && (
             <Button
               type="submit"
-              variant="warning"
               loading={saving}
-              icon={CheckIcon}
+              className="!bg-gradient-to-r from-blue-600 to-blue-800 !text-white !rounded-[22px] !px-10 !py-4 font-black shadow-xl hover:shadow-blue-500/20 hover:scale-105 transition-all flex items-center gap-3"
             >
-              {isEdit ? 'Enregistrer les modifications' : 'Ajouter l\'équipement'}
+              <CheckIcon className="h-6 w-6" />
+              {isEdit ? 'Mettre à jour l\'actif' : 'Enregistrer le matériel'}
             </Button>
           )}
         </div>
       </form>
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        form > div {
-          animation: fadeIn 0.4s ease-out forwards;
-        }
-        form > div:nth-child(1) { animation-delay: 0.05s; opacity: 0; }
-        form > div:nth-child(2) { animation-delay: 0.1s; opacity: 0; }
-        form > div:nth-child(3) { animation-delay: 0.15s; opacity: 0; }
-        form > div:nth-child(4) { animation-delay: 0.2s; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
+        .animate-fadeInDown { animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}</style>
     </div>
   );

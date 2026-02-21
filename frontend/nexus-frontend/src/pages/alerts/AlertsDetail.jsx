@@ -75,10 +75,13 @@ const statusConfig = {
 export default function AlertsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSupervisor } = useAuthStore();
+  const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+
+  // Peut éditer si ADMIN, SITE_MANAGER, ANALYST, MMG, TECHNICIEN
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
 
   useEffect(() => {
     fetchData();

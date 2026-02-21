@@ -1,21 +1,20 @@
 """
 Permissions personnalisées basées sur les rôles NexusMine
 
-Rôles (6 au total):
+
+Rôles (5 au total):
 - ADMIN       : Administrateur de la plateforme (config, utilisateurs, système)
 - SITE_MANAGER: Responsable de site minier (autorité légale, vision multi-sites)
-- SUPERVISOR  : Gestionnaire de Site (supervision opérationnelle quotidienne)
-- OPERATOR    : Technicien/Opérateur (saisie terrain, exécution technique)
+- TECHNICIEN  : Technicien/Opérateur (saisie terrain, exécution technique)
 - ANALYST     : Analyste (données, performance, risques, KPIs)
 - MMG         : Ministère des Mines et de la Géologie (audit, conformité)
 
 Chaîne de responsabilité:
-  Terrain → OPERATOR
-  Décision site → SITE_MANAGER
-  Supervision quotidienne → SUPERVISOR
-  Analyse → ANALYST
-  Contrôle réglementaire → MMG
-  Système → ADMIN
+    Terrain → TECHNICIEN
+    Décision site → SITE_MANAGER
+    Analyse → ANALYST
+    Contrôle réglementaire → MMG
+    Système → ADMIN
 """
 from rest_framework import permissions
 
@@ -44,24 +43,7 @@ class IsSiteManager(permissions.BasePermission):
         )
 
 
-class IsSupervisor(permissions.BasePermission):
-    """Accès réservé aux gestionnaires de site"""
 
-    def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and request.user.role == 'SUPERVISOR'
-        )
-
-
-class IsOperator(permissions.BasePermission):
-    """Accès réservé aux techniciens/opérateurs"""
-
-    def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and request.user.role == 'OPERATOR'
-        )
 
 
 class IsAnalyst(permissions.BasePermission):
@@ -98,14 +80,7 @@ class IsAdminOrSiteManager(permissions.BasePermission):
         )
 
 
-class IsAdminOrSupervisor(permissions.BasePermission):
-    """Accès pour Admin ou Superviseur"""
 
-    def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and request.user.role in ['ADMIN', 'SUPERVISOR']
-        )
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -119,18 +94,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         return request.user.role == 'ADMIN'
 
 
-class IsSiteManagerOrSupervisorOrReadOnly(permissions.BasePermission):
-    """
-    ADMIN / SITE_MANAGER / SUPERVISOR : accès complet
-    Autres : lecture seule
-    """
 
-    def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
 
 
 # ============================================================================
@@ -168,7 +132,6 @@ class CanManageSites(permissions.BasePermission):
     Gestion des sites miniers:
     - ADMIN: CRUD complet
     - SITE_MANAGER: Peut modifier son site assigné (autorité locale)
-    - SUPERVISOR: Lecture + mise à jour limitée
     - Autres: Lecture sites assignés
     """
 
@@ -180,7 +143,7 @@ class CanManageSites(permissions.BasePermission):
         if request.method == 'POST':
             return request.user.role == 'ADMIN'
         # PUT/PATCH
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated:
@@ -189,7 +152,7 @@ class CanManageSites(permissions.BasePermission):
             return True
         if request.user.role == 'ADMIN':
             return True
-        if request.user.role in ['SITE_MANAGER', 'SUPERVISOR']:
+        if request.user.role == 'SITE_MANAGER':
             return obj in request.user.assigned_sites.all()
         return False
 
@@ -199,8 +162,7 @@ class CanManageOperations(permissions.BasePermission):
     Opérations minières:
     - ADMIN: CRUD complet
     - SITE_MANAGER: Lancement officiel, validation, clôture
-    - SUPERVISOR: CRUD opérations de ses sites
-    - OPERATOR: Créer et lire (saisie terrain)
+    - TECHNICIEN: Créer et lire (saisie terrain)
     - ANALYST / MMG: Lecture seule
     """
 
@@ -211,18 +173,18 @@ class CanManageOperations(permissions.BasePermission):
             return True
         if request.method == 'POST':
             return request.user.role in [
-                'ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR',
+                'ADMIN', 'SITE_MANAGER', 'TECHNICIEN',
             ]
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated:
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        if request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']:
+        if request.user.role in ['ADMIN', 'SITE_MANAGER']:
             return True
-        if request.user.role == 'OPERATOR':
+        if request.user.role == 'TECHNICIEN':
             if hasattr(obj, 'created_by'):
                 return obj.created_by == request.user
             if hasattr(obj, 'recorded_by'):
@@ -235,8 +197,7 @@ class CanManageIncidents(permissions.BasePermission):
     Incidents:
     - ADMIN: Configuration système
     - SITE_MANAGER: Déclaration, gestion, clôture (premier responsable légal)
-    - SUPERVISOR: Gestion incidents de ses sites
-    - OPERATOR: Signalement (création + lecture)
+    - TECHNICIEN: Signalement (création + lecture)
     - ANALYST: Lecture + analyse post-incident
     - MMG: Lecture seule (audit incidents majeurs)
     """
@@ -248,9 +209,9 @@ class CanManageIncidents(permissions.BasePermission):
             return True
         if request.method == 'POST':
             return request.user.role in [
-                'ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR',
+                'ADMIN', 'SITE_MANAGER', 'TECHNICIEN',
             ]
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
 
 class CanManageAlerts(permissions.BasePermission):
@@ -258,7 +219,6 @@ class CanManageAlerts(permissions.BasePermission):
     Alertes:
     - ADMIN: Configuration système
     - SITE_MANAGER: Déclenchement et clôture des alertes
-    - SUPERVISOR: Gestion alertes de ses sites
     - Autres: Lecture seule
     """
 
@@ -267,7 +227,7 @@ class CanManageAlerts(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
 
 class CanManageReports(permissions.BasePermission):
@@ -275,9 +235,8 @@ class CanManageReports(permissions.BasePermission):
     Rapports:
     - ADMIN: CRUD complet
     - SITE_MANAGER: Validation des rapports du site
-    - SUPERVISOR: Création + lecture
     - ANALYST: Création rapports d'analyse
-    - OPERATOR / MMG: Lecture seule
+    - TECHNICIEN / MMG: Lecture seule
     """
 
     def has_permission(self, request, view):
@@ -287,7 +246,7 @@ class CanManageReports(permissions.BasePermission):
             return True
         if request.method == 'POST':
             return request.user.role in [
-                'ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'ANALYST',
+                'ADMIN', 'SITE_MANAGER', 'ANALYST',
             ]
         return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
@@ -297,8 +256,7 @@ class CanManageStock(permissions.BasePermission):
     Stocks:
     - ADMIN: Configuration système
     - SITE_MANAGER: Validation stocks et inventaires
-    - SUPERVISOR: Enregistrement entrées/sorties, inventaires
-    - OPERATOR: Enregistrement extraction
+    - TECHNICIEN: Enregistrement extraction
     - ANALYST / MMG: Lecture seule
     """
 
@@ -309,9 +267,9 @@ class CanManageStock(permissions.BasePermission):
             return True
         if request.method == 'POST':
             return request.user.role in [
-                'ADMIN', 'SUPERVISOR', 'OPERATOR',
+                'ADMIN', 'TECHNICIEN',
             ]
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
 
 class CanManagePersonnel(permissions.BasePermission):
@@ -319,7 +277,6 @@ class CanManagePersonnel(permissions.BasePermission):
     Personnel:
     - ADMIN: CRUD complet
     - SITE_MANAGER: CRUD personnel de son site
-    - SUPERVISOR: CRUD personnel de son site
     - Autres: Lecture seule
     """
 
@@ -328,7 +285,7 @@ class CanManagePersonnel(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
 
 class CanManageEquipment(permissions.BasePermission):
@@ -336,8 +293,7 @@ class CanManageEquipment(permissions.BasePermission):
     Équipements:
     - ADMIN: CRUD complet
     - SITE_MANAGER: CRUD équipements de son site
-    - SUPERVISOR: CRUD équipements de son site
-    - OPERATOR: Mise à jour statut équipement
+    - TECHNICIEN: Mise à jour statut équipement
     - Autres: Lecture seule
     """
 
@@ -347,10 +303,10 @@ class CanManageEquipment(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         if request.method in ['POST', 'DELETE']:
-            return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
-        # PUT/PATCH: inclut OPERATOR pour mise à jour statut
+            return request.user.role in ['ADMIN', 'SITE_MANAGER']
+        # PUT/PATCH: inclut TECHNICIEN pour mise à jour statut
         return request.user.role in [
-            'ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR',
+            'ADMIN', 'SITE_MANAGER', 'TECHNICIEN',
         ]
 
 
@@ -359,8 +315,7 @@ class CanManageEnvironment(permissions.BasePermission):
     Données environnementales:
     - ADMIN: Configuration système
     - SITE_MANAGER: Application mesures correctives
-    - SUPERVISOR: Collecte et saisie
-    - OPERATOR: Collecte terrain
+    - TECHNICIEN: Collecte terrain
     - MMG: Vérification conformité
     - Autres: Lecture
     """
@@ -372,9 +327,9 @@ class CanManageEnvironment(permissions.BasePermission):
             return True
         if request.method == 'POST':
             return request.user.role in [
-                'ADMIN', 'SUPERVISOR', 'OPERATOR',
+                'ADMIN', 'TECHNICIEN',
             ]
-        return request.user.role in ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR']
+        return request.user.role in ['ADMIN', 'SITE_MANAGER']
 
 
 class CanManageAnalytics(permissions.BasePermission):
@@ -425,20 +380,7 @@ ROLE_PERMISSIONS = {
         'reports': ['create', 'read', 'validate'],
         'stock': ['read', 'update', 'validate_inventory'],
     },
-    'SUPERVISOR': {
-        'users': ['read'],
-        'sites': ['read', 'update'],
-        'personnel': ['create', 'read', 'update'],
-        'equipment': ['create', 'read', 'update'],
-        'operations': ['create', 'read', 'update', 'delete'],
-        'incidents': ['create', 'read', 'update', 'delete'],
-        'environment': ['create', 'read', 'update'],
-        'analytics': ['read'],
-        'alerts': ['create', 'read', 'update', 'delete'],
-        'reports': ['create', 'read'],
-        'stock': ['create', 'read', 'update'],
-    },
-    'OPERATOR': {
+    'TECHNICIEN': {
         'users': ['read'],
         'sites': ['read'],
         'personnel': ['read'],

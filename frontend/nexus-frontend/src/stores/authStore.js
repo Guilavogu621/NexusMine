@@ -79,8 +79,11 @@ const useAuthStore = create(
       // Vérifier si responsable de site minier
       isSiteManager: () => ['ADMIN', 'SITE_MANAGER'].includes(get().user?.role),
 
-      // Vérifier si superviseur, site manager ou admin
-      isSupervisor: () => ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR'].includes(get().user?.role),
+      // Vérifier si superviseur (DEPRECATED - use isSiteManager)
+      isSupervisor: () => ['ADMIN', 'SITE_MANAGER'].includes(get().user?.role),
+
+      // Vérifier si technicien
+      isTechnicien: () => get().user?.role === 'TECHNICIEN',
 
       // Vérifier si analyste
       isAnalyst: () => get().user?.role === 'ANALYST',
