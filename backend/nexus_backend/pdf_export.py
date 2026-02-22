@@ -1,10 +1,11 @@
 from io import BytesIO
+import qrcode
 from datetime import datetime
 from django.http import FileResponse
-from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.units import inch, mm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
 from reportlab.lib import colors
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,119 +14,177 @@ from accounts.audit import AuditLog
 from django.contrib.contenttypes.models import ContentType
 
 class PDFExportMixin:
-    """Mixin pour exporter les données en PDF avec audit trail"""
+    """Mixin pour exporter les données en PDF avec audit trail et QR Code"""
+
+    def _get_qr_code(self, data, size=1.5*inch):
+        """Génère un QR code pour le PDF"""
+        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+        qr.add_data(data)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        img_buffer = BytesIO()
+        img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)
+        return Image(img_buffer, width=size, height=size)
 
     @action(detail=True, methods=['get'])
     def export_pdf(self, request, pk=None):
         """
-        Exporte l'objet et son audit trail complet en PDF
+        Exporte l'objet et son audit trail complet en PDF avec design premium
         """
         obj = self.get_object()
         
         # Créer le buffer PDF
         buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        doc = SimpleDocTemplate(
+            buffer, 
+            pagesize=A4,
+            rightMargin=50, leftMargin=50,
+            topMargin=50, bottomMargin=50
+        )
         elements = []
+        
+        # Couleurs Premium NexusMine
+        PREMIUM_INDIGO = colors.HexColor('#4F46E5')
+        PREMIUM_BLUE = colors.HexColor('#3B82F6')
+        DARK_TEXT = colors.HexColor('#0F172A')
+        LIGHT_TEXT = colors.HexColor('#64748B')
+        BORDER_LIGHT = colors.HexColor('#E2E8F0')
         
         # Styles
         styles = getSampleStyleSheet()
+        
         title_style = ParagraphStyle(
-            'CustomTitle',
+            'PremiumTitle',
             parent=styles['Heading1'],
-            fontSize=16,
-            textColor=colors.HexColor('#1e293b'),
-            spaceAfter=30,
+            fontSize=24,
+            textColor=PREMIUM_INDIGO,
+            spaceAfter=2,
             fontName='Helvetica-Bold',
+        )
+        
+        subtitle_style = ParagraphStyle(
+            'PremiumSubtitle',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=LIGHT_TEXT,
+            spaceAfter=20,
+            fontName='Helvetica',
+            letterSpacing=1
         )
         
         heading_style = ParagraphStyle(
-            'CustomHeading',
+            'PremiumHeading',
             parent=styles['Heading2'],
             fontSize=12,
-            textColor=colors.HexColor('#0f172a'),
+            textColor=DARK_TEXT,
             spaceAfter=12,
-            spaceBefore=12,
+            spaceBefore=18,
+            fontName='Helvetica-Bold',
+            borderPadding=(5, 5, 5, 5),
+            leftIndent=0,
+        )
+
+        label_style = ParagraphStyle(
+            'LabelStyle',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=LIGHT_TEXT,
             fontName='Helvetica-Bold',
         )
+
+        value_style = ParagraphStyle(
+            'ValueStyle',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=DARK_TEXT,
+        )
         
-        # Titre principal
-        model_name = obj.__class__.__name__
-        elements.append(Paragraph(f"Rapport {model_name}", title_style))
+        # --- HEADER SECTION ---
+        # Logo placeholder or Icon as text
+        elements.append(Paragraph("NEXUSMINE", ParagraphStyle('Logo', fontSize=14, fontName='Helvetica-Bold', textColor=PREMIUM_INDIGO)))
         elements.append(Spacer(1, 0.2*inch))
         
-        # Métadonnées document
-        metadata = [
-            [Paragraph("<b>Propriété</b>", styles['Normal']), Paragraph("<b>Valeur</b>", styles['Normal'])],
-            ["Date d'export", datetime.now().strftime('%d/%m/%Y %H:%M:%S')],
-            ["Exporté par", request.user.email],
-            ["Modèle", model_name],
-            ["ID", str(obj.id)],
+        model_name = obj.__class__.__name__
+        title_text = f"RAPPORT {model_name.upper()}"
+        if hasattr(obj, 'report_type'):
+            title_text = obj.title.upper()
+            
+        elements.append(Paragraph(title_text, title_style))
+        elements.append(Paragraph(f"Généré le {datetime.now().strftime('%d %B %Y à %H:%M')}", subtitle_style))
+        
+        # HR
+        elements.append(Table([['']], colWidths=[7.2*inch], style=[('LINEBELOW', (0,0), (-1,-1), 0.5, BORDER_LIGHT)]))
+        elements.append(Spacer(1, 0.3*inch))
+
+        # --- QR CODE & METADATA SECTION ---
+        # QR Code deeply linked to mobile app or dashboard
+        # Format: nexusmine://reports/{id}
+        qr_data = f"https://nexusmine.app/reports/{obj.id}" 
+        qr_img = self._get_qr_code(qr_data, size=1.2*inch)
+        
+        meta_table_data = [
+            [Paragraph("<b>RÉFÉRENCE</b>", label_style), Paragraph(str(obj.id), value_style), qr_img],
+            [Paragraph("<b>ÉMIS PAR</b>", label_style), Paragraph(request.user.get_full_name() or request.user.email, value_style), ''],
+            [Paragraph("<b>STATUT</b>", label_style), Paragraph(getattr(obj, 'status', 'N/A'), value_style), ''],
+            [Paragraph("<b>DATE D'ÉMISSION</b>", label_style), Paragraph(datetime.now().strftime('%d/%m/%Y'), value_style), ''],
         ]
         
-        metadata_table = Table(metadata, colWidths=[2*inch, 4*inch])
-        metadata_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f1f5f9')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#0f172a')),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e2e8f0')),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+        meta_table = Table(meta_table_data, colWidths=[1.5*inch, 3.5*inch, 1.5*inch])
+        meta_table.setStyle(TableStyle([
+            ('SPAN', (2, 0), (2, 3)),
+            ('ALIGN', (2, 0), (2, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
         ]))
-        
-        elements.append(metadata_table)
+        elements.append(meta_table)
         elements.append(Spacer(1, 0.3*inch))
-        
-        # Données de l'objet
-        elements.append(Paragraph("Détails de l'objet", heading_style))
+
+        # --- MAIN CONTENT ---
+        elements.append(Paragraph("INFORMATIONS DÉTAILLÉES", heading_style))
         
         # Sérialiser les données de l'objet
         serializer = self.get_serializer(obj)
         obj_data = serializer.data
         
         if isinstance(obj_data, dict):
-            obj_rows = [
-                [Paragraph("<b>Champ</b>", styles['Normal']), Paragraph("<b>Valeur</b>", styles['Normal'])]
-            ]
-            
+            obj_rows = []
             for key, value in obj_data.items():
-                if key not in ['id', 'created_at', 'updated_at']:
-                    # Formater la valeur
-                    if isinstance(value, (dict, list)):
-                        value_str = str(value)[:100]
-                    else:
-                        value_str = str(value) if value else "—"
-                    
-                    obj_rows.append([
-                        Paragraph(str(key).replace('_', ' ').title(), styles['Normal']),
-                        Paragraph(value_str, styles['Normal'])
-                    ])
+                if key not in ['id', 'created_at', 'updated_at', 'file', 'content', 'summary']:
+                    if value and value != "":
+                        obj_rows.append([
+                            Paragraph(str(key).replace('_', ' ').upper(), label_style),
+                            Paragraph(str(value), value_style)
+                        ])
             
-            obj_table = Table(obj_rows, colWidths=[2*inch, 4*inch])
+            obj_table = Table(obj_rows, colWidths=[2.5*inch, 4.5*inch])
             obj_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f1f5f9')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#0f172a')),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('LINEBELOW', (0, 0), (-1, -1), 0.25, BORDER_LIGHT),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+                ('TOPPADDING', (0, 0), (-1, -1), 10),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 9),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('TOPPADDING', (0, 0), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e2e8f0')),
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
             ]))
-            
             elements.append(obj_table)
+
+        # Content/Summary specific fields
+        if hasattr(obj, 'summary') and obj.summary:
+            elements.append(Paragraph("RÉSUMÉ EXÉCUTIF", heading_style))
+            elements.append(Paragraph(obj.summary, value_style))
+            
+        if hasattr(obj, 'content') and obj.content:
+            elements.append(Paragraph("CONTENU DU RAPPORT", heading_style))
+            # Split by lines to maintain paragraphs
+            for line in obj.content.split('\n'):
+                if line.strip():
+                    elements.append(Paragraph(line, value_style))
+                    elements.append(Spacer(1, 0.1*inch))
         
-        elements.append(Spacer(1, 0.3*inch))
-        
-        # Audit trail
+        # --- AUDIT TRAIL PAGE ---
         elements.append(PageBreak())
-        elements.append(Paragraph("Historique d'audit", heading_style))
+        elements.append(Paragraph("HISTORIQUE D'AUDIT & TRAÇABILITÉ", heading_style))
         
-        # Récupérer l'audit trail
         content_type = ContentType.objects.get_for_model(obj.__class__)
         audit_logs = AuditLog.objects.filter(
             content_type=content_type,
@@ -133,52 +192,37 @@ class PDFExportMixin:
         ).order_by('-timestamp')
         
         if audit_logs.exists():
-            audit_rows = [
-                [
-                    Paragraph("<b>Date/Heure</b>", styles['Normal']),
-                    Paragraph("<b>Utilisateur</b>", styles['Normal']),
-                    Paragraph("<b>Action</b>", styles['Normal']),
-                    Paragraph("<b>Détails</b>", styles['Normal']),
-                ]
-            ]
+            audit_rows = [[
+                Paragraph("DATE", label_style),
+                Paragraph("ACTEUR", label_style),
+                Paragraph("ACTION", label_style),
+                Paragraph("MODIFICATION", label_style),
+            ]]
             
-            for log in audit_logs[:50]:  # Limiter à 50 derniers logs
-                details = f"{log.field_changed or 'N/A'}"
-                if log.old_value is not None and log.new_value is not None:
-                    details += f"\n{log.old_value} → {log.new_value}"
-                
+            for log in audit_logs[:30]:
                 audit_rows.append([
-                    datetime.fromisoformat(log.timestamp.isoformat()).strftime('%d/%m/%Y %H:%M'),
-                    log.user.email[:20],
-                    log.get_action_display(),
-                    details[:100],
+                    Paragraph(log.timestamp.strftime('%d/%m/%Y %H:%M'), value_style),
+                    Paragraph(log.user.email, value_style),
+                    Paragraph(log.get_action_display(), value_style),
+                    Paragraph(log.field_changed or "-", value_style),
                 ])
             
-            audit_table = Table(audit_rows, colWidths=[1.2*inch, 1.2*inch, 1*inch, 2.6*inch])
+            audit_table = Table(audit_rows, colWidths=[1*inch, 1.8*inch, 1*inch, 3.2*inch])
             audit_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f1f5f9')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#0f172a')),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F8FAFC')),
+                ('LINEBELOW', (0, 0), (-1, 0), 1, DARK_TEXT),
+                ('LINEBELOW', (0, 1), (-1, -1), 0.25, BORDER_LIGHT),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e2e8f0')),
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]))
-            
             elements.append(audit_table)
-        else:
-            elements.append(Paragraph("Aucun enregistrement d'audit disponible", styles['Normal']))
         
-        # Horodatage officiel
-        elements.append(Spacer(1, 0.3*inch))
-        timestamp = datetime.now().strftime('%d/%m/%Y à %H:%M:%S UTC')
+        # --- FOOTER ---
+        elements.append(Spacer(1, 0.5*inch))
         elements.append(Paragraph(
-            f"<i>Document généré le {timestamp} | Certification numérique: MMG</i>",
-            ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.grey)
+            "Ce document est une certification officielle générée par le système NexusMine. Scannez le QR code pour vérifier l'authenticité.",
+            ParagraphStyle('Footer', parent=styles['Normal'], fontSize=7, textColor=colors.grey, alignment=1)
         ))
         
         # Construire le PDF
@@ -186,5 +230,6 @@ class PDFExportMixin:
         buffer.seek(0)
         
         # Retourner le fichier
-        filename = f"{slugify(model_name)}-{obj.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-        return FileResponse(buffer, as_attachment=True, filename=filename)
+        filename = f"{slugify(model_name)}-{obj.id}.pdf"
+        return FileResponse(buffer, as_attachment=True, filename=filename, content_type='application/pdf')
+

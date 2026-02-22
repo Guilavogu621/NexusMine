@@ -6,8 +6,9 @@ from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
 from .models import Alert
-import hashlib
 import json
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 
 @receiver(post_save, sender=Alert)
@@ -66,3 +67,45 @@ def check_snoozed_alerts(sender, instance, **kwargs):
             instance.status = 'NEW'
             instance.snoozed_until = None
             instance.save(update_fields=['status', 'snoozed_until'])
+
+
+@receiver(post_save, sender=Alert)
+def broadcast_new_alert(sender, instance, created, **kwargs):
+    """
+    Diffuser la nouvelle alerte via WebSocket
+    """
+    if created:
+        channel_layer = get_channel_layer()
+        
+        # Données de l'alerte pour le WebSocket
+        alert_data = {
+            'id': instance.id,
+            'title': instance.title,
+            'message': instance.message,
+            'category': instance.category,
+            'severity': instance.severity,
+            'alert_type': instance.alert_type,
+            'priority_order': instance.priority_order,
+            'generated_at': instance.generated_at.isoformat(),
+            'status': instance.status,
+            'site_name': instance.site.name if instance.site else 'Tous sites',
+        }
+        
+        # Envoyer au groupe global des notifications
+        async_to_sync(channel_layer.group_send)(
+            "notifications_role_ADMIN",  # Exemple: notifier les admins par défaut
+            {
+                'type': 'alert_notification',
+                'alert': alert_data
+            }
+        )
+        
+        # Si assigné à un utilisateur spécifique
+        if instance.assigned_to:
+            async_to_sync(channel_layer.group_send)(
+                f"notifications_{instance.assigned_to.id}",
+                {
+                    'type': 'alert_notification',
+                    'alert': alert_data
+                }
+            )

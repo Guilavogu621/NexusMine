@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import useAuthStore from '../../stores/authStore';
 import api from '../../api/axios';
+import useWebSocket from '../../hooks/useWebSocket';
 
 export default function Header({ onMenuClick }) {
   const { user, logout } = useAuthStore();
@@ -35,9 +36,25 @@ export default function Header({ onMenuClick }) {
 
   useEffect(() => {
     fetchUnreadAlerts();
-    const interval = setInterval(fetchUnreadAlerts, 30000);
+    const interval = setInterval(fetchUnreadAlerts, 60000); // 1 minute interval as fallback
     return () => clearInterval(interval);
   }, [fetchUnreadAlerts]);
+
+  // WebSocket for real-time alerts
+  const handleWebSocketMessage = useCallback((data) => {
+    if (data.type === 'alert_notification') {
+      console.log('Real-time alert received:', data.alert);
+      fetchUnreadAlerts();
+      // Optional: show browser notification or toast here
+    }
+  }, [fetchUnreadAlerts]);
+
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsHost = window.location.host === 'localhost:5173' || window.location.host === '127.0.0.1:5173'
+    ? 'localhost:8000'
+    : window.location.host;
+
+  useWebSocket(`${wsProtocol}//${wsHost}/ws/notifications/`, handleWebSocketMessage);
 
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-8 py-3">
@@ -117,9 +134,8 @@ export default function Header({ onMenuClick }) {
                   {({ active }) => (
                     <a
                       href="/profile"
-                      className={`${
-                        active ? 'bg-slate-50' : ''
-                      } flex items-center px-4 py-2.5 text-[0.95rem] text-gray-700`}
+                      className={`${active ? 'bg-slate-50' : ''
+                        } flex items-center px-4 py-2.5 text-[0.95rem] text-gray-700`}
                     >
                       <UserCircleIcon className="mr-3 h-5 w-5 text-gray-400" />
                       Mon profil
@@ -130,9 +146,8 @@ export default function Header({ onMenuClick }) {
                   {({ active }) => (
                     <a
                       href="/settings"
-                      className={`${
-                        active ? 'bg-slate-50' : ''
-                      } flex items-center px-4 py-2.5 text-[0.95rem] text-gray-700`}
+                      className={`${active ? 'bg-slate-50' : ''
+                        } flex items-center px-4 py-2.5 text-[0.95rem] text-gray-700`}
                     >
                       <Cog6ToothIcon className="mr-3 h-5 w-5 text-gray-400" />
                       Paramètres
@@ -144,9 +159,8 @@ export default function Header({ onMenuClick }) {
                   {({ active }) => (
                     <button
                       onClick={handleLogout}
-                      className={`${
-                        active ? 'bg-slate-50' : ''
-                      } flex w-full items-center px-4 py-2.5 text-[0.95rem] text-red-600`}
+                      className={`${active ? 'bg-slate-50' : ''
+                        } flex w-full items-center px-4 py-2.5 text-[0.95rem] text-red-600`}
                     >
                       <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5" />
                       Déconnexion

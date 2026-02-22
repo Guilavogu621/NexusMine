@@ -50,76 +50,26 @@ class ReportViewSet(PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def generate_pdf(self, request, pk=None):
-        """Générer un PDF pour le rapport
-        
-        Seuls ADMIN, SITE_MANAGER, ANALYST peuvent générer.
-        """
-        if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'ANALYST']:
-            return Response(
-                {'error': 'Permission insuffisante pour générer un rapport.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        """Générer un PDF premium avec QR Code pour le rapport"""
         report = self.get_object()
-
-        try:
-            from reportlab.lib.pagesizes import A4
-            from reportlab.pdfgen import canvas
-        except ImportError:
-            return Response(
-                {"error": "Dépendance reportlab manquante"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-        buffer = BytesIO()
-        pdf = canvas.Canvas(buffer, pagesize=A4)
-        width, height = A4
-
-        y = height - 50
-        pdf.setFont("Helvetica-Bold", 16)
-        pdf.drawString(50, y, report.title)
-        y -= 30
-
-        pdf.setFont("Helvetica", 10)
-        pdf.drawString(50, y, f"Type: {report.get_report_type_display()}")
-        y -= 15
-        pdf.drawString(50, y, f"Période: {report.period_start} -> {report.period_end}")
-        y -= 20
-
-        if report.site:
-            pdf.drawString(50, y, f"Site: {report.site.name}")
-            y -= 20
-
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(50, y, "Résumé")
-        y -= 15
-        pdf.setFont("Helvetica", 10)
-        for line in (report.summary or "").splitlines():
-            pdf.drawString(50, y, line[:100])
-            y -= 12
-            if y < 80:
-                pdf.showPage()
-                y = height - 50
-
-        pdf.setFont("Helvetica-Bold", 12)
-        pdf.drawString(50, y, "Contenu")
-        y -= 15
-        pdf.setFont("Helvetica", 10)
-        for line in (report.content or "").splitlines():
-            pdf.drawString(50, y, line[:100])
-            y -= 12
-            if y < 80:
-                pdf.showPage()
-                y = height - 50
-
-        pdf.save()
-        buffer.seek(0)
-
-        filename = f"report_{report.id}_{timezone.now().strftime('%Y%m%d_%H%M')}.pdf"
-        report.file.save(filename, ContentFile(buffer.read()), save=False)
-        report.status = Report.ReportStatus.GENERATED
-        report.save(update_fields=['file', 'status', 'updated_at'])
-
-        return Response(ReportSerializer(report).data)
+        
+        # Utiliser la logique de PDFExportMixin pour générer le contenu
+        # On appelle export_pdf du mixin qui retourne un FileResponse
+        response = self.export_pdf(request, pk=pk)
+        
+        if isinstance(response, FileResponse):
+            # Sauvegarder le PDF généré dans le champ file du modèle
+            # On doit collecter tout le contenu du streaming_content
+            full_content = b"".join(response.streaming_content)
+            
+            filename = f"report_{report.id}_{timezone.now().strftime('%Y%m%d_%H%M')}.pdf"
+            report.file.save(filename, ContentFile(full_content), save=False)
+            report.status = Report.ReportStatus.GENERATED
+            report.save(update_fields=['file', 'status', 'updated_at'])
+            
+            return Response(ReportSerializer(report).data)
+        
+        return response
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):

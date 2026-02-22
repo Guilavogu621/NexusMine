@@ -32,3 +32,7 @@ sqlparse==0.5.5
 tqdm==4.67.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
+channels==4.0.0
+daphne==4.0.0
+channels_redis==4.1.0
+qrcode[pil]==8.0
