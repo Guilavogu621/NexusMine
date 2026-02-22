@@ -10,6 +10,10 @@ import {
   ExclamationTriangleIcon,
   FunnelIcon,
   MagnifyingGlassIcon,
+  EyeIcon,
+  TrashIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -17,7 +21,7 @@ import useAuthStore from '../../stores/authStore';
 class AuditAnalyzer {
   static analyzeAnomalies(logs) {
     const anomalies = [];
-    
+
     const deleteCount = logs.filter(l => l.action === 'DELETE').length;
     if (deleteCount > logs.length * 0.3) {
       anomalies.push({
@@ -58,9 +62,9 @@ class AuditAnalyzer {
       });
     }
 
-    const suspiciousUpdates = logs.filter(l => 
-      l.action === 'UPDATE' && 
-      l.object_label && 
+    const suspiciousUpdates = logs.filter(l =>
+      l.action === 'UPDATE' &&
+      l.object_label &&
       (l.object_label.includes('VALIDATED') || l.object_label.includes('PUBLISHED'))
     );
     if (suspiciousUpdates.length > 0) {
@@ -108,13 +112,13 @@ class AuditAnalyzer {
     const userStats = {};
     logs.forEach(log => {
       if (!userStats[log.user_email]) {
-        userStats[log.user_email] = { 
-          email: log.user_email, 
+        userStats[log.user_email] = {
+          email: log.user_email,
           name: log.user_name,
-          actions: 0, 
-          creates: 0, 
-          updates: 0, 
-          deletes: 0 
+          actions: 0,
+          creates: 0,
+          updates: 0,
+          deletes: 0
         };
       }
       userStats[log.user_email].actions++;
@@ -158,6 +162,18 @@ const AuditDashboard = () => {
   const [timeline, setTimeline] = useState([]);
   const [topUsers, setTopUsers] = useState([]);
   const [topObjects, setTopObjects] = useState([]);
+  const [expandedLog, setExpandedLog] = useState(null);
+
+  const getRelativeTime = (timestamp) => {
+    const now = new Date();
+    const date = new Date(timestamp);
+    const diff = Math.floor((now - date) / 1000);
+    if (diff < 60) return `il y a ${diff}s`;
+    if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `il y a ${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `il y a ${Math.floor(diff / 86400)}j`;
+    return date.toLocaleDateString('fr-FR');
+  };
 
   useEffect(() => {
     fetchAuditLogs();
@@ -177,14 +193,14 @@ const AuditDashboard = () => {
     try {
       setLoading(true);
       let params = {};
-      
+
       if (filters.action) params.action = filters.action;
       if (filters.content_type) params.content_type = filters.content_type;
-      
+
       if (filters.date_range !== 'all') {
         const now = new Date();
         let startDate;
-        
+
         if (filters.date_range === 'today') {
           startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         } else if (filters.date_range === 'week') {
@@ -192,10 +208,10 @@ const AuditDashboard = () => {
         } else if (filters.date_range === 'month') {
           startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         }
-        
+
         params.timestamp__gte = startDate.toISOString();
       }
-      
+
       const res = await api.get('/audit-logs/', { params });
       setAuditLogs(res.data.results || res.data);
     } catch (err) {
@@ -258,7 +274,7 @@ const AuditDashboard = () => {
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="auditGrid3" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100" height="100" fill="url(#auditGrid3)" />
@@ -290,17 +306,17 @@ const AuditDashboard = () => {
 
             {/* View Mode Tabs */}
             <div className="flex gap-2 mt-8 flex-wrap">
-              {['timeline', 'analytics', 'threats'].map(mode => (
+              {['timeline', 'deletions', 'analytics', 'threats'].map(mode => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
-                  className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 ${
-                    viewMode === mode
-                      ? 'bg-white text-indigo-700 shadow-lg'
-                      : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 ${viewMode === mode
+                    ? 'bg-white text-indigo-700 shadow-lg'
+                    : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+                    }`}
                 >
                   {mode === 'timeline' && '📊 Historique'}
+                  {mode === 'deletions' && '🗑️ Suppressions'}
                   {mode === 'analytics' && '📈 Analyses'}
                   {mode === 'threats' && '⚠️ Menaces'}
                 </button>
@@ -372,6 +388,118 @@ const AuditDashboard = () => {
                     </div>
                   );
                 })
+              )}
+            </div>
+          )}
+
+          {/* Deletions Tracking View */}
+          {viewMode === 'deletions' && (
+            <div className="space-y-6 animate-fadeInUp">
+              {/* Deletion Stats Summary */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-red-50/80 backdrop-blur-sm rounded-2xl border border-red-200/60 p-5">
+                  <div className="text-3xl font-bold text-red-700">{auditLogs.filter(l => l.action === 'DELETE').length}</div>
+                  <div className="text-sm font-semibold text-red-600 mt-1">🗑️ Total suppressions</div>
+                </div>
+                <div className="bg-orange-50/80 backdrop-blur-sm rounded-2xl border border-orange-200/60 p-5">
+                  <div className="text-3xl font-bold text-orange-700">
+                    {new Set(auditLogs.filter(l => l.action === 'DELETE').map(l => l.user_email)).size}
+                  </div>
+                  <div className="text-sm font-semibold text-orange-600 mt-1">👥 Utilisateurs impliqués</div>
+                </div>
+                <div className="bg-amber-50/80 backdrop-blur-sm rounded-2xl border border-amber-200/60 p-5">
+                  <div className="text-3xl font-bold text-amber-700">
+                    {new Set(auditLogs.filter(l => l.action === 'DELETE').map(l => l.content_type)).size}
+                  </div>
+                  <div className="text-sm font-semibold text-amber-600 mt-1">📦 Types d'objets supprimés</div>
+                </div>
+              </div>
+
+              {/* Deletion Logs */}
+              {auditLogs.filter(l => l.action === 'DELETE').length === 0 ? (
+                <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-12 text-center">
+                  <CheckIcon className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">✅ Aucune suppression enregistrée</h3>
+                  <p className="text-slate-600">Aucun objet n'a été supprimé durant cette période.</p>
+                </div>
+              ) : (
+                auditLogs.filter(l => l.action === 'DELETE').map((log) => (
+                  <div key={log.id} className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-red-200/40 hover:border-red-300/60 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-red-500 to-red-600 rounded-l-2xl" />
+                    <div className="relative z-10 p-6 pl-7">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div className="flex items-start gap-4 flex-1 min-w-0">
+                          <div className="p-3 bg-red-100 rounded-xl flex-shrink-0">
+                            <TrashIcon className="h-6 w-6 text-red-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className="text-xs font-bold px-3 py-1.5 rounded-lg border bg-red-100/80 text-red-800 border-red-200">
+                                🗑️ SUPPRIMÉ
+                              </span>
+                              <span className="text-xs text-slate-500 font-medium px-2 py-1 bg-slate-100 rounded-lg">📦 {log.content_type}</span>
+                            </div>
+                            <h3 className="font-bold text-slate-900 text-lg mb-1">📋 {log.object_label}</h3>
+                            <div className="flex items-center gap-4 text-sm text-slate-600 flex-wrap">
+                              <span className="flex items-center gap-1">👤 <strong>{log.user_name || log.user_email}</strong></span>
+                              <span className="flex items-center gap-1">🕐 {getRelativeTime(log.timestamp)}</span>
+                              {log.ip_address && <span className="flex items-center gap-1">🌐 {log.ip_address}</span>}
+                            </div>
+                            {log.reason && (
+                              <div className="mt-2 text-sm text-slate-500 flex items-center gap-1">💬 {log.reason}</div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="text-right text-xs text-slate-500">
+                            <div>📅 {new Date(log.timestamp).toLocaleDateString('fr-FR')}</div>
+                            <div>🕐 {new Date(log.timestamp).toLocaleTimeString('fr-FR')}</div>
+                          </div>
+                          <button
+                            onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
+                            className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-all"
+                            title="Voir les données supprimées"
+                          >
+                            {expandedLog === log.id ? <ChevronUpIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Expandable Detail - Old Value Data */}
+                      {expandedLog === log.id && log.old_value && (
+                        <div className="mt-5 pt-5 border-t border-red-100">
+                          <h4 className="font-bold text-sm text-red-700 mb-3 flex items-center gap-2">
+                            <EyeIcon className="h-4 w-4" /> 📸 Données avant suppression
+                          </h4>
+                          <div className="bg-red-50/50 rounded-xl border border-red-100 overflow-hidden">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="bg-red-100/60">
+                                  <th className="text-left px-4 py-2 font-bold text-red-800">Champ</th>
+                                  <th className="text-left px-4 py-2 font-bold text-red-800">Valeur</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.entries(typeof log.old_value === 'string' ? JSON.parse(log.old_value) : log.old_value).map(([key, value], i) => (
+                                  <tr key={key} className={i % 2 === 0 ? 'bg-white/50' : 'bg-red-50/30'}>
+                                    <td className="px-4 py-2 font-semibold text-slate-700 whitespace-nowrap">{key}</td>
+                                    <td className="px-4 py-2 text-slate-600 break-all">{String(value)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+                      {expandedLog === log.id && !log.old_value && (
+                        <div className="mt-5 pt-5 border-t border-red-100">
+                          <p className="text-sm text-slate-500 italic">⚠️ Pas de snapshot des données disponible pour cette suppression.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           )}
@@ -554,11 +682,17 @@ const AuditDashboard = () => {
                 auditLogs.map((log, idx) => (
                   <div
                     key={log.id}
-                    className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden"
+                    className={`group relative bg-white/80 backdrop-blur-md rounded-2xl border ${log.action === 'DELETE' ? 'border-red-200/40' : 'border-white/20'} hover:border-white/40 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden`}
                     style={{ animationDelay: `${idx * 50}ms` }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-                    <div className="relative z-10">
+                    {/* Color accent bar */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl ${log.action === 'DELETE' ? 'bg-gradient-to-b from-red-500 to-red-600' :
+                        log.action === 'CREATE' ? 'bg-gradient-to-b from-emerald-500 to-emerald-600' :
+                          log.action === 'UPDATE' ? 'bg-gradient-to-b from-blue-500 to-blue-600' :
+                            log.action === 'APPROVE' ? 'bg-gradient-to-b from-purple-500 to-purple-600' :
+                              'bg-gradient-to-b from-slate-400 to-slate-500'
+                      }`} />
+                    <div className="relative z-10 p-6 pl-7">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex items-start gap-4 flex-1 min-w-0">
                           <div className="text-3xl flex-shrink-0">{getActionIcon(log.action)}</div>
@@ -567,7 +701,8 @@ const AuditDashboard = () => {
                               <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border ${getActionColor(log.action)}`}>
                                 {log.action_display}
                               </span>
-                              <span className="text-xs text-slate-500 font-medium">📦 {log.content_type}</span>
+                              <span className="text-xs text-slate-500 font-medium px-2 py-1 bg-slate-100 rounded-lg">📦 {log.content_type}</span>
+                              <span className="text-xs text-slate-400 font-medium">🕐 {getRelativeTime(log.timestamp)}</span>
                             </div>
                             <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
                               📋 {log.object_label}
@@ -577,7 +712,7 @@ const AuditDashboard = () => {
                                 <div className="flex items-center gap-2">
                                   <span>🏷️</span>
                                   <span className="font-semibold">Champ:</span> {log.field_changed}
-                                  {log.old_value && log.new_value && (
+                                  {log.old_value && log.new_value && !log.field_changed && (
                                     <span> ({JSON.stringify(log.old_value)} → {JSON.stringify(log.new_value)})</span>
                                   )}
                                 </div>
@@ -591,21 +726,76 @@ const AuditDashboard = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="text-right flex-shrink-0 text-sm">
-                          <div className="flex items-center gap-1 text-slate-600 mb-2 justify-end">
-                            <UserIcon className="h-4 w-4" />
-                            <span className="font-medium text-xs">👤 {log.user_email}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="text-right text-sm">
+                            <div className="flex items-center gap-1 text-slate-600 mb-1 justify-end">
+                              <UserIcon className="h-4 w-4" />
+                              <span className="font-bold text-xs">👤 {log.user_name || log.user_email}</span>
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              📅 {new Date(log.timestamp).toLocaleDateString('fr-FR')} 🕐 {new Date(log.timestamp).toLocaleTimeString('fr-FR')}
+                            </div>
+                            {log.ip_address && (
+                              <div className="text-xs text-slate-400 mt-0.5">🌐 {log.ip_address}</div>
+                            )}
                           </div>
-                          <div className="flex items-center gap-1 text-slate-500 mb-1 justify-end">
-                            <ClockIcon className="h-4 w-4" />
-                            <span className="text-xs">📅 {new Date(log.timestamp).toLocaleDateString('fr-FR')}</span>
-                          </div>
-                          <div className="text-xs text-slate-500 flex items-center gap-1 justify-end">
-                            <span>🕐</span>
-                            {new Date(log.timestamp).toLocaleTimeString('fr-FR')}
-                          </div>
+                          {(log.old_value || log.new_value) && (
+                            <button
+                              onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 transition-all"
+                              title="Voir les détails"
+                            >
+                              {expandedLog === log.id ? <ChevronUpIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                            </button>
+                          )}
                         </div>
                       </div>
+
+                      {/* Expandable Detail Panel */}
+                      {expandedLog === log.id && (log.old_value || log.new_value) && (
+                        <div className={`mt-5 pt-5 border-t ${log.action === 'DELETE' ? 'border-red-100' : log.action === 'CREATE' ? 'border-emerald-100' : 'border-slate-100'}`}>
+                          <div className={`grid ${log.old_value && log.new_value && log.action === 'UPDATE' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'} gap-4`}>
+                            {log.old_value && (
+                              <div>
+                                <h4 className={`font-bold text-sm mb-3 flex items-center gap-2 ${log.action === 'DELETE' ? 'text-red-700' : 'text-slate-700'}`}>
+                                  � {log.action === 'DELETE' ? 'Données supprimées' : 'Anciennes valeurs'}
+                                </h4>
+                                <div className={`rounded-xl border overflow-hidden ${log.action === 'DELETE' ? 'bg-red-50/50 border-red-100' : 'bg-slate-50/50 border-slate-200'}`}>
+                                  <table className="w-full text-sm">
+                                    <tbody>
+                                      {Object.entries(typeof log.old_value === 'string' ? JSON.parse(log.old_value) : log.old_value).map(([key, value], i) => (
+                                        <tr key={key} className={i % 2 === 0 ? 'bg-white/50' : ''}>
+                                          <td className="px-3 py-1.5 font-semibold text-slate-700 whitespace-nowrap text-xs">{key}</td>
+                                          <td className="px-3 py-1.5 text-slate-600 break-all text-xs">{String(value)}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+                            {log.new_value && (
+                              <div>
+                                <h4 className={`font-bold text-sm mb-3 flex items-center gap-2 ${log.action === 'CREATE' ? 'text-emerald-700' : 'text-slate-700'}`}>
+                                  ✨ {log.action === 'CREATE' ? 'Données créées' : 'Nouvelles valeurs'}
+                                </h4>
+                                <div className={`rounded-xl border overflow-hidden ${log.action === 'CREATE' ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-50/50 border-slate-200'}`}>
+                                  <table className="w-full text-sm">
+                                    <tbody>
+                                      {Object.entries(typeof log.new_value === 'string' ? JSON.parse(log.new_value) : log.new_value).map(([key, value], i) => (
+                                        <tr key={key} className={i % 2 === 0 ? 'bg-white/50' : ''}>
+                                          <td className="px-3 py-1.5 font-semibold text-slate-700 whitespace-nowrap text-xs">{key}</td>
+                                          <td className="px-3 py-1.5 text-slate-600 break-all text-xs">{String(value)}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
