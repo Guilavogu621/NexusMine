@@ -100,12 +100,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // StatCard Premium
 const StatCard = ({ label, value, icon: Icon, color, bgLight, borderLight, trend, trendUp, delay }) => (
-  <div 
+  <div
     className="group relative bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-6 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden animate-fadeInUp"
     style={{ animationDelay: delay }}
   >
     <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${borderLight} opacity-20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3 group-hover:scale-150 transition-transform duration-700`}></div>
-    
+
     <div className="relative z-10">
       <div className="flex items-center justify-between mb-4">
         <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{label}</p>
@@ -126,7 +126,7 @@ const StatCard = ({ label, value, icon: Icon, color, bgLight, borderLight, trend
 
 // ChartCard Premium
 const ChartCard = ({ title, subtitle, children, className = '', delay }) => (
-  <div 
+  <div
     className={`group bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-xl hover:shadow-2xl hover:border-white/40 transition-all duration-500 animate-fadeInUp ${className}`}
     style={{ animationDelay: delay }}
   >
@@ -147,7 +147,7 @@ export default function StockList() {
   const [summaries, setSummaries] = useState([]);
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filtres
   const [search, setSearch] = useState('');
   const [filterSite, setFilterSite] = useState('');
@@ -263,49 +263,69 @@ export default function StockList() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative pb-12">
-      {/* Background decoration */}
-      <div className="fixed inset-0 opacity-40 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_20%_80%,rgba(16,185,129,0.05),transparent_50%)]"></div>
-      </div>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
       <div className="relative max-w-7xl mx-auto pt-8 px-4 sm:px-6 lg:px-8 space-y-8">
-        
+
         {/* Header Premium */}
-        <div className="group relative bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-[40px] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="stockGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
               <rect width="100" height="100" fill="url(#stockGrid)" />
             </svg>
           </div>
-          
-          <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
-              <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform duration-500">
-                <CubeIcon className="h-8 w-8" />
+
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+
+          <div className="relative p-8 px-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex items-start gap-6">
+                <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-xl ring-1 ring-white/30">
+                  <CubeIcon className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight font-outfit">
+                    Stocks & Logistique
+                  </h1>
+                  <p className="mt-2 text-blue-100 font-medium opacity-90">
+                    Gestion centralisée et suivi des flux minéraliers
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight font-outfit">
-                  Stocks & Logistique
-                </h1>
-                <p className="text-blue-100 font-medium mt-1">
-                  Gestion centralisée et suivi des flux minéraliers
-                </p>
-              </div>
+
+              {hasRole(['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']) && (
+                <Link
+                  to="/stock/new"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                  Nouveau mouvement
+                </Link>
+              )}
             </div>
 
-            {hasRole(['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']) && (
-              <Link
-                to="/stock/new"
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white text-indigo-700 rounded-xl font-bold shadow-xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 flex-shrink-0"
-              >
-                <PlusIcon className="h-5 w-5" />
-                Nouveau mouvement
-              </Link>
-            )}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
+              {[
+                { label: 'Stock actuel', value: totals.current, icon: CubeIcon, color: 'text-blue-200' },
+                { label: 'Volume extrait', value: totals.extracted, icon: ArrowTrendingUpIcon, color: 'text-emerald-200' },
+                { label: 'Volume expédié', value: totals.expedited, icon: TruckIcon, color: 'text-orange-200' },
+                { label: 'Zones actives', value: locations.length, icon: MapPinIcon, color: 'text-purple-200' },
+              ].map((stat, i) => (
+                <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 group/stat">
+                  <div className="flex items-center gap-3 mb-2">
+                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                    <p className="text-xs font-bold text-blue-100 uppercase tracking-widest">{stat.label}</p>
+                  </div>
+                  <p className="text-3xl font-bold text-white font-outfit tracking-tight">{stat.value.toLocaleString()} <span className="text-sm font-medium opacity-60">t</span></p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -315,7 +335,7 @@ export default function StockList() {
             <FunnelIcon className="h-5 w-5 text-slate-400" />
             <span className="font-bold text-slate-700">Filtres</span>
           </div>
-          
+
           <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
             <div className="relative">
               <MagnifyingGlassIcon className="h-5 w-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -390,18 +410,18 @@ export default function StockList() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
+
           <ChartCard title="Répartition par Minerai" subtitle="Volume en tonnes par type" delay="0.5s">
             {mineralDistribution.length === 0 ? (
               <div className="h-full flex items-center justify-center text-slate-400 font-bold">Données insuffisantes</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie 
-                    data={mineralDistribution} 
-                    dataKey="value" 
-                    nameKey="name" 
-                    innerRadius={70} 
+                  <Pie
+                    data={mineralDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={70}
                     outerRadius={100}
                     paddingAngle={5}
                     stroke="none"
@@ -410,7 +430,7 @@ export default function StockList() {
                       <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -421,15 +441,15 @@ export default function StockList() {
               <LineChart data={netFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Line type="monotone" dataKey="net" stroke="#6366f1" strokeWidth={4} dot={{r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 8}} />
+                <Line type="monotone" dataKey="net" stroke="#6366f1" strokeWidth={4} dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -438,9 +458,9 @@ export default function StockList() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mineralFlows} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} />
-                <Tooltip content={<CustomTooltip />} cursor={{fill: '#f8fafc'}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
                 <Bar dataKey="extracted" name="Extraction" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={40} />
                 <Bar dataKey="expedited" name="Expédition" fill="#f97316" radius={[6, 6, 0, 0]} maxBarSize={40} />
               </BarChart>
@@ -454,9 +474,9 @@ export default function StockList() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={siteTotals} layout="vertical" margin={{ top: 0, right: 20, left: 60, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fill: '#475569', fontSize: 13, fontWeight: 700}} width={100} />
-                  <Tooltip content={<CustomTooltip />} cursor={{fill: '#f8fafc'}} />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 13, fontWeight: 700 }} width={100} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
                   <Bar dataKey="stock" name="Stock" fill="#3b82f6" radius={[0, 6, 6, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
@@ -467,7 +487,7 @@ export default function StockList() {
 
         {/* Listes Détaillées */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
-          
+
           {/* Emplacements */}
           <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 shadow-xl overflow-hidden animate-fadeInUp" style={{ animationDelay: '0.9s' }}>
             <div className="p-6 border-b border-slate-100 bg-white/50">
@@ -518,10 +538,10 @@ export default function StockList() {
                 movements.slice(0, 15).map((mv) => {
                   const IconComponent = movementIcons[mv.movement_type] || CubeIcon;
                   const isIncoming = incomingTypes.has(mv.movement_type);
-                  
+
                   return (
-                    <div 
-                      key={mv.id} 
+                    <div
+                      key={mv.id}
                       className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
                     >
                       <div className="flex items-center gap-4">

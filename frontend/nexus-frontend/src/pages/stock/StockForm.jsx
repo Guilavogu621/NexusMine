@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeftIcon, 
-  CubeIcon, 
-  CheckCircleIcon, 
+import {
+  ArrowLeftIcon,
+  CubeIcon,
+  CheckCircleIcon,
   ExclamationTriangleIcon,
   TruckIcon,
   MapPinIcon,
@@ -115,39 +115,54 @@ export default function StockForm() {
   const style = selectedMovement ? colorMap[selectedMovement.color] : colorMap.indigo;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] relative font-outfit">
-      {/* Background Decor */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] bg-blue-100/40 rounded-full blur-[120px]" />
-        <div className="absolute -bottom-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-100/40 rounded-full blur-[120px]" />
-      </div>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="relative max-w-4xl mx-auto px-4 py-10 space-y-8">
-        
-        {/* Navigation & Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fadeIn">
-          <div className="flex items-center gap-5">
-            <Link
-              to="/stock"
-              className="p-3 bg-white shadow-sm border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
-            >
-              <ArrowLeftIcon className="h-5 w-5 text-slate-500 group-hover:-translate-x-1 transition-transform" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-widest rounded-full">
-                  Stock Module
-                </span>
-              </div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Nouveau Mouvement</h1>
-            </div>
+      <div className="relative z-10 space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-4xl mx-auto animate-fadeIn">
+
+        {/* ── HEADER PREMIUM ── */}
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+          <div className="absolute inset-0 opacity-10">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <pattern id="stockFormGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+              <rect width="100" height="100" fill="url(#stockFormGrid)" />
+            </svg>
           </div>
 
-          <div className={`hidden lg:flex items-center gap-3 px-5 py-3 rounded-2xl border ${style.border} ${style.bg} ${style.text}`}>
-            <span className="text-xl">{selectedMovement?.icon}</span>
-            <div className="text-left">
-              <p className="text-xs font-black uppercase tracking-tighter opacity-70 leading-none">Type actif</p>
-              <p className="font-bold text-sm leading-tight">{selectedMovement?.label}</p>
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+
+          <div className="relative p-8 px-10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              <div className="flex items-start gap-6">
+                <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-xl ring-1 ring-white/30">
+                  <CubeIcon className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <button
+                      onClick={() => navigate('/stock')}
+                      className="text-blue-100 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 font-outfit"
+                    >
+                      <ArrowLeftIcon className="h-3.5 w-3.5" />
+                      Inventaire
+                    </button>
+                    <span className="text-blue-200/50 text-xs">/</span>
+                    <span className="text-white text-xs font-bold uppercase tracking-widest font-outfit">Nouveau mouvement</span>
+                  </div>
+                  <h1 className="text-3xl font-bold text-white tracking-tight font-outfit">
+                    Nouveau Mouvement
+                  </h1>
+                </div>
+              </div>
+
+              <div className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest ${style.bg} ${style.text} border border-white/20 self-start sm:self-auto shadow-lg`}>
+                <span className="text-base">{selectedMovement?.icon}</span>
+                {selectedMovement?.label}
+              </div>
             </div>
           </div>
         </div>
@@ -155,7 +170,7 @@ export default function StockForm() {
         {roleBanner && <ReadOnlyBanner message={roleBanner} />}
 
         <form onSubmit={handleSubmit} className="space-y-6 animate-slideUp">
-          
+
           {/* Card 1: Configuration du Flux */}
           <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
             <div className="p-8 md:p-10">
@@ -219,7 +234,7 @@ export default function StockForm() {
                   </select>
                 </div>
               </div>
-              
+
               <div className={`mt-8 p-4 rounded-2xl border-2 border-dashed ${style.border} ${style.bg} flex items-center gap-4`}>
                 <span className="text-2xl">{selectedMovement?.icon}</span>
                 <p className={`text-sm font-semibold ${style.text}`}>{selectedMovement?.desc}</p>
@@ -246,11 +261,10 @@ export default function StockForm() {
                         key={opt.value}
                         type="button"
                         onClick={() => setFormData(p => ({ ...p, mineral_type: opt.value }))}
-                        className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all font-bold text-sm ${
-                          formData.mineral_type === opt.value 
-                          ? 'border-blue-600 bg-blue-50 text-blue-700' 
-                          : 'border-slate-100 hover:border-slate-200 text-slate-500'
-                        }`}
+                        className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all font-bold text-sm ${formData.mineral_type === opt.value
+                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                          }`}
                       >
                         <span>{opt.emoji}</span> {opt.label}
                       </button>
@@ -402,7 +416,7 @@ export default function StockForm() {
                 )}
               </button>
             )}
-            
+
             <Link
               to="/stock"
               className="w-full md:w-auto px-10 py-5 bg-white text-slate-500 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-all text-center"

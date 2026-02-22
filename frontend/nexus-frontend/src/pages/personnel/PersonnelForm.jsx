@@ -20,21 +20,21 @@ import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
 
 const STATUS_OPTIONS = [
-  { value: 'ACTIVE',     label: 'Actif',     emoji: '🟢', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', ring: 'ring-emerald-600/20' },
-  { value: 'ON_LEAVE',   label: 'En congé',  emoji: '🟡', dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-700',     ring: 'ring-amber-600/20'   },
-  { value: 'INACTIVE',   label: 'Inactif',   emoji: '⚪', dot: 'bg-gray-400',    badge: 'bg-slate-100 text-slate-600',     ring: 'ring-gray-600/20'    },
-  { value: 'TERMINATED', label: 'Terminé',   emoji: '🔴', dot: 'bg-red-500',     badge: 'bg-red-100 text-red-700',         ring: 'ring-red-600/20'     },
+  { value: 'ACTIVE', label: 'Actif', emoji: '🟢', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', ring: 'ring-emerald-600/20' },
+  { value: 'ON_LEAVE', label: 'En congé', emoji: '🟡', dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700', ring: 'ring-amber-600/20' },
+  { value: 'INACTIVE', label: 'Inactif', emoji: '⚪', dot: 'bg-gray-400', badge: 'bg-slate-100 text-slate-600', ring: 'ring-gray-600/20' },
+  { value: 'TERMINATED', label: 'Terminé', emoji: '🔴', dot: 'bg-red-500', badge: 'bg-red-100 text-red-700', ring: 'ring-red-600/20' },
 ];
 
 const POSITION_OPTIONS = [
-  { value: 'OPERATOR',   label: '👷 Opérateur'         },
-  { value: 'TECHNICIAN', label: '🔧 Technicien'         },
-  { value: 'ENGINEER',   label: '👨‍💻 Ingénieur'          },
+  { value: 'OPERATOR', label: '👷 Opérateur' },
+  { value: 'TECHNICIAN', label: '🔧 Technicien' },
+  { value: 'ENGINEER', label: '👨‍💻 Ingénieur' },
   { value: 'SITE_MANAGER', label: '👔 Gestionnaire de site' },
-  { value: 'MANAGER',    label: '💼 Manager'            },
-  { value: 'DRIVER',     label: '🚛 Chauffeur'          },
-  { value: 'SECURITY',   label: '🛡️ Agent de sécurité'  },
-  { value: 'OTHER',      label: '📋 Autre'              },
+  { value: 'MANAGER', label: '💼 Manager' },
+  { value: 'DRIVER', label: '🚛 Chauffeur' },
+  { value: 'SECURITY', label: '🛡️ Agent de sécurité' },
+  { value: 'OTHER', label: '📋 Autre' },
 ];
 
 const avatarColors = [
@@ -78,24 +78,24 @@ export default function PersonnelForm() {
   const isEdit = Boolean(id);
   const { readOnly, canSubmit, roleBanner } = useFormPermissions('personnel');
 
-  const [loading, setLoading]         = useState(false);
-  const [saving, setSaving]           = useState(false);
-  const [error, setError]             = useState(null);
-  const [success, setSuccess]         = useState(false);
-  const [sites, setSites]             = useState([]);
-  const [photoFile, setPhotoFile]     = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [sites, setSites] = useState([]);
+  const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
 
   const [formData, setFormData] = useState({
     employee_id: '',
-    first_name:  '',
-    last_name:   '',
-    position:    '',
-    phone:       '',
-    email:       '',
-    status:      'ACTIVE',
-    site:        '',
-    hire_date:   '',
+    first_name: '',
+    last_name: '',
+    position: '',
+    phone: '',
+    email: '',
+    status: 'ACTIVE',
+    site: '',
+    hire_date: '',
   });
 
   useEffect(() => {
@@ -122,14 +122,14 @@ export default function PersonnelForm() {
       const response = await api.get(`/personnel/${id}/`);
       setFormData({
         employee_id: response.data.employee_id || '',
-        first_name:  response.data.first_name  || '',
-        last_name:   response.data.last_name   || '',
-        position:    response.data.position    || '',
-        phone:       response.data.phone       || '',
-        email:       response.data.email       || '',
-        status:      response.data.status      || 'ACTIVE',
-        site:        response.data.site        || '',
-        hire_date:   response.data.hire_date   || '',
+        first_name: response.data.first_name || '',
+        last_name: response.data.last_name || '',
+        position: response.data.position || '',
+        phone: response.data.phone || '',
+        email: response.data.email || '',
+        status: response.data.status || 'ACTIVE',
+        site: response.data.site || '',
+        hire_date: response.data.hire_date || '',
       });
       if (response.data.photo_url) setPhotoPreview(response.data.photo_url);
     } catch (err) {
@@ -199,48 +199,52 @@ export default function PersonnelForm() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-indigo-50/30" />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="relative space-y-6 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-4xl mx-auto">
+      <div className="relative z-10 space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-4xl mx-auto animate-fadeIn">
 
         {/* ── HEADER PREMIUM ── */}
-        <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200/60 animate-fadeInDown">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-tr from-blue-500/5 to-indigo-500/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+          <div className="absolute inset-0 opacity-10">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <pattern id="formGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+              <rect width="100" height="100" fill="url(#formGrid)" />
+            </svg>
+          </div>
 
-          <div className="relative p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="relative p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm">
-                  <div className="absolute inset-0 rounded-2xl bg-white/20" />
-                  <UsersIcon className="h-7 w-7 text-white relative" />
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+
+          <div className="relative p-8 px-10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              <div className="flex items-start gap-6">
+                <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-xl ring-1 ring-white/30">
+                  <UsersIcon className="h-8 w-8 text-white" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <button
                       onClick={() => navigate('/personnel')}
-                      className="text-slate-400 hover:text-indigo-600 text-sm font-medium transition-colors flex items-center gap-1"
+                      className="text-blue-100 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1.5 font-outfit"
                     >
                       <ArrowLeftIcon className="h-3.5 w-3.5" />
                       Personnel
                     </button>
-                    <span className="text-slate-300 text-sm">/</span>
-                    <span className="text-slate-500 text-sm font-medium">{isEdit ? 'Modifier' : 'Nouveau'}</span>
+                    <span className="text-blue-200/50 text-xs">/</span>
+                    <span className="text-white text-xs font-bold uppercase tracking-widest font-outfit">{isEdit ? 'Modifier' : 'Nouveau'}</span>
                   </div>
-                  <h1 className="text-xl font-semibold text-slate-800">
-                    {isEdit ? "Modifier l'employé" : 'Nouvel employé'}
+                  <h1 className="text-3xl font-bold text-white tracking-tight font-outfit">
+                    {isEdit ? "Modification Dossier" : 'Nouvelle Recrue'}
                   </h1>
-                  <p className="mt-0.5 text-slate-500">
-                    {isEdit ? "Modifiez les informations de l'employé" : 'Ajoutez un nouveau membre du personnel'}
-                  </p>
                 </div>
               </div>
 
-              {/* Status pill */}
-              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ring-1 ring-inset self-start sm:self-auto ${currentStatus.badge} ${currentStatus.ring}`}>
-                <span className={`w-2 h-2 rounded-full ${currentStatus.dot}`} />
+              <div className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-white/10 backdrop-blur-md text-white border border-white/20 self-start sm:self-auto shadow-lg`}>
+                <span className={`w-2 h-2 rounded-full ${currentStatus.dot} animate-pulse shadow-inner`} />
                 {currentStatus.label}
               </div>
             </div>
@@ -249,16 +253,26 @@ export default function PersonnelForm() {
 
         {/* ── ALERTS ── */}
         {success && (
-          <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 font-medium shadow-sm">
-            <CheckCircleIcon className="h-5 w-5 text-emerald-600 flex-shrink-0" />
-            {isEdit ? 'Employé modifié avec succès.' : 'Employé ajouté avec succès.'} Redirection...
+          <div className="flex items-center gap-4 p-5 bg-emerald-50 border border-emerald-200 rounded-3xl text-emerald-800 font-bold shadow-lg animate-fadeInUp">
+            <div className="p-2 bg-emerald-100 rounded-xl">
+              <CheckCircleIcon className="h-6 w-6 text-emerald-600" />
+            </div>
+            <div>
+              <p>{isEdit ? 'Modifications enregistrées.' : 'Employé ajouté à la base de données.'}</p>
+              <p className="text-xs opacity-70 font-medium tracking-wide uppercase mt-1">Redirection en cours...</p>
+            </div>
           </div>
         )}
         {error && (
-          <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 shadow-sm">
-            <XCircleIcon className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <pre className="whitespace-pre-line font-sans text-sm flex-1">{error}</pre>
-            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 text-xl leading-none ml-auto">×</button>
+          <div className="flex items-start gap-4 p-5 bg-rose-50 border border-rose-200 rounded-3xl text-rose-800 shadow-lg animate-fadeInUp">
+            <div className="p-2 bg-rose-100 rounded-xl mt-1">
+              <XCircleIcon className="h-6 w-6 text-rose-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-black uppercase text-xs tracking-widest mb-1 opacity-60">Erreur de validation</p>
+              <pre className="whitespace-pre-line font-sans text-sm font-bold">{error}</pre>
+            </div>
+            <button onClick={() => setError(null)} className="text-rose-400 hover:text-rose-600 text-2xl leading-none font-black transition-colors">×</button>
           </div>
         )}
 
@@ -498,22 +512,20 @@ export default function PersonnelForm() {
       </div>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
         @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-16px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fadeInDown {
-          animation: fadeInDown 0.5s ease-out forwards;
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.5s ease-out forwards;
-          animation-fill-mode: both;
-          opacity: 0;
-        }
+        .animate-fadeInDown { animation: fadeInDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        
         select {
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'%3E%3C/path%3E%3C/svg%3E");
           background-position: right 0.75rem center;

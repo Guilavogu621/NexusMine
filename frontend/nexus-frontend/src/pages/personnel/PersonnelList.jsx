@@ -6,19 +6,21 @@ import {
   PencilSquareIcon,
   TrashIcon,
   EyeIcon,
-  UserIcon,
-  PhoneIcon,
-  EnvelopeIcon,
   UsersIcon,
-  ChevronDownIcon,
   Squares2X2Icon,
   ListBulletIcon,
-  BriefcaseIcon,
   MapPinIcon,
+  BriefcaseIcon,
   IdentificationIcon,
   CheckCircleIcon,
   XCircleIcon,
   ClockIcon,
+  ArrowPathIcon,
+  FunnelIcon,
+  XMarkIcon,
+  ChevronDownIcon,
+  EnvelopeIcon,
+  PhoneIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -31,32 +33,11 @@ const statusLabels = {
 };
 
 const statusColors = {
-  ACTIVE: 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
-  ON_LEAVE: 'bg-amber-100 text-amber-700 ring-amber-600/20',
-  INACTIVE: 'bg-slate-100 text-slate-600 ring-gray-600/20',
-  TERMINATED: 'bg-red-100 text-red-700 ring-red-600/20',
+  ACTIVE: { bg: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  ON_LEAVE: { bg: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+  INACTIVE: { bg: 'bg-slate-100 text-slate-600', dot: 'bg-slate-500' },
+  TERMINATED: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
 };
-
-const statusDots = {
-  ACTIVE: 'bg-emerald-500',
-  ON_LEAVE: 'bg-amber-500',
-  INACTIVE: 'bg-gray-500',
-  TERMINATED: 'bg-red-500',
-};
-
-// Couleurs d'avatar variées
-const avatarColors = [
-  'from-blue-500 to-blue-600',
-  'from-purple-500 to-purple-600',
-  'from-emerald-500 to-emerald-600',
-  'from-amber-500 to-amber-600',
-  'from-pink-500 to-pink-600',
-  'from-cyan-500 to-cyan-600',
-  'from-indigo-500 to-indigo-600',
-  'from-rose-500 to-rose-600',
-];
-
-const getAvatarColor = (id) => avatarColors[id % avatarColors.length];
 
 const approvalLabels = {
   PENDING: 'En attente',
@@ -65,16 +46,22 @@ const approvalLabels = {
 };
 
 const approvalColors = {
-  PENDING: 'bg-yellow-100 text-yellow-700 ring-yellow-600/20',
-  APPROVED: 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
-  REJECTED: 'bg-red-100 text-red-700 ring-red-600/20',
+  PENDING: { bg: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-500' },
+  APPROVED: { bg: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  REJECTED: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
 };
 
-const approvalDots = {
-  PENDING: 'bg-yellow-500',
-  APPROVED: 'bg-emerald-500',
-  REJECTED: 'bg-red-500',
-};
+// Avatar colors based on ID
+const avatarColors = [
+  'from-blue-500 to-blue-600',
+  'from-purple-500 to-purple-600',
+  'from-emerald-500 to-emerald-600',
+  'from-amber-500 to-amber-600',
+  'from-pink-500 to-pink-600',
+  'from-indigo-500 to-indigo-600',
+];
+
+const getAvatarColor = (id) => avatarColors[id % avatarColors.length];
 
 export default function PersonnelList() {
   const [personnel, setPersonnel] = useState([]);
@@ -86,14 +73,21 @@ export default function PersonnelList() {
   const [filterApproval, setFilterApproval] = useState('');
   const [viewMode, setViewMode] = useState('grid');
   const { isSupervisor, isAdmin } = useAuthStore();
+  const canEdit = isSupervisor() || isAdmin();
   const navigate = useNavigate();
 
-  // Stats calculées
+  const hasActiveFilters = search || filterStatus || filterSite || filterApproval;
+  const clearFilters = () => {
+    setSearch('');
+    setFilterStatus('');
+    setFilterSite('');
+    setFilterApproval('');
+  };
+
   const stats = {
     total: personnel.length,
     active: personnel.filter(p => p.status === 'ACTIVE').length,
     onLeave: personnel.filter(p => p.status === 'ON_LEAVE').length,
-    inactive: personnel.filter(p => p.status === 'INACTIVE').length,
     pending: personnel.filter(p => p.approval_status === 'PENDING').length,
   };
 
@@ -105,12 +99,12 @@ export default function PersonnelList() {
       if (filterStatus) params.append('status', filterStatus);
       if (filterSite) params.append('site', filterSite);
       if (filterApproval) params.append('approval_status', filterApproval);
-      
+
       const [personnelRes, sitesRes] = await Promise.all([
         api.get(`/personnel/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setPersonnel(personnelRes.data.results || personnelRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -164,485 +158,296 @@ export default function PersonnelList() {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Background subtil */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-indigo-50/30"></div>
-      
-      <div className="space-y-6">
-        {/* Premium Header */}
-        <div className="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200/60">
-          {/* Background decorations */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-tr from-blue-500/5 to-indigo-500/5 rounded-full translate-y-1/2 -translate-x-1/4"></div>
-          
-          <div className="relative p-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="relative p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm">
-                  <div className="absolute inset-0 rounded-2xl bg-white/20"></div>
-                  <UsersIcon className="h-7 w-7 text-white relative" />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+      <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Header Premium */}
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+          <div className="absolute inset-0 opacity-10">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <pattern id="personnelGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+              <rect width="100" height="100" fill="url(#personnelGrid)" />
+            </svg>
+          </div>
+
+          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+
+          <div className="relative p-8 px-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex items-start gap-6">
+                <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-xl ring-1 ring-white/30">
+                  <UsersIcon className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-semibold text-slate-800">Personnel</h1>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-700">
-                      {personnel.length} employés
-                    </span>
-                  </div>
-                  <p className="mt-1 text-slate-500">Gérez le personnel de vos sites miniers</p>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight font-outfit">
+                    Gestion du Personnel
+                  </h1>
+                  <p className="mt-2 text-blue-100 font-medium opacity-90">
+                    Supervisez vos effectifs et gérez les affectations
+                  </p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3">
-                {/* View Toggle */}
-                <div className="flex items-center bg-slate-100 rounded-xl p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-600'}`}
-                  >
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-600'}`}
-                  >
-                    <ListBulletIcon className="h-5 w-5" />
-                  </button>
-                </div>
-                
-                {(isSupervisor() || isAdmin()) && (
-                  <Link
-                    to="/personnel/new"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm"
-                  >
-                    <PlusIcon className="h-5 w-5" />
-                    Nouvel employé
-                  </Link>
-                )}
-              </div>
+
+              {canEdit && (
+                <Link
+                  to="/personnel/new"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                  Nouveau personnel
+                </Link>
+              )}
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
-              <div className="text-center p-3 rounded-xl bg-gray-50/50 hover:bg-slate-50 transition-colors">
-                <p className="text-xl font-semibold text-slate-800">{stats.total}</p>
-                <p className="text-base text-slate-500">Total</p>
-              </div>
-              <div className="text-center p-3 rounded-xl bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
-                <p className="text-xl font-semibold text-emerald-600">{stats.active}</p>
-                <p className="text-base text-slate-500">Actifs</p>
-              </div>
-              <div className="text-center p-3 rounded-xl bg-amber-50/50 hover:bg-amber-50 transition-colors">
-                <p className="text-xl font-semibold text-amber-600">{stats.onLeave}</p>
-                <p className="text-base text-slate-500">En congé</p>
-              </div>
-              <div className="text-center p-3 rounded-xl bg-slate-100/50 hover:bg-slate-100 transition-colors">
-                <p className="text-xl font-semibold text-slate-500">{stats.inactive}</p>
-                <p className="text-base text-slate-500">Inactifs</p>
-              </div>
-              {isAdmin() && stats.pending > 0 && (
-                <div className="text-center p-3 rounded-xl bg-yellow-50/50 hover:bg-yellow-50 transition-colors col-span-2 md:col-span-1">
-                  <p className="text-xl font-semibold text-yellow-600">{stats.pending}</p>
-                  <p className="text-base text-slate-500">En attente</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
+              {[
+                { label: 'Total', value: stats.total, icon: UsersIcon },
+                { label: 'Actifs', value: stats.active, icon: CheckCircleIcon },
+                { label: 'En congé', value: stats.onLeave, icon: ClockIcon },
+                { label: 'En attente', value: stats.pending, icon: ArrowPathIcon },
+              ].map((stat, i) => (
+                <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 group/stat">
+                  <div className="flex items-center gap-3 mb-2">
+                    <stat.icon className="h-4 w-4 text-blue-200" />
+                    <p className="text-xs font-bold text-blue-100 uppercase tracking-widest">{stat.label}</p>
+                  </div>
+                  <p className="text-3xl font-bold text-white font-outfit tracking-tight">{stat.value}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Filters Section */}
+        <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl transition-all duration-500">
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
+            <div className="relative flex-1 w-full">
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un employé..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white/50 border border-slate-200/60 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all font-medium"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto">
+              <select
+                value={filterSite}
+                onChange={(e) => setFilterSite(e.target.value)}
+                className="rounded-xl py-3 px-4 bg-white/50 border border-slate-200/60 focus:bg-white transition-all font-medium appearance-none min-w-[160px]"
+              >
+                <option value="">📍 Tous les sites</option>
+                {sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="rounded-xl py-3 px-4 bg-white/50 border border-slate-200/60 focus:bg-white transition-all font-medium appearance-none"
+              >
+                <option value="">📊 Tous les statuts</option>
+                {Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+
+              {isAdmin() && (
+                <select
+                  value={filterApproval}
+                  onChange={(e) => setFilterApproval(e.target.value)}
+                  className="rounded-xl py-3 px-4 bg-white/50 border border-slate-200/60 focus:bg-white transition-all font-medium appearance-none"
+                >
+                  <option value="">✅ Approbation</option>
+                  {Object.entries(approvalLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex bg-slate-100 rounded-lg p-1">
+                <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>
+                  <Squares2X2Icon className="h-5 w-5" />
+                </button>
+                <button onClick={() => setViewMode('list')} className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>
+                  <ListBulletIcon className="h-5 w-5" />
+                </button>
+              </div>
+              {hasActiveFilters && (
+                <button onClick={clearFilters} className="p-3 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-all">
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Premium Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
-              </div>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher par nom, poste, matricule..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all"
-              />
-            </div>
-
-            {/* Site Filter */}
-            <div className="relative">
-              <select
-                value={filterSite}
-                onChange={(e) => setFilterSite(e.target.value)}
-                className="appearance-none w-full lg:w-48 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous les sites</option>
-                {sites.map((site) => (
-                  <option key={site.id} value={site.id}>{site.name}</option>
-                ))}
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Status Filter */}
-            <div className="relative">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="appearance-none w-full lg:w-48 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-              >
-                <option value="">Tous les statuts</option>
-                <option value="ACTIVE">Actif</option>
-                <option value="ON_LEAVE">En congé</option>
-                <option value="INACTIVE">Inactif</option>
-                <option value="TERMINATED">Licencié</option>
-              </select>
-              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Approval Status Filter (ADMIN) */}
-            {isAdmin() && (
-              <div className="relative">
-                <select
-                  value={filterApproval}
-                  onChange={(e) => setFilterApproval(e.target.value)}
-                  className="appearance-none w-full lg:w-48 pl-4 pr-10 py-3 bg-slate-50 border-0 rounded-xl text-slate-800 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"
-                >
-                  <option value="">Toutes approbations</option>
-                  <option value="PENDING">⏳ En attente</option>
-                  <option value="APPROVED">✅ Approuvé</option>
-                  <option value="REJECTED">❌ Refusé</option>
-                </select>
-                <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Content */}
+        {/* ── CONTENT ── */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200/60 p-5 animate-pulse">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-14 w-14 bg-gray-200 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded w-1/2"></div>
+              <div key={i} className="bg-white rounded-3xl border border-slate-100 p-6 animate-pulse shadow-sm">
+                <div className="flex items-center gap-5 mb-6">
+                  <div className="h-16 w-16 bg-slate-200 rounded-2xl"></div>
+                  <div className="flex-1 space-y-3">
+                    <div className="h-5 bg-slate-200 rounded-lg w-3/4"></div>
+                    <div className="h-4 bg-slate-100 rounded-md w-1/2"></div>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="h-3 bg-slate-100 rounded"></div>
-                  <div className="h-3 bg-slate-100 rounded w-5/6"></div>
+                <div className="space-y-4">
+                  <div className="h-4 bg-slate-50 rounded-md"></div>
+                  <div className="h-4 bg-slate-50 rounded-md w-5/6"></div>
+                  <div className="h-10 bg-slate-50 rounded-xl mt-4"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : personnel.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-            <div className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl"></div>
-                <div className="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
-                  <UsersIcon className="h-10 w-10 text-slate-400" />
-                </div>
+          <div className="bg-white/60 backdrop-blur-md rounded-3xl border border-white/40 p-20 text-center animate-fadeInUp shadow-lg">
+            <div className="relative inline-block mb-8">
+              <div className="absolute inset-0 bg-indigo-500 blur-[80px] opacity-10"></div>
+              <div className="relative w-28 h-28 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl flex items-center justify-center border border-white/60 shadow-inner">
+                <UsersIcon className="h-14 w-14 text-indigo-300" />
               </div>
-              <h3 className="mt-6 text-base font-semibold text-slate-800">Aucun employé trouvé</h3>
-              <p className="mt-2 text-base text-slate-500 text-center max-w-sm">
-                Commencez par ajouter votre premier employé.
-              </p>
-              {(isSupervisor() || isAdmin()) && (
-                <Link
-                  to="/personnel/new"
-                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl shadow-sm"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                  Ajouter un employé
-                </Link>
-              )}
             </div>
+            <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Aucun employé trouvé</h3>
+            <p className="text-slate-500 font-medium max-w-md mx-auto mb-10 leading-relaxed text-lg">
+              Affinez vos filtres ou commencez par ajouter un nouveau membre à votre équipe.
+            </p>
+            {(isSupervisor() || isAdmin()) && (
+              <Link
+                to="/personnel/new"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-xl"
+              >
+                <PlusIcon className="h-6 w-6 text-indigo-400" />
+                Démarrer le recrutement
+              </Link>
+            )}
           </div>
         ) : viewMode === 'grid' ? (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {personnel.map((person) => (
-              <div
-                key={person.id}
-                onClick={() => navigate(`/personnel/${person.id}`)}
-                className="group relative bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-md hover:border-indigo-200 transition-all duration-300 cursor-pointer"
-              >
-                {/* Hover gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/0 to-blue-500/0 group-hover:from-indigo-500/[0.02] group-hover:to-blue-500/[0.02] transition-all"></div>
-                
-                <div className="relative">
-                  {/* Header with Avatar */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`relative w-14 h-14 rounded-full bg-gradient-to-br ${getAvatarColor(person.id)} shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform`}>
-                        <span className="text-lg font-bold text-white">
-                          {person.first_name?.[0]}{person.last_name?.[0]}
-                        </span>
-                        <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${statusDots[person.status] || 'bg-gray-500'}`}></span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-800 group-hover:text-purple-600 transition-colors">
-                          {person.last_name} {person.first_name}
-                        </h3>
-                        <p className="text-base text-slate-500 mt-0.5">
-                          {person.position || 'Non spécifié'}
-                        </p>
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeInUp">
+            {personnel.map((p, idx) => {
+              const sConf = statusColors[p.status] || statusColors.ACTIVE;
+              const aConf = approvalColors[p.approval_status] || null;
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => navigate(`/personnel/${p.id}`)}
+                  className="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20 p-6 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
+                  style={{ animationDelay: `${idx * 40}ms` }}
+                >
+                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getAvatarColor(idx)} opacity-80`}></div>
+
+                  <div className="flex items-center gap-5 mb-6">
+                    <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${getAvatarColor(idx)} shadow-lg flex items-center justify-center group-hover:rotate-6 transition-transform duration-500 ring-4 ring-white`}>
+                      <span className="text-xl font-black text-white">{p.first_name?.[0]}{p.last_name?.[0]}</span>
+                      <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${sConf.dot}`}></span>
                     </div>
-                    
-                    {/* Status Badge */}
-                    <div className="flex flex-col items-end gap-1">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${statusColors[person.status] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                        {statusLabels[person.status] || person.status}
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                        {p.last_name} {p.first_name}
+                      </h3>
+                      <p className="text-sm font-medium text-slate-500 truncate">{p.position || 'Poste non défini'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${sConf.bg}`}>
+                      {statusLabels[p.status] || p.status}
+                    </span>
+                    {aConf && p.approval_status !== 'APPROVED' && (
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${aConf.bg}`}>
+                        {approvalLabels[p.approval_status]}
                       </span>
-                      {person.approval_status && person.approval_status !== 'APPROVED' && (
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${approvalColors[person.approval_status]}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${approvalDots[person.approval_status]}`}></span>
-                          {approvalLabels[person.approval_status]}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Details */}
-                  <div className="space-y-2 mb-4 pb-4 border-b border-slate-100">
-                    {person.employee_id && (
-                      <div className="flex items-center gap-2 text-base text-slate-500">
-                        <IdentificationIcon className="h-4 w-4" />
-                        <span>{person.employee_id}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-base text-slate-500">
-                      <MapPinIcon className="h-4 w-4" />
-                      <span>{person.site_name || person.site?.name || 'Non assigné'}</span>
-                    </div>
-                    {person.phone && (
-                      <div className="flex items-center gap-2 text-base text-slate-500">
-                        <PhoneIcon className="h-4 w-4" />
-                        <span>{person.phone}</span>
-                      </div>
-                    )}
-                    {person.email && (
-                      <div className="flex items-center gap-2 text-base text-slate-500">
-                        <EnvelopeIcon className="h-4 w-4" />
-                        <span className="truncate">{person.email}</span>
-                      </div>
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex items-center gap-2 text-sm text-slate-400">
-                      {person.hire_date && (
-                        <span>Embauché le {new Date(person.hire_date).toLocaleDateString('fr-FR')}</span>
-                      )}
+                  <div className="space-y-3 py-4 border-t border-slate-100">
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                      <MapPinIcon className="h-4 w-4 text-indigo-500" />
+                      <span className="truncate">{p.site_name || 'Non assigné'}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      {/* Approve / Reject buttons for ADMIN */}
-                      {isAdmin() && person.approval_status === 'PENDING' && (
-                        <>
-                          <button
-                            onClick={(e) => handleApprove(person.id, `${person.last_name} ${person.first_name}`, e)}
-                            className="p-2 rounded-lg text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-                            title="Approuver"
-                          >
-                            <CheckCircleIcon className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={(e) => handleReject(person.id, `${person.last_name} ${person.first_name}`, e)}
-                            className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                            title="Refuser"
-                          >
-                            <XCircleIcon className="h-5 w-5" />
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/personnel/${person.id}`);
-                        }}
-                        className="p-2 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                        title="Voir"
-                      >
-                        <EyeIcon className="h-5 w-5" />
-                      </button>
-                      {isSupervisor() && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/personnel/${person.id}/edit`);
-                            }}
-                            className="p-2 rounded-lg text-indigo-500 hover:text-blue-700 hover:bg-indigo-50 transition-colors"
-                            title="Modifier"
-                          >
-                            <PencilSquareIcon className="h-5 w-5" />
-                          </button>
-                          <button
-                            onClick={(e) => handleDelete(person.id, `${person.last_name} ${person.first_name}`, e)}
-                            className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                            title="Supprimer"
-                          >
-                            <TrashIcon className="h-5 w-5" />
-                          </button>
-                        </>
-                      )}
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                      <IdentificationIcon className="h-4 w-4 text-emerald-500" />
+                      <span>{p.employee_id || 'N/A'}</span>
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-50">
+                    {isAdmin() && p.approval_status === 'PENDING' && (
+                      <div className="flex gap-1 mr-auto">
+                        <button onClick={(e) => handleApprove(p.id, `${p.last_name}`, e)} className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
+                          <CheckCircleIcon className="h-4 w-4" />
+                        </button>
+                        <button onClick={(e) => handleReject(p.id, `${p.last_name}`, e)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                          <XCircleIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                    <button onClick={(e) => { e.stopPropagation(); navigate(`/personnel/${p.id}/edit`); }} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                      <PencilSquareIcon className="h-4 w-4" />
+                    </button>
+                    <button onClick={(e) => handleDelete(p.id, p.last_name, e)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                      <TrashIcon className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
-          /* List View */
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
+          /* LIST VIEW */
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-white/20 shadow-lg overflow-hidden animate-fadeInUp">
             <div className="overflow-x-auto">
-              <table className="min-w-full">
+              <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50/80">
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Employé
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Poste
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Site
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Approbation
-                    </th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                  <tr className="bg-slate-50/50 border-b border-slate-100">
+                    <th className="px-6 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Employé</th>
+                    <th className="px-6 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Fonction</th>
+                    <th className="px-6 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Site</th>
+                    <th className="px-6 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Statut</th>
+                    <th className="px-6 py-5 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {personnel.map((person) => (
-                    <tr 
-                      key={person.id} 
-                      onClick={() => navigate(`/personnel/${person.id}`)}
-                      className="hover:bg-indigo-50/30 transition-colors cursor-pointer"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarColor(person.id)} shadow-md flex items-center justify-center`}>
-                            <span className="text-base font-bold text-white">
-                              {person.first_name?.[0]}{person.last_name?.[0]}
-                            </span>
+                <tbody className="divide-y divide-slate-100">
+                  {personnel.map((p, idx) => (
+                    <tr key={p.id} onClick={() => navigate(`/personnel/${p.id}`)} className="hover:bg-slate-50/50 cursor-pointer transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(idx)} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
+                            {p.first_name?.[0]}{p.last_name?.[0]}
                           </div>
                           <div>
-                            <div className="font-medium text-slate-800">
-                              {person.last_name} {person.first_name}
-                            </div>
-                            <div className="text-base text-slate-500">
-                              {person.employee_id}
-                            </div>
+                            <div className="font-bold text-slate-900">{p.last_name} {p.first_name}</div>
+                            <div className="text-xs text-slate-400 font-medium">{p.employee_id}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-base text-slate-800">
-                          <BriefcaseIcon className="h-4 w-4 text-slate-400" />
-                          {person.position || '—'}
+                      <td className="px-6 py-4 text-sm font-semibold text-slate-700">{p.position || '—'}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                          <MapPinIcon className="h-4 w-4 text-slate-400" />
+                          {p.site_name || '—'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-base text-slate-500">
-                          <MapPinIcon className="h-4 w-4" />
-                          {person.site_name || person.site?.name || '—'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col gap-1">
-                          {person.phone && (
-                            <div className="flex items-center text-base text-slate-500">
-                              <PhoneIcon className="h-4 w-4 mr-1.5" />
-                              {person.phone}
-                            </div>
-                          )}
-                          {person.email && (
-                            <div className="flex items-center text-base text-slate-500">
-                              <EnvelopeIcon className="h-4 w-4 mr-1.5" />
-                              <span className="truncate max-w-[150px]">{person.email}</span>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${statusColors[person.status] || 'bg-slate-100 text-slate-600 ring-gray-600/20'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${statusDots[person.status] || 'bg-gray-500'}`}></span>
-                          {statusLabels[person.status] || person.status}
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${statusColors[p.status]?.bg || ''}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${statusColors[p.status]?.dot}`}></span>
+                          {statusLabels[p.status]}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${approvalColors[person.approval_status] || approvalColors.PENDING}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${approvalDots[person.approval_status] || approvalDots.PENDING}`}></span>
-                            {approvalLabels[person.approval_status] || 'En attente'}
-                          </span>
-                          {isAdmin() && person.approval_status === 'PENDING' && (
-                            <div className="flex gap-1">
-                              <button
-                                onClick={(e) => handleApprove(person.id, `${person.last_name} ${person.first_name}`, e)}
-                                className="p-1.5 rounded-lg text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-                                title="Approuver"
-                              >
-                                <CheckCircleIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={(e) => handleReject(person.id, `${person.last_name} ${person.first_name}`, e)}
-                                className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                title="Refuser"
-                              >
-                                <XCircleIcon className="h-5 w-5" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/personnel/${person.id}`);
-                            }}
-                            className="p-2 rounded-lg text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                            title="Voir"
-                          >
-                            <EyeIcon className="h-5 w-5" />
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={(e) => { e.stopPropagation(); navigate(`/personnel/${p.id}/edit`); }} className="p-2 text-indigo-600 hover:bg-white rounded-lg shadow-sm">
+                            <PencilSquareIcon className="h-4 w-4" />
                           </button>
-                          {isSupervisor() && (
-                            <>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/personnel/${person.id}/edit`);
-                                }}
-                                className="p-2 rounded-lg text-indigo-500 hover:text-blue-700 hover:bg-indigo-50 transition-colors"
-                                title="Modifier"
-                              >
-                                <PencilSquareIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={(e) => handleDelete(person.id, `${person.last_name} ${person.first_name}`, e)}
-                                className="p-2 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                                title="Supprimer"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
-                            </>
-                          )}
+                          <button onClick={(e) => handleDelete(p.id, p.last_name, e)} className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm">
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -653,6 +458,29 @@ export default function PersonnelList() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInDown { animation: fadeInDown 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        
+        select {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'%3E%3C/path%3E%3C/svg%3E");
+          background-position: right 0.75rem center;
+          background-repeat: no-repeat;
+          background-size: 1.25em 1.25em;
+        }
+      `}</style>
     </div>
   );
 }
