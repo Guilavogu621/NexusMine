@@ -291,20 +291,58 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
             forecast_30d = round(float(avg) * 30, 1)
 
         # ══════════════════════════════════════════════
-        # 3. CORRÉLATION ENVIRONNEMENT / SÉCURITÉ
+        # 3. CORRÉLATION ENVIRONNEMENT / SÉCURITÉ (ANALYSE PRÉDICTIVE)
         # ══════════════════════════════════════════════
-        # Corrélation Humidité vs Risque Landslide (Glissement de terrain)
-        humidity_avg = EnvironmentalData.objects.filter(
+        # Calcul du seuil historique de danger (pour les glissements de terrain)
+        landslide_incidents = Incident.objects.filter(incident_type='LANDSLIDE', site__isnull=False)
+        historical_thresholds = []
+        
+        for incident in landslide_incidents:
+            # Humidité moyenne sur le site concerné durant les 7 jours avant l'incident
+            start_pre = incident.date - timedelta(days=7)
+            pre_incident_humidity = EnvironmentalData.objects.filter(
+                site=incident.site,
+                data_type='HUMIDITY',
+                measurement_date__range=(start_pre, incident.date)
+            ).aggregate(Avg('value'))['value__avg']
+            
+            if pre_incident_humidity:
+                historical_thresholds.append(float(pre_incident_humidity))
+        
+        # Seuil par défaut à 75% si pas assez de données historiques, sinon moyenne historique
+        dynamic_threshold = round(sum(historical_thresholds) / len(historical_thresholds), 1) if historical_thresholds else 75.0
+        
+        # Situation actuelle
+        humidity_stats = EnvironmentalData.objects.filter(
             **site_filter, 
             data_type='HUMIDITY', 
             measurement_date__gte=last_7
-        ).aggregate(Avg('value'))['value__avg'] or 0
+        ).aggregate(avg=Avg('value'), max=Sum('value')) # max est inutile ici mais avg oui
         
-        # Si humidité > 80%, risque de glissement accru
+        current_humidity = float(humidity_stats['avg'] or 0)
+        
+        # Détermination du risque
         landslide_risk_level = 'FAIBLE'
-        if humidity_avg > 80:
+        if current_humidity >= dynamic_threshold:
             landslide_risk_level = 'CRITIQUE'
-        elif humidity_avg > 65:
+            # AUTO-GÉNÉRATION D'ALERTE SYSTÈME (HSE-01)
+            # On vérifie si une alerte similaire existe déjà aujourd'hui pour éviter les doublons
+            alert_exists = Alert.objects.filter(
+                alert_type='ENVIRONMENTAL',
+                title__icontains='Glissement',
+                generated_at__date=today
+            ).exists()
+            
+            if not alert_exists:
+                Alert.objects.create(
+                    alert_type='ENVIRONMENTAL',
+                    category='SAFETY',
+                    severity='HIGH',
+                    title='Alerte Préventive : Risque de Glissement accru',
+                    message=f"L'humidité moyenne ({current_humidity}%) a atteint le seuil historique de danger ({dynamic_threshold}%). Risque de glissement de terrain détecté.",
+                    priority_order=10
+                )
+        elif current_humidity >= (dynamic_threshold * 0.85):
             landslide_risk_level = 'MODÉRÉ'
 
         # ══════════════════════════════════════════════
@@ -368,7 +406,8 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
                 'trend': 'increase' if forecast_30d > (incidents_current * 1.05) else 'stable'
             },
             'hse_correlation': {
-                'avg_humidity': float(humidity_avg),
+                'avg_humidity': current_humidity,
+                'dynamic_threshold': dynamic_threshold,
                 'landslide_risk': landslide_risk_level
             },
             'incident_trends': {

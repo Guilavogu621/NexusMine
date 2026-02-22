@@ -370,8 +370,11 @@ export default function IntelligenceDashboard() {
                 </div>
               </div>
               <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-4">Humidité Moyenne (Sols)</p>
+              <div className="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-tighter">
+                Seuil de danger détecté par l'IA : {hse_correlation?.dynamic_threshold || 75}%
+              </div>
 
-              <div className={`mt-8 w-full p-6 rounded-[2rem] border transition-all duration-500 ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200'}`}>
+              <div className={`mt-6 w-full p-6 rounded-[2rem] border transition-all duration-500 ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200'}`}>
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-2xl ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'}`}>
                     <ExclamationTriangleIcon className="h-6 w-6" />
