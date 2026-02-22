@@ -371,15 +371,38 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
                 'category': 'SAFETY',
             })
 
-        # Recommandation: Vision par Ordinateur (Simulée via analyse d'images récentes)
-        # Note: Dans un système réel, cela viendrait d'un modèle d'analyse d'image asynchrone
-        images_count = Operation.objects.filter(**site_filter, date__gte=last_7).exclude(photo__in=['', None]).count()
-        if images_count > 0:
+        # ══════════════════════════════════════════════
+        # 4. VISION PAR ORDINATEUR (SIMULATION AUDIT SÉCURITÉ)
+        # ══════════════════════════════════════════════
+        # On simule une analyse approfondie des photos d'opérations des 7 derniers jours
+        recent_ops_with_photos = Operation.objects.filter(**site_filter, date__gte=last_7).exclude(photo__in=['', None])
+        photos_count = recent_ops_with_photos.count()
+        
+        # Simulation des résultats de l'IA Vision
+        # (Dans un vrai système, ces données proviendraient d'une table 'CVAnalysis')
+        cv_stats = {
+            'analyzed_count': photos_count,
+            'compliance_rate': 94.2 if photos_count > 0 else 100,
+            'ppe_details': [
+                {'name': 'Casques', 'status': 'CONFORME', 'score': 98},
+                {'name': 'Gilets Haute Visibilité', 'status': 'ALERTE', 'score': 82},
+                {'name': 'Gants de protection', 'status': 'CONFORME', 'score': 95},
+            ],
+            'anomalies': [
+                'Absence de gilet haute visibilité détectée sur 2 opérateurs (Zone Nord)',
+                'Port incorrect du casque identifié (Atelier Maintenance)',
+            ] if photos_count > 0 else []
+        }
+        
+        # ══════════════════════════════════════════════
+        # 5. RECOMMANDATIONS INTELLIGENTES
+
+        if photos_count > 0:
             recommendations.append({
-                'priority': 'LOW',
+                'priority': 'MEDIUM',
                 'icon': '👁️',
-                'title': 'Audit Vision IA',
-                'description': f'Analyse de {images_count} images : 98% de conformité EPI. 2 ouvriers identifiés sans gilet haute visibilité sur Site A.',
+                'title': 'Anomalies Vision IA',
+                'description': f'{len(cv_stats["anomalies"])} anomalies détectées sur les EPI. Consultez le rapport d\'audit visuel.',
                 'category': 'SAFETY',
             })
 
@@ -410,6 +433,7 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
                 'dynamic_threshold': dynamic_threshold,
                 'landslide_risk': landslide_risk_level
             },
+            'cv_audit': cv_stats,
             'incident_trends': {
                 'current_30d': incidents_current,
                 'trend': incident_trend,

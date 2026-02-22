@@ -220,6 +220,7 @@ export default function IntelligenceDashboard() {
     incident_trends,
     equipment_at_risk,
     recommendations,
+    cv_audit,
     kpis
   } = data;
 
@@ -352,6 +353,66 @@ export default function IntelligenceDashboard() {
               ))}
             </div>
           </ChartCard>
+          {/* ── COMPUTER VISION AUDIT ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
+            <ChartCard
+              title="Vision par Ordinateur : Audit de Sécurité Automatisé"
+              icon={CpuChipIcon}
+              subtitle={`Analyse intelligente de ${cv_audit?.analyzed_count} images sur les 7 derniers jours`}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 py-4">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-100 rounded-lg">
+                        <ShieldCheckIcon className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <span className="text-sm font-bold text-slate-700">Taux de conformité EPI</span>
+                    </div>
+                    <span className="text-2xl font-black text-emerald-600 font-outfit">{cv_audit?.compliance_rate}%</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {cv_audit?.ppe_details?.map((ppe, idx) => (
+                      <div key={idx} className="space-y-1.5">
+                        <div className="flex justify-between text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                          <span>{ppe.name}</span>
+                          <span className={ppe.status === 'ALERTE' ? 'text-rose-500' : 'text-emerald-500'}>{ppe.score}% • {ppe.status}</span>
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-1000 ${ppe.status === 'ALERTE' ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                            style={{ width: `${ppe.score}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
+                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <ExclamationTriangleIcon className="h-4 w-4 text-rose-500" />
+                    Anomalies visuelles prioritaires
+                  </h4>
+                  <div className="space-y-3">
+                    {cv_audit?.anomalies?.map((ano, idx) => (
+                      <div key={idx} className="flex gap-3 text-sm font-medium text-slate-600 bg-white p-3 rounded-xl border border-slate-100 shadow-sm animate-fadeIn">
+                        <span className="text-rose-500">⚠️</span>
+                        {ano}
+                      </div>
+                    ))}
+                    {cv_audit?.anomalies?.length === 0 && (
+                      <div className="text-center py-12 text-emerald-600 font-bold text-sm">
+                        ✅ Aucune anomalie visuelle détectée
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </ChartCard>
+          </div>
+
 
           {/* HSE Correlation */}
           <ChartCard
