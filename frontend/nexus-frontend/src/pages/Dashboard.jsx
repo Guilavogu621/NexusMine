@@ -58,13 +58,13 @@ function ProgressRing({ progress = 0, color = '#10B981', size = 120, strokeWidth
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
-  
+
   return (
     <svg width={size} height={size} className="drop-shadow-lg">
       <defs>
         <linearGradient id="progressGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={color} stopOpacity="0.2"/>
-          <stop offset="100%" stopColor={color} stopOpacity="0.1"/>
+          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.1" />
         </linearGradient>
       </defs>
       <circle
@@ -109,7 +109,7 @@ function ChartCard({ title, subtitle, action, children }) {
     <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl p-7 shadow-lg border border-white/20 hover:shadow-xl hover:border-white/40 transition-all duration-500 animate-fadeInUp overflow-hidden">
       {/* Effet de fond dégradé subtil */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-      
+
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -152,15 +152,15 @@ const useAnimatedCounter = (end, duration = 1500) => {
 // Composant StatCard amélioré
 const StatCard = ({ name, value, icon: IconComponent, color, colorLight, trend, trendUp, delay = 0 }) => {
   const animatedValue = useAnimatedCounter(value);
-  
+
   return (
-    <div 
+    <div
       className="group relative bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-2xl hover:border-white/40 hover:-translate-y-1 transition-all duration-500"
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Gradient de fond au hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
-      
+
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
@@ -173,11 +173,10 @@ const StatCard = ({ name, value, icon: IconComponent, color, colorLight, trend, 
             <IconComponent className={`h-7 w-7 ${color}`} />
           </div>
         </div>
-        
+
         {trend && (
-          <div className={`flex items-center gap-1.5 text-sm font-bold ${
-            trendUp ? 'text-emerald-600' : 'text-rose-600'
-          }`}>
+          <div className={`flex items-center gap-1.5 text-sm font-bold ${trendUp ? 'text-emerald-600' : 'text-rose-600'
+            }`}>
             {trendUp ? (
               <ArrowTrendingUpIcon className="h-4 w-4" />
             ) : (
@@ -197,7 +196,7 @@ const KPICard = ({ title, value, unit, trend, trendUp, icon: Icon }) => {
   return (
     <div className="group relative bg-gradient-to-br from-white/90 to-white/40 backdrop-blur-md rounded-xl p-5 shadow-md border border-white/20 hover:shadow-lg hover:border-white/40 transition-all duration-500 overflow-hidden">
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl bg-gradient-to-br from-slate-50/50 to-transparent" />
-      
+
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="p-2 bg-slate-100 rounded-lg group-hover:bg-slate-200 transition-colors">
@@ -231,15 +230,14 @@ const ActivityItem = ({ icon: IconComponent, iconBg, title, subtitle, time, stat
     <div className="text-right flex-shrink-0">
       <p className="text-xs text-slate-400 whitespace-nowrap">{time}</p>
       {status && (
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold mt-2 ${
-          status === 'success' ? 'bg-emerald-100 text-emerald-700' :
-          status === 'warning' ? 'bg-amber-100 text-amber-700' :
-          status === 'error' ? 'bg-rose-100 text-rose-700' :
-          'bg-slate-100 text-slate-600'
-        }`}>
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold mt-2 ${status === 'success' ? 'bg-emerald-100 text-emerald-700' :
+            status === 'warning' ? 'bg-amber-100 text-amber-700' :
+              status === 'error' ? 'bg-rose-100 text-rose-700' :
+                'bg-slate-100 text-slate-600'
+          }`}>
           {status === 'success' ? '✓ Terminé' :
-           status === 'warning' ? '⏱ En cours' :
-           status === 'error' ? '⚠ Urgent' : status}
+            status === 'warning' ? '⏱ En cours' :
+              status === 'error' ? '⚠ Urgent' : status}
         </span>
       )}
     </div>
@@ -485,19 +483,19 @@ export default function Dashboard() {
               {currentDate}
             </p>
           </div>
-          
+
           <div className="flex items-center gap-3 flex-wrap">
             {!isGlobalView && assignedSites.length > 0 && (
               <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-100/60 text-blue-700 rounded-lg border border-blue-200/60 backdrop-blur-sm font-medium text-sm">
                 <MapPinIcon className="h-5 w-5" />
                 <span>
-                  {assignedSites.length === 1 
-                    ? assignedSites[0].name 
+                  {assignedSites.length === 1
+                    ? assignedSites[0].name
                     : `${assignedSites.length} sites`}
                 </span>
               </div>
             )}
-            
+
             <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-100/60 text-emerald-700 rounded-lg border border-emerald-200/60 backdrop-blur-sm font-medium text-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -505,7 +503,7 @@ export default function Dashboard() {
               </span>
               Système opérationnel
             </div>
-            
+
             {(user?.role === 'ADMIN' || user?.role === 'SITE_MANAGER' || user?.role === 'TECHNICIEN' || user?.role === 'ANALYST') && (
               <Link
                 to="/reports/new"
@@ -574,8 +572,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Production Chart */}
           <div className="lg:col-span-2">
-            <ChartCard 
-              title="Production Mensuelle" 
+            <ChartCard
+              title="Production Mensuelle"
               subtitle="Comparaison avec les objectifs"
               action="Voir détails"
             >
@@ -583,8 +581,8 @@ export default function Dashboard() {
                 <AreaChart data={productionData}>
                   <defs>
                     <linearGradient id="colorProd" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
@@ -680,7 +678,7 @@ export default function Dashboard() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-              
+
               <div className="space-y-3.5 flex-1">
                 {equipmentStatusData.map((item, index) => (
                   <div key={index} className="flex items-center gap-3 group cursor-pointer">
@@ -710,11 +708,11 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl p-7 shadow-lg border border-white/20 hover:shadow-xl hover:border-white/40 transition-all duration-500">
             <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-            
+
             <div className="relative z-10">
               <h3 className="text-lg font-bold text-slate-900 mb-2">Actions Rapides</h3>
               <p className="text-sm text-slate-600 mb-6">Accès direct aux fonctionnalités clés</p>
-              
+
               <div className="space-y-3">
                 {['ADMIN', 'SITE_MANAGER', 'TECHNICIEN'].includes(user?.role) && (
                   <Link
@@ -728,7 +726,7 @@ export default function Dashboard() {
                     <ArrowRightIcon className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
                   </Link>
                 )}
-                
+
                 {['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST'].includes(user?.role) && (
                   <Link
                     to="/incidents/new"
@@ -741,7 +739,7 @@ export default function Dashboard() {
                     <ArrowRightIcon className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
                   </Link>
                 )}
-                
+
                 <Link
                   to="/equipment"
                   className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg hover:from-slate-100 hover:to-slate-150 transition-all duration-300 group border border-slate-200/50 hover:border-slate-300"
@@ -752,7 +750,7 @@ export default function Dashboard() {
                   <span className="text-sm font-semibold text-slate-900 flex-1">Voir équipements</span>
                   <ArrowRightIcon className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
                 </Link>
-                
+
                 {['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST'].includes(user?.role) && (
                   <Link
                     to="/analytics"
@@ -772,8 +770,8 @@ export default function Dashboard() {
 
         {/* Recent Alerts */}
         {recentAlerts.length > 0 && (
-          <ChartCard 
-            title="Alertes en Cours" 
+          <ChartCard
+            title="Alertes en Cours"
             subtitle={`${recentAlerts.length} alertes non traitées`}
             action="Gérer les alertes"
           >
@@ -781,29 +779,26 @@ export default function Dashboard() {
               {recentAlerts.slice(0, 6).map((alert) => (
                 <div
                   key={alert.id}
-                  className={`group p-5 rounded-xl border-l-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer backdrop-blur-sm ${
-                    alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
+                  className={`group p-5 rounded-xl border-l-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer backdrop-blur-sm ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
                       ? 'bg-red-50/80 border-red-500 hover:bg-red-100/80'
                       : alert.severity === 'MEDIUM'
-                      ? 'bg-amber-50/80 border-amber-500 hover:bg-amber-100/80'
-                      : 'bg-slate-50/80 border-slate-400 hover:bg-slate-100/80'
-                  }`}
+                        ? 'bg-amber-50/80 border-amber-500 hover:bg-amber-100/80'
+                        : 'bg-slate-50/80 border-slate-400 hover:bg-slate-100/80'
+                    }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-2.5 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform ${
-                      alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
+                    <div className={`p-2.5 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
                         ? 'bg-red-100'
                         : alert.severity === 'MEDIUM'
-                        ? 'bg-amber-100'
-                        : 'bg-slate-100'
-                    }`}>
-                      <BellAlertIcon className={`h-5 w-5 ${
-                        alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
+                          ? 'bg-amber-100'
+                          : 'bg-slate-100'
+                      }`}>
+                      <BellAlertIcon className={`h-5 w-5 ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
                           ? 'text-red-600'
                           : alert.severity === 'MEDIUM'
-                          ? 'text-amber-600'
-                          : 'text-slate-500'
-                      }`} />
+                            ? 'text-amber-600'
+                            : 'text-slate-500'
+                        }`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-slate-900 truncate group-hover:text-slate-950">{alert.title}</p>
