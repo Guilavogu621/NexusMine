@@ -46,7 +46,7 @@ function RiskGauge({ score, size = 100 }) {
   const radius = (size - 10) / 2;
   const circumference = Math.PI * radius;
   const progress = (score / 100) * circumference;
-  
+
   let color = '#22C55E';
   let label = 'Faible';
   if (score >= 70) {
@@ -129,7 +129,7 @@ function ChartCard({ title, icon: Icon, subtitle, children, className = '' }) {
   return (
     <div className={`group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden ${className}`}>
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-      
+
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-6">
           <div className="p-2 bg-indigo-100 rounded-lg">
@@ -213,363 +213,260 @@ export default function IntelligenceDashboard() {
     );
   }
 
-  const { site_risks, incident_trends, equipment_at_risk, recommendations, kpis } = data;
+  const {
+    site_risks,
+    production_forecast,
+    hse_correlation,
+    incident_trends,
+    equipment_at_risk,
+    recommendations,
+    kpis
+  } = data;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
-      {/* Background pattern */}
-      <div className="fixed inset-0 opacity-40 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
-      </div>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Header Premium */}
-        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fadeIn pt-8">
+
+        {/* ── HEADER PREMIUM ── */}
+        <div className="group relative overflow-hidden rounded-[40px] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <defs>
-                <pattern id="intelligenceGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
-                </pattern>
-              </defs>
-              <rect width="100" height="100" fill="url(#intelligenceGrid)" />
+              <pattern id="intelGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+              <rect width="100" height="100" fill="url(#intelGrid)" />
             </svg>
           </div>
 
-          <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-indigo-400 opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
-
-          <div className="relative px-8 py-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
-              <div className="flex items-start gap-5">
-                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <CpuChipIcon className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">
-                    NexusMine Intelligence
-                  </h1>
-                  <p className="mt-2 text-blue-100 font-medium">
-                    Analyse prédictive • Détection de risques • Recommandations intelligentes
-                  </p>
-                </div>
+          <div className="relative p-8 sm:p-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="p-5 bg-white/20 backdrop-blur-md rounded-[32px] shadow-2xl ring-4 ring-white/30 group-hover:scale-110 transition-transform duration-500">
+                <CpuChipIcon className="h-10 w-10 text-white" />
               </div>
-
-              <button
-                onClick={handleRefresh}
-                disabled={refreshing}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 flex-shrink-0"
-              >
-                <ArrowPathIcon className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Actualisation...' : 'Actualiser'}
-              </button>
-            </div>
-
-            {/* KPIs Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <CheckCircleIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-1">Taux Résolution</p>
-                    <p className="text-2xl font-bold text-white font-outfit">{resolutionRate}%</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <ShieldCheckIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-1">Jours Sûrs</p>
-                    <p className="text-2xl font-bold text-white font-outfit">{daysWithoutCritical}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${incident_trends?.trend === 'hausse' ? 'bg-red-500/20' : incident_trends?.trend === 'baisse' ? 'bg-green-500/20' : 'bg-white/20'}`}>
-                    {incident_trends?.trend === 'hausse' ? (
-                      <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
-                    ) : incident_trends?.trend === 'baisse' ? (
-                      <ArrowTrendingDownIcon className="h-5 w-5 text-white" />
-                    ) : (
-                      <MinusIcon className="h-5 w-5 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-1">Tendance 30j</p>
-                    <p className="text-2xl font-bold text-white font-outfit">
-                      {incident_trends?.trend_pct > 0 ? '+' : ''}{incident_trends?.trend_pct}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <FireIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-blue-100 uppercase tracking-wider mb-1">Incidents 30j</p>
-                    <p className="text-2xl font-bold text-white font-outfit">{kpis?.total_incidents_30d || 0}</p>
-                  </div>
-                </div>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight font-outfit">NexusMine Intelligence</h1>
+                <p className="text-blue-100 font-medium opacity-90 mt-1">Analyse prédictive & Surveillance HSE automatisée</p>
               </div>
             </div>
+
+            <button
+              onClick={handleRefresh}
+              className="inline-flex items-center gap-3 px-8 py-4 bg-white text-indigo-600 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 font-outfit disabled:opacity-50"
+              disabled={refreshing}
+            >
+              <ArrowPathIcon className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Analyse...' : 'Relancer l\'IA'}
+            </button>
+          </div>
+
+          {/* Quick KPIs Overlay */}
+          <div className="px-8 pb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <QuickKPI label="Taux de Résolution" value={`${resolutionRate}%`} icon={CheckCircleIcon} />
+            <QuickKPI label="Jours Sans Incident" value={daysWithoutCritical} icon={ShieldCheckIcon} />
+            <QuickKPI label="Tendance 30j" value={`${incident_trends?.trend_pct > 0 ? '+' : ''}${incident_trends?.trend_pct}%`} icon={incident_trends?.trend === 'hausse' ? ArrowTrendingUpIcon : ArrowTrendingDownIcon} color={incident_trends?.trend === 'hausse' ? 'text-rose-200' : 'text-emerald-200'} />
+            <QuickKPI label="Incidents 30j" value={kpis?.total_incidents_30d || 0} icon={FireIcon} />
           </div>
         </div>
 
-        {/* Recommendations Section */}
-        <ChartCard
-          title="Recommandations Intelligentes"
-          icon={LightBulbIcon}
-          subtitle="Actions prioritaires basées sur l'analyse prédictive"
-        >
-          <div className="space-y-3">
-            {recommendations?.length === 0 ? (
-              <p className="text-slate-500 text-center py-8 font-medium">Aucune recommandation immédiate</p>
-            ) : (
-              recommendations?.map((rec, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-xl border border-slate-200/60 bg-white/40 hover:bg-white/80 transition-all duration-300 flex items-start gap-4 group"
-                >
-                  <div className="text-2xl flex-shrink-0">{rec.icon}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <h3 className="font-bold text-slate-900">{rec.title}</h3>
+        {/* ── AI PREDICTIONS & RECOMMENDATIONS ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Production Forecast */}
+          <ChartCard
+            title="Prévision de Production (30j)"
+            icon={ChartBarIcon}
+            subtitle="Basé sur l'historique des 6 derniers mois"
+            className="lg:col-span-1"
+          >
+            <div className="text-center py-6">
+              <div className="inline-flex items-baseline gap-2 mb-2">
+                <p className="text-5xl font-black text-indigo-600 font-outfit tracking-tighter">
+                  {Number(production_forecast?.next_30d || 0).toLocaleString()}
+                </p>
+                <p className="text-xl font-bold text-slate-400">tonnes</p>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest mt-4">
+                <SparklesIcon className="h-4 w-4 text-amber-500" />
+                Fiabilité de l'IA : {production_forecast?.confidence}%
+              </div>
+              <div className={`mt-6 px-4 py-2 rounded-xl text-xs font-bold ${production_forecast?.trend === 'increase' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-500'} inline-flex items-center gap-2`}>
+                {production_forecast?.trend === 'increase' ? <ArrowTrendingUpIcon className="h-4 w-4" /> : <MinusIcon className="h-4 w-4" />}
+                Tendance : {production_forecast?.trend === 'increase' ? 'Hausse prévue' : 'Stable'}
+              </div>
+            </div>
+          </ChartCard>
+
+          {/* Smart Recommendations */}
+          <ChartCard
+            title="Recommandations Intelligentes"
+            icon={LightBulbIcon}
+            subtitle="Actions prioritaires générées par le moteur d'insights"
+            className="lg:col-span-2"
+          >
+            <div className="space-y-4 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
+              {recommendations?.map((rec, idx) => (
+                <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4 group hover:bg-white hover:shadow-md transition-all duration-300">
+                  <div className="text-2xl pt-1">{rec.icon}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase text-xs tracking-wider">{rec.title}</h4>
                       <PriorityBadge priority={rec.priority} />
                     </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">{rec.description}</p>
+                    <p className="text-sm text-slate-600 leading-relaxed font-medium">{rec.description}</p>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </ChartCard>
+              ))}
+            </div>
+          </ChartCard>
+        </div>
 
-        {/* Risk Scores + Equipment at Risk */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Site Risk Scores */}
+        {/* ── RISK ANALYSIS & CORRELATION ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+          {/* Site Risks */}
           <ChartCard
-            title="Score de Risque par Site"
+            title="Score de Risque Opérationnel"
             icon={ExclamationTriangleIcon}
-            subtitle="Analyse de risque en temps réel"
+            subtitle="Agrégation des incidents et états machines"
           >
-            {site_risks?.length === 0 ? (
-              <p className="text-slate-500 text-center py-8 font-medium">Aucun site configuré</p>
-            ) : (
-              <div className="space-y-4">
-                {site_risks?.map((site) => (
-                  <div
-                    key={site.site_id}
-                    className="p-4 rounded-xl border border-slate-200/60 bg-white/40 hover:bg-white/80 transition-all duration-300 flex items-center gap-4"
-                  >
-                    <RiskGauge score={site.risk_score} size={80} />
-                    <div className="flex-1">
-                      <h3 className="font-bold text-slate-900 mb-2">{site.site_name}</h3>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg border"
-                          style={{
-                            backgroundColor: site.risk_color + '20',
-                            color: site.risk_color,
-                            borderColor: site.risk_color + '40',
-                          }}
-                        >
-                          {site.risk_level}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-xs text-slate-600">
-                        <span>🔴 {site.critical_incidents} critiques</span>
-                        <span>⏳ {site.unresolved_incidents} non résolus</span>
-                        <span>🔧 {site.broken_equipment}/{site.total_equipment} en panne</span>
-                      </div>
+            <div className="space-y-4">
+              {site_risks?.map((site) => (
+                <div key={site.site_id} className="flex items-center gap-6 p-4 bg-white/50 rounded-2xl border border-slate-100 hover:shadow-lg transition-all duration-300">
+                  <RiskGauge score={site.risk_score} size={80} />
+                  <div className="flex-1">
+                    <h3 className="text-lg font-black text-slate-800 font-outfit">{site.site_name}</h3>
+                    <div className="flex items-center gap-4 mt-2">
+                      <span className="text-xs font-bold text-rose-500 bg-rose-50 px-2 py-1 rounded-lg">
+                        🛑 {site.critical_incidents} Critiques
+                      </span>
+                      <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
+                        🔧 {site.broken_equipment} Pannes
+                      </span>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </ChartCard>
 
-          {/* Equipment at Risk */}
+          {/* HSE Correlation */}
           <ChartCard
-            title="Équipements à Risque"
-            icon={WrenchScrewdriverIcon}
-            subtitle="Équipements avec 2+ incidents récents"
+            title="Corrélation HSE : Humidité & Sol"
+            icon={FireIcon}
+            subtitle="Analyse préventive des risques géologiques"
           >
-            {equipment_at_risk?.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-4xl mb-2">✅</div>
-                <p className="text-slate-600 font-semibold">Aucun équipement à risque détecté</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {equipment_at_risk?.map((eq) => (
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full border-8 border-slate-100 flex items-center justify-center overflow-hidden">
                   <div
-                    key={eq.id}
-                    className="p-3 rounded-lg border border-slate-200/60 bg-white/40 hover:bg-white/80 transition-all duration-300 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm">{eq.name}</p>
-                      <p className="text-xs text-slate-500">{eq.site__name} • {eq.equipment_type}</p>
-                    </div>
-                    <span className="bg-red-100/80 text-red-700 px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap">
-                      {eq.incident_count} incidents
-                    </span>
+                    className="absolute bottom-0 w-full bg-blue-500 transition-all duration-1000"
+                    style={{ height: `${hse_correlation?.avg_humidity}%` }}
+                  />
+                  <span className="relative z-10 text-xl font-black text-slate-900">{Math.round(hse_correlation?.avg_humidity)}%</span>
+                </div>
+              </div>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-4">Humidité Moyenne (Sols)</p>
+
+              <div className={`mt-8 w-full p-6 rounded-[2rem] border transition-all duration-500 ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200'}`}>
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-2xl ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                    <ExclamationTriangleIcon className="h-6 w-6" />
                   </div>
-                ))}
-              </div>
-            )}
-          </ChartCard>
-        </div>
-
-        {/* Incident Trends */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Weekly Trend */}
-          <ChartCard
-            title="Évolution Hebdomadaire"
-            icon={ChartBarIcon}
-            subtitle="Tendance des incidents (7 dernières semaines)"
-          >
-            {incident_trends?.weekly?.length > 0 ? (
-              <div className="flex items-end gap-2 h-48 justify-between">
-                {incident_trends.weekly.map((w, idx) => {
-                  const maxCount = Math.max(...incident_trends.weekly.map(x => x.count), 1);
-                  const height = (w.count / maxCount) * 100;
-                  return (
-                    <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                      <span className="text-xs font-bold text-slate-600">{w.count}</span>
-                      <div
-                        className="w-full bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-lg transition-all duration-500 hover:shadow-lg"
-                        style={{ height: `${Math.max(height, 8)}%`, minHeight: '8px' }}
-                      />
-                      <span className="text-xs text-slate-500 font-medium">{w.week}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-slate-500 text-center py-8 font-medium">Aucune donnée disponible</p>
-            )}
-          </ChartCard>
-
-          {/* Incidents by Type */}
-          <ChartCard
-            title="Incidents par Type"
-            icon={ClockIcon}
-            subtitle="Distribution sur 30 jours"
-          >
-            {incident_trends?.by_type?.length === 0 ? (
-              <p className="text-slate-500 text-center py-8 font-medium">Aucun incident sur cette période</p>
-            ) : (
-              <div className="space-y-4">
-                {incident_trends?.by_type?.map((item, idx) => {
-                  const maxCount = incident_trends.by_type[0]?.count || 1;
-                  const width = (item.count / maxCount) * 100;
-                  const typeLabels = {
-                    ACCIDENT: 'Accident corporel',
-                    NEAR_MISS: 'Presqu\'accident',
-                    EQUIPMENT_FAILURE: 'Panne équipement',
-                    ENVIRONMENTAL: 'Environnemental',
-                    SECURITY: 'Sécurité',
-                    LANDSLIDE: 'Glissement de terrain',
-                    FIRE: 'Incendie',
-                    EXPLOSION: 'Explosion',
-                    CHEMICAL_SPILL: 'Déversement chimique',
-                    OTHER: 'Autre',
-                  };
-                  return (
-                    <div key={idx} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-slate-700">
-                          {typeLabels[item.incident_type] || item.incident_type}
-                        </span>
-                        <span className="text-sm font-bold text-slate-900 bg-slate-100/80 px-2.5 py-1 rounded-lg">
-                          {item.count}
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div
-                          className="bg-gradient-to-r from-teal-500 to-teal-600 h-2.5 rounded-full transition-all duration-700"
-                          style={{ width: `${Math.max(width, 5)}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </ChartCard>
-        </div>
-
-        {/* Production Efficiency */}
-        {kpis?.production_7d && (
-          <ChartCard
-            title="Efficacité de Production"
-            icon={ChartBarIcon}
-            subtitle="7 derniers jours"
-          >
-            <div className="grid grid-cols-3 gap-6">
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-100/50 to-indigo-100/50 border border-blue-200/60">
-                <p className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-2">Tonnes Extraites</p>
-                <p className="text-3xl font-bold text-indigo-600 font-outfit">
-                  {(kpis.production_7d.extracted?.toLocaleString('fr-FR') || 0).split(',')[0]}
-                </p>
-              </div>
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-emerald-100/50 to-teal-100/50 border border-emerald-200/60">
-                <p className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-2">Tonnes Traitées</p>
-                <p className="text-3xl font-bold text-emerald-600 font-outfit">
-                  {(kpis.production_7d.processed?.toLocaleString('fr-FR') || 0).split(',')[0]}
-                </p>
-              </div>
-              <div className={`text-center p-4 rounded-xl border ${kpis.production_7d.efficiency >= 70 ? 'bg-gradient-to-br from-green-100/50 to-emerald-100/50 border-green-200/60' : 'bg-gradient-to-br from-orange-100/50 to-amber-100/50 border-orange-200/60'}`}>
-                <p className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-2">Efficacité</p>
-                <p className={`text-3xl font-bold font-outfit ${kpis.production_7d.efficiency >= 70 ? 'text-green-600' : 'text-orange-600'}`}>
-                  {kpis.production_7d.efficiency}%
-                </p>
+                  <div>
+                    <p className="text-xs font-bold opacity-60 uppercase tracking-widest">Risque Glissement</p>
+                    <h4 className={`text-xl font-black ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'text-rose-600' : 'text-emerald-600'}`}>{hse_correlation?.landslide_risk}</h4>
+                  </div>
+                </div>
               </div>
             </div>
           </ChartCard>
-        )}
+        </div>
+
+        {/* ── INCIDENT TRENDS ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ChartCard title="Répartition des Incidents" icon={ChartBarIcon} subtitle="Distribution par nature sur 30 jours">
+            <div className="space-y-4">
+              {incident_trends?.by_type?.map((item, idx) => {
+                const maxVal = incident_trends.by_type[0]?.count || 1;
+                const progress = (item.count / maxVal) * 100;
+                return (
+                  <div key={idx} className="space-y-2">
+                    <div className="flex justify-between text-xs font-black uppercase text-slate-600">
+                      <span>{item.incident_type}</span>
+                      <span>{item.count}</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 rounded-full transition-all duration-1000" style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </ChartCard>
+
+          <ChartCard title="Équipements Haute Surveillance" icon={WrenchScrewdriverIcon} subtitle="Récurrence d'incidents détectée">
+            <div className="space-y-3">
+              {equipment_at_risk?.length > 0 ? equipment_at_risk.map((eq) => (
+                <div key={eq.id} className="flex items-center justify-between p-4 bg-rose-50/50 border border-rose-100 rounded-2xl">
+                  <div>
+                    <p className="font-bold text-slate-800">{eq.name}</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase">{eq.site__name}</p>
+                  </div>
+                  <span className="px-3 py-1 bg-rose-500 text-white text-xs font-black rounded-lg">{eq.ic} alertes</span>
+                </div>
+              )) : (
+                <div className="text-center py-12">
+                  <CheckCircleIcon className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                  <p className="font-bold text-slate-400">Aucune haute surveillance requise</p>
+                </div>
+              )}
+            </div>
+          </ChartCard>
+        </div>
+
       </div>
 
-      {/* Animations CSS */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
-
-        .font-outfit {
-          font-family: 'Outfit', sans-serif;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(-30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.8s ease-out forwards; }
+        .animate-fadeInDown { animation: fadeInDown 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fadeInUp { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-        .animate-fadeInDown {
-          animation: fadeInDown 0.7s ease-out forwards;
-        }
-
-        /* SVG animations */
-        svg path {
-          stroke-linecap: round;
-          stroke-linejoin: round;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
       `}</style>
+    </div>
+  );
+}
+
+function QuickKPI({ label, value, icon: Icon, color = 'text-white' }) {
+  return (
+    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-white/20 rounded-xl">
+          <Icon className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <p className="text-[10px] font-black text-blue-100 uppercase tracking-[0.1em]">{label}</p>
+          <p className={`text-2xl font-black ${color} font-outfit`}>{value}</p>
+        </div>
+      </div>
     </div>
   );
 }

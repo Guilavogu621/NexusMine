@@ -289,6 +289,10 @@ class AlertRule(models.Model):
         return f"{self.name} ({self.get_alert_type_display()})"
 
 
+def default_severity_levels():
+    return ["HIGH", "CRITICAL"]
+
+
 class UserNotificationPreferences(models.Model):
     """
     Préférences de notifications par utilisateur
@@ -307,7 +311,7 @@ class UserNotificationPreferences(models.Model):
         help_text="['OPERATIONAL', 'SAFETY', ...]"
     )
     enabled_severity_levels = models.JSONField(
-        default=lambda: ["HIGH", "CRITICAL"],
+        default=default_severity_levels,
         verbose_name="Niveaux de gravité",
         help_text="['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']"
     )
@@ -365,7 +369,7 @@ class UserNotificationPreferences(models.Model):
         verbose_name="Alertes par page"
     )
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
