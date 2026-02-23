@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
+from .audit import AuditLog, LockedStatus
 
 
 class UserManager(BaseUserManager):
@@ -65,6 +66,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip() or self.email
+
+    def get_short_name(self):
+        return self.first_name or self.email.split('@')[0]
 
     def get_site_ids(self):
                 """Retourne les IDs des sites assignés (cache-friendly)

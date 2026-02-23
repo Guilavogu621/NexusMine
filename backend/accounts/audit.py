@@ -10,10 +10,8 @@ Trace toutes les modifications avec:
 
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth import get_user_model
+from django.conf import settings
 import json
-
-User = get_user_model()
 
 
 class AuditLog(models.Model):
@@ -40,7 +38,7 @@ class AuditLog(models.Model):
     
     # Traçabilité de l'utilisateur
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,  # Ne pas pouvoir supprimer l'utilisateur
         related_name='audit_logs',
         verbose_name="Utilisateur"
@@ -163,7 +161,7 @@ class LockedStatus(models.Model):
     
     # Qui a verrouillé et quand
     locked_by = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name='locked_items'
     )

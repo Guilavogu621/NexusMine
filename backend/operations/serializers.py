@@ -137,6 +137,18 @@ class OperationSerializer(serializers.ModelSerializer):
                     'end_time': 'L\'heure de fin doit être après l\'heure de début.'
                 })
         
+        # Validation d'approbation pour TECHNICIEN
+        request = self.context.get('request')
+        if request and request.user.is_authenticated and request.user.role == 'TECHNICIEN':
+            new_status = data.get('status')
+            # Si on modifie le statut pour démarrer ou terminer
+            if new_status in ['IN_PROGRESS', 'COMPLETED']:
+                validation_status = self.instance.validation_status if self.instance else 'PENDING'
+                if validation_status != 'APPROVED':
+                    raise serializers.ValidationError({
+                        'status': "L'opération doit être approuvée par le gestionnaire avant de pouvoir être démarrée."
+                    })
+
         return data
 
 

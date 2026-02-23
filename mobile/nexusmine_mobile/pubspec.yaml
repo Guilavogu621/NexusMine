@@ -44,6 +44,7 @@ dependencies:
   reactive_forms: ^16.1.1
   web_socket_channel: ^2.4.3
   mobile_scanner: ^5.1.1
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:

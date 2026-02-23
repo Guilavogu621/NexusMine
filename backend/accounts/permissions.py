@@ -246,7 +246,7 @@ class CanManageReports(permissions.BasePermission):
             return True
         if request.method == 'POST':
             return request.user.role in [
-                'ADMIN', 'SITE_MANAGER', 'ANALYST',
+                'ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN',
             ]
         return request.user.role in ['ADMIN', 'SITE_MANAGER']
 

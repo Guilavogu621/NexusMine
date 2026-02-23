@@ -308,6 +308,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     
     # ============ ENVOI DE MESSAGES ============
     
+    async def send_json(self, data):
+        """Helper pour envoyer du JSON"""
+        await self.send(text_data=json.dumps(data))
+
     async def send_alert(self, data):
         """Envoyer une alerte"""
         await self.send_json(data)

@@ -13,6 +13,7 @@ import {
   DocumentChartBarIcon,
   XMarkIcon,
   CheckCircleIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -52,35 +53,43 @@ const typeColors = {
 
 const statusLabels = {
   DRAFT: 'Brouillon',
+  PENDING_APPROVAL: 'En attente d\'approbation',
   GENERATED: 'Généré',
   VALIDATED: 'Validé',
   PUBLISHED: 'Publié',
 };
 
 const statusConfig = {
-  DRAFT: { 
-    bg: 'bg-slate-100/80', 
-    text: 'text-slate-700', 
+  DRAFT: {
+    bg: 'bg-slate-100/80',
+    text: 'text-slate-700',
     badge: 'bg-slate-200 text-slate-800',
     dot: 'bg-slate-500',
     icon: DocumentTextIcon,
   },
-  GENERATED: { 
-    bg: 'bg-blue-100/80', 
+  PENDING_APPROVAL: {
+    bg: 'bg-amber-100/80',
+    text: 'text-amber-700',
+    badge: 'bg-amber-200 text-amber-800',
+    dot: 'bg-amber-500',
+    icon: ClockIcon,
+  },
+  GENERATED: {
+    bg: 'bg-blue-100/80',
     text: 'text-blue-700',
     badge: 'bg-blue-200 text-blue-800',
     dot: 'bg-blue-500',
     icon: SparklesIcon,
   },
-  VALIDATED: { 
-    bg: 'bg-emerald-100/80', 
+  VALIDATED: {
+    bg: 'bg-emerald-100/80',
     text: 'text-emerald-700',
     badge: 'bg-emerald-200 text-emerald-800',
     dot: 'bg-emerald-500',
     icon: CheckCircleIcon,
   },
-  PUBLISHED: { 
-    bg: 'bg-purple-100/80', 
+  PUBLISHED: {
+    bg: 'bg-purple-100/80',
     text: 'text-purple-700',
     badge: 'bg-purple-200 text-purple-800',
     dot: 'bg-purple-500',
@@ -108,12 +117,12 @@ export default function ReportsList() {
       if (filterType) params.append('report_type', filterType);
       if (filterStatus) params.append('status', filterStatus);
       if (filterSite) params.append('site', filterSite);
-      
+
       const [reportsRes, sitesRes] = await Promise.all([
         api.get(`/reports/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setReports(reportsRes.data.results || reportsRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -130,6 +139,24 @@ export default function ReportsList() {
   const handleSearch = (e) => {
     e.preventDefault();
     fetchData();
+  };
+
+  const handleExportPDF = async (id, title) => {
+    try {
+      const response = await api.get(`/reports/${id}/export_pdf/`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `rapport-${title.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Erreur lors de l\'export:', error);
+      alert('Erreur lors de l\'export du PDF');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -167,17 +194,17 @@ export default function ReportsList() {
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="reportListGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100" height="100" fill="url(#reportListGrid)" />
             </svg>
           </div>
-          
+
           {/* Animated gradient orbs */}
           <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
           <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-indigo-400 opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
-          
+
           <div className="relative px-8 py-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
               <div className="flex items-start gap-5">
@@ -193,7 +220,7 @@ export default function ReportsList() {
                   </p>
                 </div>
               </div>
-              
+
               {canEdit && (
                 <Link
                   to="/reports/new"
@@ -204,7 +231,7 @@ export default function ReportsList() {
                 </Link>
               )}
             </div>
-            
+
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300">
@@ -230,7 +257,7 @@ export default function ReportsList() {
         {/* Filters Section */}
         <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-8 shadow-lg hover:shadow-xl hover:border-white/40 transition-all duration-500 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-indigo-100 rounded-lg">
@@ -238,7 +265,7 @@ export default function ReportsList() {
               </div>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Recherche & Filtres</h2>
             </div>
-            
+
             <form onSubmit={handleSearch} className="space-y-4">
               {/* Search Bar */}
               <div className="relative group/search">
@@ -358,7 +385,7 @@ export default function ReportsList() {
             {reports.map((report, index) => {
               const statConf = statusConfig[report.status] || statusConfig.DRAFT;
               const typeGradient = typeColors[report.report_type] || typeColors.CUSTOM;
-              
+
               return (
                 <div
                   key={report.id}
@@ -367,10 +394,10 @@ export default function ReportsList() {
                 >
                   {/* Gradient accent bar */}
                   <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${typeGradient}`}></div>
-                  
+
                   {/* Hover gradient background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                  
+
                   <div className="relative z-10 p-6">
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
@@ -386,7 +413,7 @@ export default function ReportsList() {
                           </p>
                         </div>
                       </div>
-                      
+
                       {/* Action buttons */}
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <Link
@@ -396,15 +423,24 @@ export default function ReportsList() {
                         >
                           <EyeIcon className="h-4 w-4" />
                         </Link>
+                        {report.status !== 'PENDING_APPROVAL' && (
+                          <button
+                            onClick={() => handleExportPDF(report.id, report.title)}
+                            className="p-2 rounded-lg bg-indigo-100/80 text-indigo-600 hover:bg-indigo-200 transition-all duration-200"
+                            title="Exporter en PDF Premium"
+                          >
+                            <ArrowDownTrayIcon className="h-4 w-4" />
+                          </button>
+                        )}
                         {report.file && (
                           <a
                             href={report.file}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 rounded-lg bg-indigo-100/80 text-indigo-600 hover:bg-indigo-200 transition-all duration-200"
-                            title="Télécharger"
+                            className="p-2 rounded-lg bg-blue-100/80 text-blue-600 hover:bg-blue-200 transition-all duration-200"
+                            title="Ouvrir le document archivé"
                           >
-                            <ArrowDownTrayIcon className="h-4 w-4" />
+                            <DocumentTextIcon className="h-4 w-4" />
                           </a>
                         )}
                         {canEdit && (
@@ -427,19 +463,19 @@ export default function ReportsList() {
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Title */}
                     <h3 className="font-bold text-slate-900 line-clamp-2 mb-3 text-sm group-hover:text-indigo-700 transition-colors duration-300">
                       {report.title}
                     </h3>
-                    
+
                     {/* Summary */}
                     {report.summary && (
                       <p className="text-xs text-slate-600 line-clamp-2 mb-4 leading-relaxed">
                         {report.summary}
                       </p>
                     )}
-                    
+
                     {/* Footer Info */}
                     <div className="text-xs text-slate-500 pt-4 border-t border-slate-200/60 space-y-2">
                       <p className="flex items-center gap-2">
@@ -449,7 +485,7 @@ export default function ReportsList() {
                       <p className="flex items-center gap-2">
                         <span>📅</span>
                         <span className="truncate">
-                          {new Date(report.period_start).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })} 
+                          {new Date(report.period_start).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}
                           {' → '}
                           {new Date(report.period_end).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </span>

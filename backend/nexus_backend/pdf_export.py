@@ -151,11 +151,39 @@ class PDFExportMixin:
         
         if isinstance(obj_data, dict):
             obj_rows = []
+            # Traduction des champs en français
+            field_translations = {
+                'title': 'TITRE DU RAPPORT',
+                'report_type': 'TYPE DE RAPPORT',
+                'report_type_display': 'TYPE (AFFICHAGE)',
+                'status': 'STATUT',
+                'status_display': 'STATUT (AFFICHAGE)',
+                'site': 'ID SITE',
+                'site_name': 'NOM DU SITE',
+                'period_start': 'DÉBUT DE PÉRIODE',
+                'period_end': 'FIN DE PÉRIODE',
+                'generated_by': 'GÉNÉRÉ PAR (ID)',
+                'generated_by_name': 'GÉNÉRÉ PAR',
+                'validated_by': 'VALIDÉ PAR (ID)',
+                'validated_by_name': 'VALIDÉ PAR',
+            }
+
+            # Corriger la date si inversée
+            try:
+                if 'period_start' in obj_data and 'period_end' in obj_data:
+                    start_date = datetime.strptime(obj_data['period_start'], '%Y-%m-%d').date()
+                    end_date = datetime.strptime(obj_data['period_end'], '%Y-%m-%d').date()
+                    if start_date > end_date:
+                        obj_data['period_start'], obj_data['period_end'] = obj_data['period_end'], obj_data['period_start']
+            except (ValueError, TypeError):
+                pass
+                
             for key, value in obj_data.items():
-                if key not in ['id', 'created_at', 'updated_at', 'file', 'content', 'summary']:
+                if key not in ['id', 'created_at', 'updated_at', 'file', 'content', 'summary', 'site', 'generated_by', 'validated_by', 'report_type', 'status']:
                     if value and value != "":
+                        french_key = field_translations.get(key, str(key).replace('_', ' ').upper())
                         obj_rows.append([
-                            Paragraph(str(key).replace('_', ' ').upper(), label_style),
+                            Paragraph(french_key, label_style),
                             Paragraph(str(value), value_style)
                         ])
             

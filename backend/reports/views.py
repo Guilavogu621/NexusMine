@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from django.core.files.base import ContentFile
+from django.http import FileResponse
 from io import BytesIO
 from .models import Report
 from .serializers import ReportSerializer, ReportListSerializer
@@ -48,13 +49,30 @@ class ReportViewSet(PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
         else:
             serializer.save(generated_by=self.request.user)
 
+    @action(detail=True, methods=['get'])
+    def export_pdf(self, request, pk=None):
+        """Exporter en PDF avec vérification du statut"""
+        report = self.get_object()
+        if report.status == Report.ReportStatus.PENDING_APPROVAL:
+            return Response(
+                {'error': 'Ce rapport doit être approuvé par un gestionnaire avant d\'être généré.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().export_pdf(request, pk=pk)
+
     @action(detail=True, methods=['post'])
     def generate_pdf(self, request, pk=None):
         """Générer un PDF premium avec QR Code pour le rapport"""
         report = self.get_object()
         
+        # Sécurité : Un rapport en attente d'approbation ne peut pas être généré
+        if report.status == Report.ReportStatus.PENDING_APPROVAL:
+            return Response(
+                {'error': 'Ce rapport doit être approuvé par un gestionnaire avant d\'être généré.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         # Utiliser la logique de PDFExportMixin pour générer le contenu
-        # On appelle export_pdf du mixin qui retourne un FileResponse
         response = self.export_pdf(request, pk=pk)
         
         if isinstance(response, FileResponse):
@@ -124,16 +142,21 @@ class ReportViewSet(PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def generate_excel(self, request, pk=None):
-        """Générer un fichier Excel pour le rapport
+        """Générer un fichier Excel pour le rapport"""
+        report = self.get_object()
 
-        Seuls ADMIN, SITE_MANAGER, ANALYST peuvent générer.
-        """
+        # Sécurité : Un rapport en attente d'approbation ne peut pas être généré
+        if report.status == Report.ReportStatus.PENDING_APPROVAL:
+            return Response(
+                {'error': 'Ce rapport doit être approuvé par un gestionnaire avant d\'être généré.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         if request.user.role not in ['ADMIN', 'SITE_MANAGER', 'ANALYST']:
             return Response(
                 {'error': 'Permission insuffisante pour générer un rapport.'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        report = self.get_object()
 
         try:
             import openpyxl

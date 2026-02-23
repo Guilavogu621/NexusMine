@@ -40,6 +40,7 @@ const typeEmojis = {
 
 const statusLabels = {
   DRAFT: 'Brouillon',
+  PENDING_APPROVAL: 'En attente d\'approbation',
   GENERATED: 'Généré',
   VALIDATED: 'Validé',
   PUBLISHED: 'Publié',
@@ -47,6 +48,7 @@ const statusLabels = {
 
 const statusConfig = {
   DRAFT: { bg: 'bg-slate-100', text: 'text-slate-600', dot: 'bg-gray-500' },
+  PENDING_APPROVAL: { bg: 'bg-amber-100', text: 'text-amber-700', dot: 'bg-amber-500' },
   GENERATED: { bg: 'bg-blue-100', text: 'text-blue-700', dot: 'bg-indigo-500' },
   VALIDATED: { bg: 'bg-emerald-100', text: 'text-emerald-700', dot: 'bg-emerald-500' },
   PUBLISHED: { bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
@@ -62,10 +64,12 @@ export default function ReportsDetail() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingExcel, setGeneratingExcel] = useState(false);
 
-  // Générer PDF/Excel : ADMIN, SITE_MANAGER, SUPERVISOR, ANALYST
-  const canGenerate = isTechnicien() || isAnalyst();
+  // Générer PDF/Excel : Admin, Manager, Analyst, Technicien (si non PENDING)
+  const canGenerate = (isTechnicien() || isAnalyst() || isSiteManager()) && report?.status !== 'PENDING_APPROVAL';
   // Modifier/Supprimer : ADMIN, SITE_MANAGER uniquement
-  const canEditDelete = isSiteManager();
+  const canEditDelete = isSiteManager() || (isTechnicien() && report?.status === 'DRAFT');
+  // Approuver/Rejeter : ADMIN, SITE_MANAGER uniquement
+  const canApprove = (isSiteManager()) && report?.status === 'PENDING_APPROVAL';
 
   useEffect(() => {
     fetchData();
@@ -124,6 +128,28 @@ export default function ReportsDetail() {
     }
   };
 
+  const handleApprove = async () => {
+    try {
+      const response = await api.post(`/reports/${id}/approve/`);
+      setReport(response.data);
+      alert('Rapport approuvé avec succès');
+    } catch (error) {
+      console.error('Erreur lors de l\'approbation:', error);
+      alert('Erreur lors de l\'approbation');
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const response = await api.post(`/reports/${id}/reject/`);
+      setReport(response.data);
+      alert('Rapport rejeté (mis en brouillon)');
+    } catch (error) {
+      console.error('Erreur lors du rejet:', error);
+      alert('Erreur lors du rejet');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full min-h-96">
@@ -158,6 +184,36 @@ export default function ReportsDetail() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-8">
+      {/* Alerte si en attente d'approbation */}
+      {report.status === 'PENDING_APPROVAL' && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-xl flex items-start gap-4 animate-fadeIn">
+          <ClockIcon className="h-6 w-6 text-amber-600 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-bold text-amber-800">En attente d'approbation</h3>
+            <p className="text-sm text-amber-700 mt-1">
+              Ce rapport a été soumis pour approbation par le gestionnaire du site.
+              {isTechnicien() ? " Vous ne pouvez pas générer de documents tant qu'il n'a pas été approuvé." : " Veuillez vérifier le contenu avant de valider."}
+            </p>
+            {canApprove && (
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={handleApprove}
+                  className="px-4 py-2 bg-amber-600 text-white text-xs font-bold rounded-lg hover:bg-amber-700 transition-colors"
+                >
+                  Approuver le rapport
+                </button>
+                <button
+                  onClick={handleReject}
+                  className="px-4 py-2 bg-white text-amber-600 text-xs font-bold rounded-lg border border-amber-200 hover:bg-amber-50 transition-colors"
+                >
+                  Rejeter
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Premium Header avec bannière */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 shadow-2xl">
         {/* Background pattern */}
@@ -165,17 +221,17 @@ export default function ReportsDetail() {
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <pattern id="reportGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#reportGrid)" />
           </svg>
         </div>
-        
+
         {/* Gradient orbs */}
         <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-indigo-400 opacity-10 blur-3xl"></div>
-        
+
         <div className="relative px-8 py-8">
           {/* Back button */}
           <Link
@@ -185,7 +241,7 @@ export default function ReportsDetail() {
             <ArrowLeftIcon className="h-4 w-4" />
             <span className="text-sm font-medium">Retour aux rapports</span>
           </Link>
-          
+
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex items-center gap-5">
               <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
@@ -211,7 +267,7 @@ export default function ReportsDetail() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 flex-wrap">
               {report.file && (
                 <a

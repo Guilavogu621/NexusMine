@@ -20,14 +20,13 @@ django_asgi_app = get_asgi_application()
 
 # Import des WebSocket routes (après Django setup)
 from nexus_backend.asgi_config import websocket_urlpatterns
+from nexus_backend.middleware import JWTAuthMiddleware
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter(
-                websocket_urlpatterns
-            )
+    "websocket": JWTAuthMiddleware(
+        URLRouter(
+            websocket_urlpatterns
         )
     ),
 })

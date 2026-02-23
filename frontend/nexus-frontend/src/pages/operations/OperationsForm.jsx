@@ -19,16 +19,16 @@ import DateRangeInput from "../../components/ui/DateRangeInput";
 import useFormPermissions from "../../hooks/useFormPermissions";
 
 const OPERATION_TYPES = [
-  { value: "EXTRACTION",  label: "Extraction",  emoji: "⛏️", gradient: "from-amber-500 to-amber-600",  bg: "bg-amber-100 text-amber-700"  },
-  { value: "TRANSPORT",   label: "Transport",   emoji: "🚛", gradient: "from-cyan-500 to-cyan-600",    bg: "bg-cyan-100 text-cyan-700"    },
+  { value: "EXTRACTION", label: "Extraction", emoji: "⛏️", gradient: "from-amber-500 to-amber-600", bg: "bg-amber-100 text-amber-700" },
+  { value: "TRANSPORT", label: "Transport", emoji: "🚛", gradient: "from-cyan-500 to-cyan-600", bg: "bg-cyan-100 text-cyan-700" },
   { value: "MAINTENANCE", label: "Maintenance", emoji: "🔧", gradient: "from-orange-500 to-orange-600", bg: "bg-orange-100 text-orange-700" },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "PLANNED",     label: "Planifié", emoji: "📅", dot: "bg-blue-500",    badge: "bg-blue-100/80 text-blue-800"     },
-  { value: "IN_PROGRESS", label: "En cours", emoji: "⚙️", dot: "bg-amber-500",   badge: "bg-amber-100/80 text-amber-800"   },
-  { value: "COMPLETED",   label: "Terminé",  emoji: "✅", dot: "bg-emerald-500", badge: "bg-emerald-100/80 text-emerald-800"},
-  { value: "CANCELLED",   label: "Annulé",   emoji: "❌", dot: "bg-slate-500",   badge: "bg-slate-100/80 text-slate-800"   },
+  { value: "PLANNED", label: "Planifié", emoji: "📅", dot: "bg-blue-500", badge: "bg-blue-100/80 text-blue-800" },
+  { value: "IN_PROGRESS", label: "En cours", emoji: "⚙️", dot: "bg-amber-500", badge: "bg-amber-100/80 text-amber-800" },
+  { value: "COMPLETED", label: "Terminé", emoji: "✅", dot: "bg-emerald-500", badge: "bg-emerald-100/80 text-emerald-800" },
+  { value: "CANCELLED", label: "Annulé", emoji: "❌", dot: "bg-slate-500", badge: "bg-slate-100/80 text-slate-800" },
 ];
 
 const inputCls = "block w-full rounded-xl border-0 py-3 px-4 bg-slate-50 text-slate-800 ring-1 ring-inset ring-gray-200 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all duration-200 hover:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium";
@@ -60,24 +60,26 @@ const OperationsForm = () => {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
+  const { user } = useAuthStore();
   const { readOnly, canSubmit } = useFormPermissions("operations");
 
-  const [loading, setLoading]   = useState(false);
-  const [saving, setSaving]     = useState(false);
-  const [error, setError]       = useState(null);
-  const [success, setSuccess]   = useState(false);
-  const [sites, setSites]       = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [sites, setSites] = useState([]);
   const [timeRangeValid, setTimeRangeValid] = useState(true);
 
   const [formData, setFormData] = useState({
-    operation_code:     "",
-    operation_type:     "EXTRACTION",
-    site:               "",
-    date:               new Date().toISOString().split("T")[0],
-    start_time:         "",
-    end_time:           "",
-    status:             "PLANNED",
-    description:        "",
+    operation_code: "",
+    operation_type: "EXTRACTION",
+    site: "",
+    date: new Date().toISOString().split("T")[0],
+    start_time: "",
+    end_time: "",
+    status: "PLANNED",
+    validation_status: "PENDING",
+    description: "",
     quantity_extracted: "",
   });
 
@@ -99,14 +101,15 @@ const OperationsForm = () => {
       .then((res) => {
         const d = res.data;
         setFormData({
-          operation_code:     d.operation_code     || "",
-          operation_type:     d.operation_type     || "EXTRACTION",
-          site:               d.site               || "",
-          date:               d.date               || new Date().toISOString().split("T")[0],
-          start_time:         d.start_time         || "",
-          end_time:           d.end_time           || "",
-          status:             d.status             || "PLANNED",
-          description:        d.description        || "",
+          operation_code: d.operation_code || "",
+          operation_type: d.operation_type || "EXTRACTION",
+          site: d.site || "",
+          date: d.date || new Date().toISOString().split("T")[0],
+          start_time: d.start_time || "",
+          end_time: d.end_time || "",
+          status: d.status || "PLANNED",
+          validation_status: d.validation_status || "PENDING",
+          description: d.description || "",
           quantity_extracted: d.quantity_extracted ?? "",
         });
       })
@@ -134,16 +137,16 @@ const OperationsForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit)      return setError("Vous n'avez pas la permission d'effectuer cette action.");
-    if (!formData.site)  return setError("Veuillez sélectionner un site.");
+    if (!canSubmit) return setError("Vous n'avez pas la permission d'effectuer cette action.");
+    if (!formData.site) return setError("Veuillez sélectionner un site.");
     if (!timeRangeValid) return setError("L'heure de début doit être avant l'heure de fin.");
 
     const payload = {
       ...formData,
-      site:               Number(formData.site),
+      site: Number(formData.site),
       quantity_extracted: formData.quantity_extracted === "" ? null : formData.quantity_extracted,
-      start_time:         formData.start_time || null,
-      end_time:           formData.end_time   || null,
+      start_time: formData.start_time || null,
+      end_time: formData.end_time || null,
     };
 
     try {
@@ -167,8 +170,8 @@ const OperationsForm = () => {
     }
   };
 
-  const currentType   = OPERATION_TYPES.find((t) => t.value === formData.operation_type) || OPERATION_TYPES[0];
-  const currentStatus = STATUS_OPTIONS.find((s) => s.value === formData.status)           || STATUS_OPTIONS[0];
+  const currentType = OPERATION_TYPES.find((t) => t.value === formData.operation_type) || OPERATION_TYPES[0];
+  const currentStatus = STATUS_OPTIONS.find((s) => s.value === formData.status) || STATUS_OPTIONS[0];
 
   /* ── LOADING ── */
   if (loading) {
@@ -380,21 +383,33 @@ const OperationsForm = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {STATUS_OPTIONS.map((option) => {
                 const isSelected = formData.status === option.value;
+                const isTechnicien = user?.role === "TECHNICIEN";
+
+                let isDisabled = readOnly;
+                let titleAttr = "";
+                if (isTechnicien && ["IN_PROGRESS", "COMPLETED"].includes(option.value)) {
+                  if (formData.validation_status !== "APPROVED") {
+                    isDisabled = true;
+                    titleAttr = "Approbation du gestionnaire requise";
+                  }
+                }
+
                 return (
                   <label
                     key={option.value}
+                    title={titleAttr}
                     className={`
                       flex flex-col items-center gap-2 p-4 rounded-xl cursor-pointer
                       border-2 transition-all duration-200 text-center select-none
-                      ${readOnly ? "opacity-50 cursor-not-allowed" : ""}
+                      ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
                       ${isSelected
                         ? `${option.badge} border-current shadow-sm`
-                        : "bg-slate-50 border-slate-200/60 hover:border-gray-300 hover:bg-white"
+                        : "bg-slate-50 border-slate-200/60 " + (isDisabled ? "" : "hover:border-gray-300 hover:bg-white")
                       }
                     `}
                   >
                     <input type="radio" name="status" value={option.value} checked={isSelected}
-                      onChange={handleChange} disabled={readOnly} className="sr-only" />
+                      onChange={handleChange} disabled={isDisabled} className="sr-only" />
                     <span className="text-2xl">{option.emoji}</span>
                     <span className="font-semibold text-sm">{option.label}</span>
                     {isSelected && <span className={`w-2 h-2 rounded-full ${option.dot}`} />}

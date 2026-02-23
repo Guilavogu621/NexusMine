@@ -2,14 +2,14 @@ import { forwardRef } from 'react';
 import { ExclamationCircleIcon, CheckCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 // Input Field avec animation et validation
-export const InputField = forwardRef(({ 
-  label, 
-  error, 
-  icon: Icon, 
-  required, 
+export const InputField = forwardRef(({
+  label,
+  error,
+  icon: Icon,
+  required,
   helper,
   className = '',
-  ...props 
+  ...props
 }, ref) => (
   <div className={`group ${className}`}>
     {label && (
@@ -49,15 +49,15 @@ export const InputField = forwardRef(({
 ));
 
 // Select Field avec style moderne
-export const SelectField = forwardRef(({ 
-  label, 
-  error, 
-  options = [], 
+export const SelectField = forwardRef(({
+  label,
+  error,
+  options = [],
   required,
   placeholder,
   icon: Icon,
   className = '',
-  ...props 
+  ...props
 }, ref) => (
   <div className={`group ${className}`}>
     {label && (
@@ -103,13 +103,13 @@ export const SelectField = forwardRef(({
 ));
 
 // Textarea avec style moderne
-export const TextareaField = forwardRef(({ 
-  label, 
-  error, 
+export const TextareaField = forwardRef(({
+  label,
+  error,
   required,
   rows = 4,
   className = '',
-  ...props 
+  ...props
 }, ref) => (
   <div className={className}>
     {label && (
@@ -158,12 +158,12 @@ export const RadioGroup = ({ label, options = [], value, onChange, name, classNa
     {label && <p className="text-base font-medium text-slate-600 mb-3">{label}</p>}
     <div className="space-y-2">
       {options.map((option) => (
-        <label 
-          key={option.value} 
+        <label
+          key={option.value}
           className={`
             flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all
-            ${value === option.value 
-              ? 'bg-indigo-50 ring-2 ring-blue-500' 
+            ${value === option.value
+              ? 'bg-indigo-50 ring-2 ring-blue-500'
               : 'bg-slate-50 hover:bg-slate-100 ring-1 ring-gray-200'
             }
           `}
@@ -271,17 +271,17 @@ export const TimeField = forwardRef(({ label, error, required, className = '', .
 ));
 
 // Number Input avec +/- buttons
-export const NumberField = forwardRef(({ 
-  label, 
-  error, 
-  required, 
-  min, 
-  max, 
+export const NumberField = forwardRef(({
+  label,
+  error,
+  required,
+  min,
+  max,
   step = 1,
   value,
   onChange,
   className = '',
-  ...props 
+  ...props
 }, ref) => {
   const increment = () => {
     const newValue = (parseFloat(value) || 0) + step;
@@ -349,14 +349,14 @@ export const NumberField = forwardRef(({
 });
 
 // File Upload avec drag & drop
-export const FileUpload = ({ 
-  label, 
-  accept, 
-  onChange, 
-  preview, 
+export const FileUpload = ({
+  label,
+  accept,
+  onChange,
+  preview,
   error,
   helper,
-  className = '' 
+  className = ''
 }) => {
   const handleDrop = (e) => {
     e.preventDefault();
@@ -445,16 +445,17 @@ export const Alert = ({ type = 'info', title, children, onClose, className = '' 
 };
 
 // Buttons
-export const Button = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
+export const Button = ({
+  children,
+  variant = 'primary',
+  size = 'md',
   icon: Icon,
   iconPosition = 'left',
   loading,
   disabled,
+  fullWidth,
   className = '',
-  ...props 
+  ...props
 }) => {
   const variants = {
     primary: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm focus:ring-indigo-500',
@@ -481,6 +482,7 @@ export const Button = ({
         focus:outline-none focus:ring-2 focus:ring-offset-2
         disabled:opacity-50 disabled:cursor-not-allowed
         transition-all duration-200 hover:-translate-y-0.5
+        ${fullWidth ? 'w-full' : ''}
         ${variants[variant]}
         ${sizes[size]}
         ${className}
