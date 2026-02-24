@@ -108,7 +108,7 @@ function ChartCard({ title, subtitle, action, children }) {
   return (
     <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl p-7 shadow-lg border border-white/20 hover:shadow-xl hover:border-white/40 transition-all duration-500 animate-fadeInUp overflow-hidden">
       {/* Effet de fond dégradé subtil */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+      <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-6">
@@ -159,7 +159,7 @@ const StatCard = ({ name, value, icon: IconComponent, color, colorLight, trend, 
       style={{ animationDelay: `${delay}ms` }}
     >
       {/* Gradient de fond au hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
 
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
@@ -194,8 +194,8 @@ const StatCard = ({ name, value, icon: IconComponent, color, colorLight, trend, 
 // Composant KPICard amélioré
 const KPICard = ({ title, value, unit, trend, trendUp, icon: Icon }) => {
   return (
-    <div className="group relative bg-gradient-to-br from-white/90 to-white/40 backdrop-blur-md rounded-xl p-5 shadow-md border border-white/20 hover:shadow-lg hover:border-white/40 transition-all duration-500 overflow-hidden">
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl bg-gradient-to-br from-slate-50/50 to-transparent" />
+    <div className="group relative bg-linear-to-br from-white/90 to-white/40 backdrop-blur-md rounded-xl p-5 shadow-md border border-white/20 hover:shadow-lg hover:border-white/40 transition-all duration-500 overflow-hidden">
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-xl bg-linear-to-br from-slate-50/50 to-transparent" />
 
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
@@ -227,7 +227,7 @@ const ActivityItem = ({ icon: IconComponent, iconBg, title, subtitle, time, stat
       <p className="text-sm font-semibold text-slate-800">{title}</p>
       <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
     </div>
-    <div className="text-right flex-shrink-0">
+    <div className="text-right shrink-0">
       <p className="text-xs text-slate-400 whitespace-nowrap">{time}</p>
       {status && (
         <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold mt-2 ${status === 'success' ? 'bg-emerald-100 text-emerald-700' :
@@ -425,7 +425,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[600px] bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="flex items-center justify-center h-full min-h-[600px] bg-linear-to-br from-slate-50 to-slate-100">
         <div className="text-center space-y-4">
           <div className="relative w-20 h-20 mx-auto">
             <div className="absolute inset-0 rounded-full border-4 border-slate-200 animate-spin border-t-blue-600 border-r-blue-500"></div>
@@ -439,7 +439,7 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[600px] bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="flex items-center justify-center h-full min-h-[600px] bg-linear-to-br from-slate-50 to-slate-100">
         <div className="text-center space-y-4 bg-white/80 backdrop-blur p-8 rounded-2xl shadow-lg border border-white/20">
           <ExclamationTriangleIcon className="h-12 w-12 text-amber-500 mx-auto" />
           <div>
@@ -465,7 +465,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100">
       {/* Background pattern subtil */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
@@ -476,7 +476,7 @@ export default function Dashboard() {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 animate-fadeInDown">
           <div className="space-y-3">
             <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
-              Bonjour, <span className="bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">M. {user?.first_name || 'Utilisateur'}</span>
+              Bonjour, <span className="bg-linear-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">M. {user?.first_name || 'Utilisateur'}</span>
             </h1>
             <p className="text-slate-600 flex items-center gap-2 font-medium">
               <CalendarDaysIcon className="h-5 w-5 text-blue-500" />
@@ -507,7 +507,7 @@ export default function Dashboard() {
             {(user?.role === 'ADMIN' || user?.role === 'SITE_MANAGER' || user?.role === 'TECHNICIEN' || user?.role === 'ANALYST') && (
               <Link
                 to="/reports/new"
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-semibold shadow-md"
+                className="flex items-center gap-2 px-4 py-2.5 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 font-semibold shadow-md"
               >
                 <PlusIcon className="h-5 w-5" />
                 Nouveau rapport
@@ -622,7 +622,7 @@ export default function Dashboard() {
                     <span className="text-sm font-bold text-slate-900">92%</span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full animate-progressBar" style={{ width: '92%' }}></div>
+                    <div className="bg-linear-to-r from-blue-500 to-blue-600 h-2.5 rounded-full animate-progressBar" style={{ width: '92%' }}></div>
                   </div>
                 </div>
                 <div>
@@ -631,7 +631,7 @@ export default function Dashboard() {
                     <span className="text-sm font-bold text-slate-900">98%</span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2.5 rounded-full animate-progressBar" style={{ width: '98%' }}></div>
+                    <div className="bg-linear-to-r from-emerald-500 to-emerald-600 h-2.5 rounded-full animate-progressBar" style={{ width: '98%' }}></div>
                   </div>
                 </div>
               </div>
@@ -707,7 +707,7 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl p-7 shadow-lg border border-white/20 hover:shadow-xl hover:border-white/40 transition-all duration-500">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+            <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
             <div className="relative z-10">
               <h3 className="text-lg font-bold text-slate-900 mb-2">Actions Rapides</h3>
@@ -717,9 +717,9 @@ export default function Dashboard() {
                 {['ADMIN', 'SITE_MANAGER', 'TECHNICIEN'].includes(user?.role) && (
                   <Link
                     to="/operations/new"
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-lg hover:from-blue-100 hover:to-blue-150 transition-all duration-300 group border border-blue-200/50 hover:border-blue-300"
+                    className="flex items-center gap-3 p-4 bg-linear-to-r from-blue-50 to-blue-100/50 rounded-lg hover:from-blue-100 hover:to-blue-150 transition-all duration-300 group border border-blue-200/50 hover:border-blue-300"
                   >
-                    <div className="p-2.5 bg-blue-100 rounded-lg group-hover:scale-110 transition-transform">
+                    <div className="p-2.5 bg-blue-100 rounded-lg group-hover:scale-110 shrink-0 transition-transform">
                       <PlusIcon className="h-5 w-5 text-blue-600" />
                     </div>
                     <span className="text-sm font-semibold text-slate-900 flex-1">Nouvelle opération</span>
@@ -730,7 +730,7 @@ export default function Dashboard() {
                 {['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST'].includes(user?.role) && (
                   <Link
                     to="/incidents/new"
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-lg hover:from-orange-100 hover:to-orange-150 transition-all duration-300 group border border-orange-200/50 hover:border-orange-300"
+                    className="flex items-center gap-3 p-4 bg-linear-to-r from-orange-50 to-orange-100/50 rounded-lg hover:from-orange-100 hover:to-orange-150 transition-all duration-300 group border border-orange-200/50 hover:border-orange-300"
                   >
                     <div className="p-2.5 bg-orange-100 rounded-lg group-hover:scale-110 transition-transform">
                       <ExclamationTriangleIcon className="h-5 w-5 text-orange-600" />
@@ -742,7 +742,7 @@ export default function Dashboard() {
 
                 <Link
                   to="/equipment"
-                  className="flex items-center gap-3 p-4 bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg hover:from-slate-100 hover:to-slate-150 transition-all duration-300 group border border-slate-200/50 hover:border-slate-300"
+                  className="flex items-center gap-3 p-4 bg-linear-to-r from-slate-50 to-slate-100/50 rounded-lg hover:from-slate-100 hover:to-slate-150 transition-all duration-300 group border border-slate-200/50 hover:border-slate-300"
                 >
                   <div className="p-2.5 bg-slate-200 rounded-lg group-hover:scale-110 transition-transform">
                     <WrenchScrewdriverIcon className="h-5 w-5 text-slate-600" />
@@ -754,7 +754,7 @@ export default function Dashboard() {
                 {['ADMIN', 'SITE_MANAGER', 'TECHNICIEN', 'ANALYST'].includes(user?.role) && (
                   <Link
                     to="/analytics"
-                    className="flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-emerald-100/50 rounded-lg hover:from-emerald-100 hover:to-emerald-150 transition-all duration-300 group border border-emerald-200/50 hover:border-emerald-300"
+                    className="flex items-center gap-3 p-4 bg-linear-to-r from-emerald-50 to-emerald-100/50 rounded-lg hover:from-emerald-100 hover:to-emerald-150 transition-all duration-300 group border border-emerald-200/50 hover:border-emerald-300"
                   >
                     <div className="p-2.5 bg-emerald-100 rounded-lg group-hover:scale-110 transition-transform">
                       <ChartBarIcon className="h-5 w-5 text-emerald-600" />
@@ -787,7 +787,7 @@ export default function Dashboard() {
                     }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-2.5 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
+                    <div className={`p-2.5 rounded-lg shrink-0 group-hover:scale-110 transition-transform ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
                       ? 'bg-red-100'
                       : alert.severity === 'MEDIUM'
                         ? 'bg-amber-100'

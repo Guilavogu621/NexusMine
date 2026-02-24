@@ -18,6 +18,8 @@ import {
   MapIcon,
   ChevronDownIcon,
   ExclamationTriangleIcon,
+  CubeIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 
@@ -126,18 +128,60 @@ export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 20);
+      setShowScrollTop(window.scrollY > 500);
     };
+
+    // Intersection Observer pour le Reveal effect
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
+    };
   }, []);
 
+  const scrollToTop = (e) => {
+    // Si on clique sur un bouton, un lien ou un élément interactif, on n'interrompt pas l'action
+    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('textarea')) {
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white cursor-pointer" onClick={scrollToTop}>
+      {/* Bouton Retour en Haut Flottant */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-8 right-8 z-60 p-4 bg-indigo-600 text-white rounded-full shadow-2xl transition-all duration-500 transform ${showScrollTop ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-50'
+          } hover:bg-indigo-700 hover:scale-110 active:scale-95 group`}
+      >
+        <ChevronDownIcon className="h-6 w-6 rotate-180 group-hover:-translate-y-1 transition-transform" />
+      </button>
+
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
+        ? 'bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20 py-3'
+        : 'bg-transparent py-6'
         }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -237,7 +281,7 @@ export default function LandingPage() {
             backgroundImage: `url('/vue-aerieenne.png')`,
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60"></div>
         </div>
 
         {/* Animated particles/dots */}
@@ -258,7 +302,7 @@ export default function LandingPage() {
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-8 tracking-tight font-outfit">
                 Optimisez vos{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-400 via-indigo-400 to-cyan-400">
                   Opérations Minières
                 </span>{' '}
                 en Guinée
@@ -302,249 +346,113 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Dashboard Preview - Style CRM Premium */}
+            {/* Dashboard Preview - Style Moderne Raffiné (Basé sur l'image) */}
             <div className="hidden lg:block relative">
-              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden transform hover:scale-[1.01] transition-transform duration-500" style={{ width: '520px' }}>
+              <div className="relative bg-[#F8FAFC] rounded-[32px] shadow-2xl overflow-hidden border border-white/40 transform hover:scale-[1.01] transition-all duration-700" style={{ width: '640px' }}>
 
-                {/* Dashboard Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                {/* Dashboard Nav Bar */}
+                <div className="bg-white px-6 py-4 flex items-center justify-between border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                       <ChartBarIcon className="h-5 w-5 text-white" />
                     </div>
-                    <div>
-                      <span className="text-white font-semibold text-sm">NexusMine Dashboard</span>
-                      <span className="text-blue-200 text-xs ml-2">MINING.IO</span>
-                    </div>
+                    <span className="font-bold text-slate-900 text-sm">Dashboard</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button className="bg-white/20 text-white text-xs px-3 py-1.5 rounded-lg">Overview</button>
-                    <button className="text-blue-200 text-xs px-3 py-1.5 hover:text-white">Sites</button>
-                    <button className="text-blue-200 text-xs px-3 py-1.5 hover:text-white">Rapports</button>
+                  <div className="flex items-center gap-4">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200"></div>
                   </div>
                 </div>
 
-                {/* Dashboard Content */}
-                <div className="p-4 bg-gray-50">
-
-                  {/* KPI Cards Row 1 */}
-                  <div className="grid grid-cols-4 gap-2 mb-3">
-                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Production Totale</div>
-                      <div className="text-lg font-bold">8.5M</div>
-                      <div className="text-[9px] opacity-70">tonnes</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-sky-400 to-sky-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Taux Extraction</div>
-                      <div className="text-lg font-bold">94.2%</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Efficacité</div>
-                      <div className="text-lg font-bold">87.5%</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-teal-400 to-teal-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Jours sans incident</div>
-                      <div className="text-lg font-bold">127</div>
-                    </div>
+                <div className="p-6 space-y-6">
+                  {/* Top Row Stats */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {[
+                      { label: 'SITES MINIERS', val: '4', trend: '+12%', color: 'blue', icon: MapPinIcon },
+                      { label: 'PERSONNEL ACTIF', val: '5', trend: '+5.2%', color: 'emerald', icon: UsersIcon },
+                      { label: 'ÉQUIPEMENTS', val: '3', trend: '+3%', color: 'orange', icon: WrenchScrewdriverIcon },
+                      { label: 'INCIDENTS', val: '2', trend: '-18%', color: 'rose', icon: ExclamationTriangleIcon, down: true },
+                    ].map((s, i) => (
+                      <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-50 flex flex-col justify-between">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[9px] font-bold text-slate-400 tracking-wider">{s.label}</span>
+                          <div className={`p-1.5 rounded-lg bg-${s.color}-50`}>
+                            <s.icon className={`h-4 w-4 text-${s.color}-500`} />
+                          </div>
+                        </div>
+                        <div className="text-xl font-bold text-slate-900 mb-1">{s.val}</div>
+                        <div className={`text-[9px] font-bold ${s.down ? 'text-rose-500' : 'text-emerald-500'} flex items-center gap-1`}>
+                          {s.down ? '↓' : '↑'} {s.trend}
+                          <span className="text-slate-300 font-medium">vs mois dernier</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* KPI Cards Row 2 */}
-                  <div className="grid grid-cols-4 gap-2 mb-4">
-                    <div className="bg-gradient-to-br from-indigo-400 to-indigo-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Valeur Pipeline</div>
-                      <div className="text-lg font-bold">$24.8M</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-violet-400 to-violet-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Sites Actifs</div>
-                      <div className="text-lg font-bold">24</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Équipements</div>
-                      <div className="text-lg font-bold">456</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-fuchsia-400 to-fuchsia-500 rounded-xl p-3 text-white">
-                      <div className="text-[10px] opacity-80 mb-1">Personnel</div>
-                      <div className="text-lg font-bold">1,234</div>
-                    </div>
+                  {/* Middle Row KPIs */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {[
+                      { label: 'PRODUCTION', val: '12,847', unit: 'tonnes', trend: '+8.2%', icon: CubeIcon },
+                      { label: 'RENDEMENT', val: '94.5', unit: '%', trend: '+2.1%', icon: ChartBarIcon },
+                      { label: 'HEURES MACHINE', val: '2,450', unit: 'h', trend: '+4.5%', icon: ClockIcon },
+                      { label: 'TAUX SÉCURITÉ', val: '99.2', unit: '%', trend: '+0.8%', icon: ShieldCheckIcon },
+                    ].map((k, i) => (
+                      <div key={i} className="bg-white rounded-xl p-3 shadow-sm border border-slate-100">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="p-1.5 bg-slate-50 rounded-lg">
+                            <k.icon className="h-3.5 w-3.5 text-slate-500" />
+                          </div>
+                          <span className="text-[8px] font-bold text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded-full">{k.trend}</span>
+                        </div>
+                        <div className="text-[8px] font-bold text-slate-400 mb-0.5">{k.label}</div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-sm font-bold text-slate-900">{k.val}</span>
+                          <span className="text-[9px] font-medium text-slate-400">{k.unit}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="grid grid-cols-5 gap-3">
-                    {/* Left Column - Charts */}
-                    <div className="col-span-3 space-y-3">
-
-                      {/* Area Chart - Production */}
-                      <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-semibold text-slate-600">Production (12 derniers mois)</span>
-                          <div className="flex gap-3">
-                            <span className="text-[9px] text-indigo-500 flex items-center gap-1">
-                              <span className="w-2 h-0.5 bg-indigo-500 rounded"></span>Bauxite
-                            </span>
-                            <span className="text-[9px] text-cyan-500 flex items-center gap-1">
-                              <span className="w-2 h-0.5 bg-cyan-400 rounded"></span>Or
-                            </span>
-                          </div>
-                        </div>
-                        {/* SVG Area Chart */}
-                        <div className="relative h-20">
-                          <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="none">
-                            {/* Grid lines */}
-                            <line x1="0" y1="20" x2="300" y2="20" stroke="#f0f0f0" strokeWidth="1" />
-                            <line x1="0" y1="40" x2="300" y2="40" stroke="#f0f0f0" strokeWidth="1" />
-                            <line x1="0" y1="60" x2="300" y2="60" stroke="#f0f0f0" strokeWidth="1" />
-
-                            {/* Area fill - Bauxite */}
-                            <defs>
-                              <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
-                                <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.05" />
-                              </linearGradient>
-                              <linearGradient id="cyanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.3" />
-                                <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.05" />
-                              </linearGradient>
-                            </defs>
-
-                            <path d="M0,60 L25,55 L50,35 L75,25 L100,30 L125,35 L150,28 L175,40 L200,35 L225,45 L250,30 L275,25 L300,20 L300,80 L0,80 Z" fill="url(#blueGradient)" />
-                            <path d="M0,60 L25,55 L50,35 L75,25 L100,30 L125,35 L150,28 L175,40 L200,35 L225,45 L250,30 L275,25 L300,20" fill="none" stroke="#3B82F6" strokeWidth="2" />
-
-                            {/* Line - Or */}
-                            <path d="M0,65 L25,62 L50,55 L75,50 L100,52 L125,48 L150,45 L175,50 L200,48 L225,52 L250,45 L275,42 L300,38" fill="none" stroke="#06B6D4" strokeWidth="2" />
-                          </svg>
-                          {/* Y-axis labels */}
-                          <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[8px] text-slate-400 -ml-1">
-                            <span>1M</span>
-                            <span>500K</span>
-                            <span>0</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between mt-1 text-[8px] text-slate-400 px-2">
-                          <span>Mai</span><span>Juil</span><span>Sep</span><span>Nov</span><span>Jan</span><span>Mar</span>
+                  {/* Bottom Row Charts */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-xs font-bold text-slate-900">Production Mensuelle</span>
+                        <span className="text-[9px] font-bold text-indigo-600">Voir détails</span>
+                      </div>
+                      {/* Mockup Area Chart */}
+                      <div className="h-24 relative mt-2">
+                        <svg className="w-full h-full" viewBox="0 0 300 100" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="#10B981" stopOpacity="0.2" />
+                              <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+                          <path d="M0,80 Q30,60 60,75 T120,40 T180,55 T240,30 T300,20 L300,100 L0,100 Z" fill="url(#chartGradient)" />
+                          <path d="M0,80 Q30,60 60,75 T120,40 T180,55 T240,30 T300,20" fill="none" stroke="#10B981" strokeWidth="2.5" />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col justify-between py-1">
+                          <div className="border-t border-slate-50 w-full"></div>
+                          <div className="border-t border-slate-50 w-full"></div>
+                          <div className="border-t border-slate-50 w-full"></div>
                         </div>
                       </div>
-
-                      {/* Area Chart - Projection */}
-                      <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs font-semibold text-slate-600">Projection (12 prochains mois)</span>
-                          <div className="flex gap-3">
-                            <span className="text-[9px] text-indigo-500 flex items-center gap-1">
-                              <span className="w-2 h-0.5 bg-indigo-500 rounded"></span>Estimé
-                            </span>
-                            <span className="text-[9px] text-emerald-500 flex items-center gap-1">
-                              <span className="w-2 h-0.5 bg-emerald-400 rounded"></span>Objectif
-                            </span>
-                          </div>
-                        </div>
-                        {/* SVG Area Chart */}
-                        <div className="relative h-16">
-                          <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
-                            <line x1="0" y1="15" x2="300" y2="15" stroke="#f0f0f0" strokeWidth="1" />
-                            <line x1="0" y1="30" x2="300" y2="30" stroke="#f0f0f0" strokeWidth="1" />
-                            <line x1="0" y1="45" x2="300" y2="45" stroke="#f0f0f0" strokeWidth="1" />
-
-                            <path d="M0,45 L50,40 L100,35 L150,25 L200,30 L250,22 L300,18 L300,60 L0,60 Z" fill="url(#blueGradient)" />
-                            <path d="M0,45 L50,40 L100,35 L150,25 L200,30 L250,22 L300,18" fill="none" stroke="#3B82F6" strokeWidth="2" />
-                            <path d="M0,50 L50,45 L100,40 L150,35 L200,32 L250,28 L300,25" fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="4,2" />
-                          </svg>
-                        </div>
-                        <div className="flex justify-between mt-1 text-[8px] text-slate-400 px-2">
-                          <span>Mai 25</span><span>Sep 25</span><span>Jan 26</span><span>Mai 26</span>
-                        </div>
+                      <div className="flex justify-between mt-2 text-[8px] font-bold text-slate-400">
+                        <span>MAI</span><span>JUIL</span><span>SEP</span><span>NOV</span><span>JAN</span><span>MAR</span>
                       </div>
                     </div>
 
-                    {/* Right Column - Donut Charts */}
-                    <div className="col-span-2 space-y-3">
-
-                      {/* Donut Chart - Sites par type */}
-                      <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
-                        <span className="text-xs font-semibold text-slate-600">Répartition Sites</span>
-                        <div className="flex items-center mt-2">
-                          {/* SVG Donut */}
-                          <div className="relative w-16 h-16">
-                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#E5E7EB" strokeWidth="4" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#3B82F6" strokeWidth="4" strokeDasharray="35 65" strokeLinecap="round" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#10B981" strokeWidth="4" strokeDasharray="25 75" strokeDashoffset="-35" strokeLinecap="round" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#F59E0B" strokeWidth="4" strokeDasharray="20 80" strokeDashoffset="-60" strokeLinecap="round" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#EF4444" strokeWidth="4" strokeDasharray="15 85" strokeDashoffset="-80" strokeLinecap="round" />
-                            </svg>
-                          </div>
-                          <div className="ml-2 space-y-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Ciel ouvert 35%</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Souterrain 25%</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Alluvial 20%</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Exploration 15%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Donut Chart - Types incidents */}
-                      <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
-                        <span className="text-xs font-semibold text-slate-600">Types d'incidents</span>
-                        <div className="flex items-center mt-2">
-                          {/* SVG Donut */}
-                          <div className="relative w-16 h-16">
-                            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#E5E7EB" strokeWidth="4" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#8B5CF6" strokeWidth="4" strokeDasharray="32 68" strokeLinecap="round" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" strokeWidth="4" strokeDasharray="25 75" strokeDashoffset="-32" strokeLinecap="round" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#F97316" strokeWidth="4" strokeDasharray="22 78" strokeDashoffset="-57" strokeLinecap="round" />
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#14B8A6" strokeWidth="4" strokeDasharray="18 82" strokeDashoffset="-79" strokeLinecap="round" />
-                            </svg>
-                          </div>
-                          <div className="ml-2 space-y-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Équipement 32%</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Sécurité 25%</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Environnement 22%</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
-                              <span className="text-[9px] text-slate-500">Autre 18%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Quick Filters */}
-                      <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
-                        <span className="text-xs font-semibold text-slate-600 mb-2 block">Filtres rapides</span>
-                        <div className="space-y-2">
-                          <div>
-                            <span className="text-[9px] text-slate-500">Période</span>
-                            <div className="bg-slate-50 rounded px-2 py-1 text-[10px] text-slate-600 mt-0.5 flex justify-between items-center">
-                              <span>01/01/2025 - 31/12/2025</span>
-                              <ChevronDownIcon className="h-3 w-3 text-slate-400" />
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-500">Site</span>
-                            <div className="bg-slate-50 rounded px-2 py-1 text-[10px] text-slate-600 mt-0.5 flex justify-between items-center">
-                              <span>Tous les sites</span>
-                              <ChevronDownIcon className="h-3 w-3 text-slate-400" />
-                            </div>
-                          </div>
+                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col items-center">
+                      <span className="text-xs font-bold text-slate-900 mb-1">Performance</span>
+                      <span className="text-[9px] text-slate-400 mb-4">Ce mois-ci</span>
+                      <div className="relative w-20 h-20">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="14" fill="none" stroke="#F1F5F9" strokeWidth="3" />
+                          <circle cx="18" cy="18" r="14" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="87 13" strokeLinecap="round" />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-sm font-black text-slate-900">87%</span>
                         </div>
                       </div>
                     </div>
@@ -552,35 +460,32 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Floating notifications */}
-              <div className="absolute -right-4 top-12 bg-white rounded-xl shadow-xl p-3 animate-bounce border border-slate-200/60">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center">
-                    <ArrowRightIcon className="h-4 w-4 text-white rotate-[-45deg]" />
+              {/* Floating elements for context */}
+              <div className="absolute -right-6 top-20 bg-white rounded-2xl shadow-xl p-4 border border-slate-100 animate-float">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                    <ShieldCheckIcon className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">+12.5%</div>
-                    <div className="text-[10px] text-slate-500">ce mois</div>
+                    <div className="text-xs font-bold text-slate-900">127 Jours</div>
+                    <div className="text-[10px] text-slate-500 font-medium">Sans Incident</div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -left-6 bottom-20 bg-white rounded-xl shadow-xl p-3 border border-slate-200/60">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
-                    <ShieldCheckIcon className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-800">127 jours</div>
-                    <div className="text-[10px] text-slate-500">sans incident</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -right-2 bottom-8 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl shadow-xl px-3 py-2">
-                <div className="flex items-center gap-2">
+              <div className="absolute -left-10 bottom-24 bg-linear-to-br from-indigo-600 to-blue-700 text-white rounded-2xl shadow-2xl p-4 transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                <div className="flex items-center gap-2 mb-2">
                   <CpuChipIcon className="h-4 w-4" />
-                  <span className="text-xs font-medium">IA Prédictive</span>
+                  <span className="text-[10px] font-bold tracking-widest uppercase">Nexus AI</span>
+                </div>
+                <div className="text-xs font-medium opacity-90">Maintenance prédictive :</div>
+                <div className="text-sm font-bold mt-1 text-blue-200">92% de précision</div>
+              </div>
+
+              <div className="absolute -right-2 bottom-12 bg-white rounded-xl shadow-lg border border-slate-100 p-3 animate-pulse">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase">Alerte Bauxite S-2</span>
                 </div>
               </div>
             </div>
@@ -594,7 +499,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 bg-gray-50">
+      <section id="features" className="py-24 bg-slate-50 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-3xl font-semibold text-slate-800 mb-4">
@@ -629,7 +534,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section id="stats" className="py-24 bg-gradient-to-r from-blue-600 to-blue-800 relative overflow-hidden">
+      <section id="stats" className="py-24 bg-linear-to-r from-blue-600 to-blue-800 relative overflow-hidden reveal">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -661,7 +566,7 @@ export default function LandingPage() {
       </section>
 
       {/* Resources Section - Guinea Mining */}
-      <section id="resources" className="py-24 bg-white">
+      <section id="resources" className="py-24 bg-white reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -712,7 +617,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section Équipement Moderne */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-24 bg-linear-to-b from-slate-50 to-white reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Image équipement */}
@@ -723,7 +628,7 @@ export default function LandingPage() {
                   alt="Équipement minier moderne"
                   className="w-full h-auto object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent"></div>
               </div>
               {/* Badge flottant */}
               <div className="absolute -top-4 -right-4 bg-indigo-600 text-white rounded-xl p-4 shadow-xl">
@@ -774,7 +679,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section Opérations Souterraines */}
-      <section className="py-24 bg-gray-900 relative overflow-hidden">
+      <section className="py-24 bg-slate-900 relative overflow-hidden reveal">
         {/* Background Image - Tunnel minier */}
         <div className="absolute inset-0">
           <img
@@ -782,7 +687,7 @@ export default function LandingPage() {
             alt="Mineurs dans un tunnel souterrain"
             className="w-full h-full object-cover opacity-40"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/90"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-gray-900/90 via-gray-900/70 to-gray-900/90"></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -795,7 +700,7 @@ export default function LandingPage() {
               </div>
               <h2 className="text-3xl sm:text-3xl font-semibold text-white mb-6">
                 Opérations{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-yellow-400 to-orange-400">
                   Souterraines
                 </span>{' '}
                 Sécurisées
@@ -830,7 +735,7 @@ export default function LandingPage() {
             <div className="space-y-6">
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center shrink-0">
                     <BellAlertIcon className="h-6 w-6 text-yellow-400" />
                   </div>
                   <div>
@@ -842,7 +747,7 @@ export default function LandingPage() {
 
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center shrink-0">
                     <UsersIcon className="h-6 w-6 text-green-400" />
                   </div>
                   <div>
@@ -854,7 +759,7 @@ export default function LandingPage() {
 
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center shrink-0">
                     <BeakerIcon className="h-6 w-6 text-indigo-400" />
                   </div>
                   <div>
@@ -866,7 +771,7 @@ export default function LandingPage() {
 
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center shrink-0">
                     <ExclamationTriangleIcon className="h-6 w-6 text-red-400" />
                   </div>
                   <div>
@@ -881,7 +786,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-24 bg-gray-50">
+      <section id="testimonials" className="py-24 bg-slate-50 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-3xl font-semibold text-slate-800 mb-4">
@@ -903,7 +808,7 @@ export default function LandingPage() {
                 </div>
                 <p className="text-slate-500 mb-6 italic">"{testimonial.quote}"</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                  <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                     {testimonial.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
@@ -919,7 +824,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-gray-900 to-gray-800 relative overflow-hidden">
+      <section className="py-24 bg-linear-to-r from-slate-900 to-slate-800 relative overflow-hidden reveal">
         <div className="absolute inset-0">
           <img
             src="/natureetenvironement.png"
@@ -969,7 +874,7 @@ export default function LandingPage() {
 
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
                     <MapIcon className="h-6 w-6 text-indigo-600" />
                   </div>
                   <div>
@@ -979,7 +884,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
                     <PhoneIcon className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
@@ -989,7 +894,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
                     <EnvelopeIcon className="h-6 w-6 text-purple-600" />
                   </div>
                   <div>
