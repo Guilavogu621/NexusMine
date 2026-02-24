@@ -38,7 +38,7 @@ const SectionCard = ({ children, delay = "0s" }) => (
     className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl hover:border-white/40 transition-all duration-500 overflow-hidden animate-fadeInUp"
     style={{ animationDelay: delay }}
   >
-    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+    <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
     <div className="relative z-10">{children}</div>
   </div>
 );
@@ -176,7 +176,7 @@ const OperationsForm = () => {
   /* ── LOADING ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
           <p className="text-slate-600 font-medium">Chargement de l'opération...</p>
@@ -186,7 +186,7 @@ const OperationsForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
       {/* Background pattern */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]" />
@@ -195,7 +195,7 @@ const OperationsForm = () => {
       <div className="relative space-y-6 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-4xl mx-auto">
 
         {/* ── HEADER PREMIUM ── */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
@@ -240,7 +240,7 @@ const OperationsForm = () => {
               </div>
 
               {/* Quick status pill */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold self-start sm:self-auto flex-shrink-0">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold self-start sm:self-auto shrink-0">
                 <span className={`w-2.5 h-2.5 rounded-full ${currentStatus.dot}`} />
                 {currentStatus.emoji} {currentStatus.label}
               </div>
@@ -251,13 +251,13 @@ const OperationsForm = () => {
         {/* ── ALERTS ── */}
         {success && (
           <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 font-medium shadow-sm">
-            <CheckCircleIcon className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+            <CheckCircleIcon className="h-5 w-5 text-emerald-600 shrink-0" />
             {isEdit ? "Opération modifiée avec succès." : "Opération créée avec succès."} Redirection...
           </div>
         )}
         {error && (
           <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 shadow-sm">
-            <XCircleIcon className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <XCircleIcon className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
             <pre className="whitespace-pre-line font-sans text-sm flex-1">{error}</pre>
             <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 text-xl leading-none ml-auto">×</button>
           </div>
@@ -350,7 +350,7 @@ const OperationsForm = () => {
 
               {/* Visualisation plage horaire */}
               {formData.start_time && formData.end_time && timeRangeValid && (
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/60">
+                <div className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/60">
                   <div className="flex items-center justify-between">
                     <div className="text-center">
                       <p className="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1">DÉBUT</p>
@@ -449,9 +449,9 @@ const OperationsForm = () => {
           </SectionCard>
 
           {/* ── RÉSUMÉ ── */}
-          <div className="group relative overflow-hidden rounded-2xl border border-indigo-200 p-6 shadow-lg bg-gradient-to-r from-indigo-50 to-blue-50 animate-fadeInUp" style={{ animationDelay: "0.25s" }}>
+          <div className="group relative overflow-hidden rounded-2xl border border-indigo-200 p-6 shadow-lg bg-linear-to-r from-indigo-50 to-blue-50 animate-fadeInUp" style={{ animationDelay: "0.25s" }}>
             <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${currentType.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`p-3 rounded-xl bg-linear-to-br ${currentType.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                 <ClipboardDocumentListIcon className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">

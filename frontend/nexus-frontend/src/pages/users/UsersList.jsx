@@ -43,16 +43,17 @@ const roleConfig = {
   MMG: { bg: 'bg-amber-100/80', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200', gradient: 'from-amber-500 to-amber-600' },
 };
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const MEDIA_BASE = API_BASE.replace('/api', '');
 
 function getPhotoUrl(user) {
   if (user.profile_photo_url) {
     if (user.profile_photo_url.startsWith('http')) return user.profile_photo_url;
-    return `${API_BASE}${user.profile_photo_url}`;
+    return `${MEDIA_BASE}${user.profile_photo_url}`;
   }
   if (user.profile_photo) {
     if (user.profile_photo.startsWith('http')) return user.profile_photo;
-    return `${API_BASE}/media/${user.profile_photo}`;
+    return `${MEDIA_BASE}/media/${user.profile_photo}`;
   }
   return null;
 }
@@ -76,7 +77,7 @@ function UserAvatar({ user, size = 'md' }) {
   }
 
   return (
-    <div className={`${sz} bg-gradient-to-br ${rc.gradient} rounded-lg flex items-center justify-center shadow-md ring-2 ring-white font-bold text-white`}>
+    <div className={`${sz} bg-linear-to-br ${rc.gradient} rounded-lg flex items-center justify-center shadow-md ring-2 ring-white font-bold text-white`}>
       {user.first_name?.[0]}{user.last_name?.[0]}
     </div>
   );
@@ -98,7 +99,7 @@ export default function UsersList() {
       if (searchQuery) params.append('search', searchQuery);
       if (filterRole) params.append('role', filterRole);
       if (filterActive !== '') params.append('is_active', filterActive);
-      
+
       const response = await api.get(`/users/?${params.toString()}`);
       setUsers(response.data.results || response.data);
     } catch (error) {
@@ -148,7 +149,7 @@ export default function UsersList() {
 
   if (!isAdmin()) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center max-w-md shadow-lg">
           <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <ShieldCheckIcon className="h-8 w-8 text-red-600" />
@@ -168,7 +169,7 @@ export default function UsersList() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
       {/* Background pattern */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
@@ -176,13 +177,13 @@ export default function UsersList() {
 
       <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
         {/* Header Premium */}
-        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
+        <div className="group relative bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
           {/* SVG Grid */}
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="usersGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100" height="100" fill="url(#usersGrid)" />
@@ -211,7 +212,7 @@ export default function UsersList() {
 
               <Link
                 to="/users/new"
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 flex-shrink-0"
+                className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 shrink-0"
               >
                 <PlusIcon className="h-5 w-5" />
                 Nouvel utilisateur
@@ -242,7 +243,7 @@ export default function UsersList() {
 
         {/* Filters Section */}
         <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl hover:border-white/40 transition-all duration-500 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+          <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
@@ -266,22 +267,20 @@ export default function UsersList() {
               <div className="flex items-center bg-slate-100/60 rounded-lg p-1 border border-slate-200/60">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-all duration-300 ${
-                    viewMode === 'grid'
-                      ? 'bg-white shadow-sm text-indigo-600'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`p-2 rounded-md transition-all duration-300 ${viewMode === 'grid'
+                    ? 'bg-white shadow-sm text-indigo-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                    }`}
                   title="Vue grille"
                 >
                   <Squares2X2Icon className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`p-2 rounded-md transition-all duration-300 ${
-                    viewMode === 'table'
-                      ? 'bg-white shadow-sm text-indigo-600'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`p-2 rounded-md transition-all duration-300 ${viewMode === 'table'
+                    ? 'bg-white shadow-sm text-indigo-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                    }`}
                   title="Vue tableau"
                 >
                   <TableCellsIcon className="h-5 w-5" />
@@ -329,7 +328,7 @@ export default function UsersList() {
 
                 <button
                   type="submit"
-                  className="rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3 text-sm font-bold text-white shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 hover:-translate-y-1 transition-all duration-300"
+                  className="rounded-xl bg-linear-to-r from-indigo-600 to-indigo-700 px-6 py-3 text-sm font-bold text-white shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 hover:-translate-y-1 transition-all duration-300"
                 >
                   Rechercher
                 </button>
@@ -379,10 +378,10 @@ export default function UsersList() {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Gradient bar */}
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${rc.gradient}`}></div>
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-linear-to-r ${rc.gradient}`}></div>
 
                   {/* Hover background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                  <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
                   <div className="relative z-10">
                     {/* Header */}
@@ -391,9 +390,8 @@ export default function UsersList() {
                         <div className="relative">
                           <UserAvatar user={user} size="md" />
                           <span
-                            className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-3 border-white ${
-                              user.is_active ? 'bg-emerald-500' : 'bg-slate-300'
-                            }`}
+                            className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-3 border-white ${user.is_active ? 'bg-emerald-500' : 'bg-slate-300'
+                              }`}
                           />
                         </div>
                         <div className="min-w-0">
@@ -442,11 +440,10 @@ export default function UsersList() {
                     <div className="pt-4 border-t border-slate-200/60 space-y-3">
                       <button
                         onClick={() => handleToggleActive(user.id, user.is_active)}
-                        className={`w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                          user.is_active
-                            ? 'bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
+                        className={`w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${user.is_active
+                          ? 'bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
                       >
                         {user.is_active ? (
                           <>
@@ -477,7 +474,7 @@ export default function UsersList() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gradient-to-r from-slate-50 to-slate-100/50 border-b border-slate-200/60">
+                  <tr className="bg-linear-to-r from-slate-50 to-slate-100/50 border-b border-slate-200/60">
                     <th className="text-left text-xs font-bold text-slate-700 uppercase tracking-wider px-6 py-4">Utilisateur</th>
                     <th className="text-left text-xs font-bold text-slate-700 uppercase tracking-wider px-6 py-4">Rôle</th>
                     <th className="text-left text-xs font-bold text-slate-700 uppercase tracking-wider px-6 py-4">Statut</th>
@@ -492,12 +489,11 @@ export default function UsersList() {
                       <tr key={user.id} className="hover:bg-slate-50/50 transition-colors duration-300">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="relative flex-shrink-0">
+                            <div className="relative shrink-0">
                               <UserAvatar user={user} size="sm" />
                               <span
-                                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white ${
-                                  user.is_active ? 'bg-emerald-500' : 'bg-slate-300'
-                                }`}
+                                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white ${user.is_active ? 'bg-emerald-500' : 'bg-slate-300'
+                                  }`}
                               />
                             </div>
                             <div className="min-w-0">
@@ -517,11 +513,10 @@ export default function UsersList() {
                         <td className="px-6 py-4">
                           <button
                             onClick={() => handleToggleActive(user.id, user.is_active)}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
-                              user.is_active
-                                ? 'bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            }`}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${user.is_active
+                              ? 'bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                              }`}
                           >
                             {user.is_active ? (
                               <>

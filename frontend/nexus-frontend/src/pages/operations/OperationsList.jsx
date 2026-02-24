@@ -151,7 +151,7 @@ export default function OperationsList() {
   const hasActiveFilters = search || filterStatus || filterType || filterSite;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
       {/* Background pattern */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
@@ -159,7 +159,7 @@ export default function OperationsList() {
 
       <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
         {/* Header Premium */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
           {/* SVG Grid Pattern */}
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -195,7 +195,7 @@ export default function OperationsList() {
               {canEdit && (
                 <Link
                   to="/operations/new"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 flex-shrink-0"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 shrink-0"
                 >
                   <PlusIcon className="h-5 w-5" />
                   Nouvelle opération
@@ -231,7 +231,7 @@ export default function OperationsList() {
 
         {/* Filters Section */}
         <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl hover:border-white/40 transition-all duration-500 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+          <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
@@ -374,16 +374,16 @@ export default function OperationsList() {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Gradient accent bar */}
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${typeConf.gradient}`}></div>
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-linear-to-r ${typeConf.gradient}`}></div>
 
                   {/* Hover background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                  <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
                   <div className="relative z-10">
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className={`p-3 rounded-xl bg-gradient-to-br ${typeConf.gradient} shadow-lg group-hover:scale-110 transition-transform`}>
+                        <div className={`p-3 rounded-xl bg-linear-to-br ${typeConf.gradient} shadow-lg group-hover:scale-110 transition-transform`}>
                           <ClipboardDocumentListIcon className="h-5 w-5 text-white" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -409,16 +409,16 @@ export default function OperationsList() {
                     {/* Details */}
                     <div className="space-y-3 mb-4 pb-4 border-t border-slate-200/60">
                       <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <MapPinIcon className="h-4 w-4 flex-shrink-0" />
+                        <MapPinIcon className="h-4 w-4 shrink-0" />
                         <span className="truncate">{op.site_name || op.site?.name || 'Non assigné'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <CalendarDaysIcon className="h-4 w-4 flex-shrink-0" />
+                        <CalendarDaysIcon className="h-4 w-4 shrink-0" />
                         <span>{formatDateFR(op.date)}</span>
                       </div>
                       {op.quantity_extracted && (
                         <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <CubeIcon className="h-4 w-4 flex-shrink-0" />
+                          <CubeIcon className="h-4 w-4 shrink-0" />
                           <span>{Number(op.quantity_extracted).toLocaleString('fr-FR')} t</span>
                         </div>
                       )}
@@ -469,7 +469,7 @@ export default function OperationsList() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gradient-to-r from-slate-50 to-slate-100/50 border-b border-slate-200/60">
+                  <tr className="bg-linear-to-r from-slate-50 to-slate-100/50 border-b border-slate-200/60">
                     <th className="text-left text-xs font-bold text-slate-700 uppercase tracking-wider px-6 py-4">Opération</th>
                     <th className="text-left text-xs font-bold text-slate-700 uppercase tracking-wider px-6 py-4">Type</th>
                     <th className="text-left text-xs font-bold text-slate-700 uppercase tracking-wider px-6 py-4">Site</th>
@@ -493,7 +493,7 @@ export default function OperationsList() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg bg-gradient-to-br ${typeConf.gradient} shadow-md`}>
+                            <div className={`p-2 rounded-lg bg-linear-to-br ${typeConf.gradient} shadow-md`}>
                               <ClipboardDocumentListIcon className="h-4 w-4 text-white" />
                             </div>
                             <span className="text-sm font-bold text-slate-900">{op.operation_code}</span>

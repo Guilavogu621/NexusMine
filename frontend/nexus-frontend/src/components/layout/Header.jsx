@@ -50,11 +50,28 @@ export default function Header({ onMenuClick }) {
   }, [fetchUnreadAlerts]);
 
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsHost = window.location.host === 'localhost:5173' || window.location.host === '127.0.0.1:5173'
-    ? 'localhost:8000'
-    : window.location.host;
+  const defaultWsUrl = `${wsProtocol}//${window.location.host}/ws/notifications/`;
+  const wsUrl = import.meta.env.VITE_WS_BASE_URL || defaultWsUrl;
 
-  useWebSocket(`${wsProtocol}//${wsHost}/ws/notifications/`, handleWebSocketMessage);
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const MEDIA_BASE = API_BASE.replace('/api', '');
+
+  useWebSocket(wsUrl, handleWebSocketMessage);
+
+  // This function seems to be intended for getting a user's profile photo URL,
+  // but it was placed incorrectly in the instruction.
+  // I'm placing it here as a standalone function, assuming it might be used elsewhere.
+  // If it was meant to be part of fetchUnreadAlerts, the instruction was ambiguous.
+  const getUserProfilePhotoUrl = (user) => {
+    if (user?.profile_photo_url) {
+      return `${MEDIA_BASE}${user.profile_photo_url}`;
+    }
+    if (user?.profile_photo) {
+      if (user.profile_photo.startsWith('http')) return user.profile_photo;
+      return `${MEDIA_BASE}/media/${user.profile_photo}`;
+    }
+    return null; // Or a default image path
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-8 py-3">

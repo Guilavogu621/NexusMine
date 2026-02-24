@@ -26,7 +26,8 @@ export function useNotificationWebSocket(options = {}) {
 
   const connect = useCallback(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/notifications/`;
+    const defaultWsUrl = `${protocol}//${window.location.host}/ws/notifications/`;
+    const wsUrl = import.meta.env.VITE_WS_BASE_URL || defaultWsUrl;
 
     try {
       wsRef.current = new WebSocket(wsUrl);

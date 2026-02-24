@@ -164,28 +164,28 @@ export default function Profile() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-8">
       {/* Premium Header avec bannière */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 shadow-2xl">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <pattern id="profileGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#profileGrid)" />
           </svg>
         </div>
-        
+
         {/* Gradient orbs */}
-        <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br ${roleColors[profile?.role] || 'from-blue-500 to-cyan-600'} opacity-20 blur-3xl`}></div>
-        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 opacity-20 blur-3xl"></div>
-        
+        <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full bg-linear-to-br ${roleColors[profile?.role] || 'from-blue-500 to-cyan-600'} opacity-20 blur-3xl`}></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-linear-to-br from-blue-500 to-cyan-600 opacity-20 blur-3xl"></div>
+
         <div className="relative px-8 py-10">
           <div className="flex flex-col md:flex-row items-center gap-8">
             {/* Photo de profil avec gradient border */}
             <div className="relative group">
-              <div className={`absolute -inset-1 rounded-full bg-gradient-to-r ${roleColors[profile?.role] || 'from-blue-500 to-cyan-600'} opacity-75 blur group-hover:opacity-100 transition-opacity duration-300`}></div>
+              <div className={`absolute -inset-1 rounded-full bg-linear-to-r ${roleColors[profile?.role] || 'from-blue-500 to-cyan-600'} opacity-75 blur group-hover:opacity-100 transition-opacity duration-300`}></div>
               <div className="relative">
                 {profile?.profile_photo_url ? (
                   <img
@@ -194,13 +194,13 @@ export default function Profile() {
                     className="h-32 w-32 rounded-full object-cover ring-4 ring-white/20"
                   />
                 ) : (
-                  <div className={`h-32 w-32 rounded-full bg-gradient-to-br ${roleColors[profile?.role] || 'from-blue-500 to-cyan-600'} flex items-center justify-center ring-4 ring-white/20`}>
+                  <div className={`h-32 w-32 rounded-full bg-linear-to-br ${roleColors[profile?.role] || 'from-blue-500 to-cyan-600'} flex items-center justify-center ring-4 ring-white/20`}>
                     <span className="text-3xl font-semibold text-white">
                       {profile?.first_name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                 )}
-                
+
                 <button
                   type="button"
                   onClick={handlePhotoClick}
@@ -213,7 +213,7 @@ export default function Profile() {
                     <CameraIcon className="h-5 w-5" />
                   )}
                 </button>
-                
+
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -223,11 +223,11 @@ export default function Profile() {
                 />
               </div>
             </div>
-            
+
             {/* Informations principales */}
             <div className="text-center md:text-left flex-1">
               <h1 className="text-2xl font-semibold text-white">
-                {profile?.first_name && profile?.last_name 
+                {profile?.first_name && profile?.last_name
                   ? `${profile.first_name} ${profile.last_name}`
                   : profile?.email}
               </h1>
@@ -253,11 +253,10 @@ export default function Profile() {
       {/* Message */}
       {message.text && (
         <div
-          className={`flex items-center gap-3 p-4 rounded-2xl shadow-sm ${
-            message.type === 'success'
-              ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200'
-              : 'bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border border-red-200'
-          }`}
+          className={`flex items-center gap-3 p-4 rounded-2xl shadow-sm ${message.type === 'success'
+            ? 'bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200'
+            : 'bg-linear-to-r from-red-50 to-rose-50 text-red-700 border border-red-200'
+            }`}
         >
           <div className={`p-2 rounded-xl ${message.type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
             {message.type === 'success' ? (
@@ -272,9 +271,9 @@ export default function Profile() {
 
       {/* Formulaire de profil */}
       <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-        <div className="border-b border-slate-100 px-8 py-5 bg-gradient-to-r from-gray-50 to-white">
+        <div className="border-b border-slate-100 px-8 py-5 bg-linear-to-r from-gray-50 to-white">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-sm">
+            <div className="p-2.5 bg-linear-to-br from-blue-500 to-cyan-600 rounded-xl shadow-sm">
               <PencilSquareIcon className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -283,7 +282,7 @@ export default function Profile() {
             </div>
           </div>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group">
@@ -302,7 +301,7 @@ export default function Profile() {
                 placeholder="Votre prénom"
               />
             </div>
-            
+
             <div className="group">
               <label htmlFor="last_name" className="flex items-center gap-2 text-base font-semibold text-slate-600 mb-2">
                 <UserIcon className="h-4 w-4 text-slate-400" />
@@ -358,8 +357,9 @@ export default function Profile() {
             <button
               type="submit"
               disabled={saving}
-              className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-3 text-base font-semibold text-white shadow-sm"
+              className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 px-8 py-3 text-base font-semibold text-white shadow-sm"
             >
+              # ── CONTENU ──
               {saving ? (
                 <>
                   <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 # charger les variables d'environnent
@@ -60,8 +61,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # CORS doit être en haut
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS doit être en haut
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',    
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,11 +94,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nexus_backend.wsgi.application'
 ASGI_APPLICATION = 'nexus_backend.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+redis_url = os.getenv('REDIS_URL')
+
+if redis_url:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [redis_url],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 
 # Database
@@ -112,6 +126,11 @@ DATABASES = {
         "PORT": os.getenv('DB_PORT'),
     }
 }
+
+# Configuration de la base de données pour la production (Render/Neon)
+db_from_env = dj_database_url.config(conn_max_age=600)
+if db_from_env:
+    DATABASES['default'].update(db_from_env)
 
 
 
@@ -152,6 +171,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# WhiteNoise configuration pour les fichiers statiques en production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Media files (uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -169,6 +191,10 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        os.getenv('FRONTEND_URL', ''), # URL de ton frontend Vercel
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        os.getenv('FRONTEND_URL', ''),
     ]
 
 CORS_ALLOW_CREDENTIALS = True

@@ -114,20 +114,21 @@ export default function PersonnelDetail() {
   const config = statusConfig[person.status] || statusConfig.ACTIVE;
   const StatusIcon = config.icon;
   const avatarColor = avatarColors[parseInt(id) % avatarColors.length];
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const MEDIA_BASE = API_BASE.replace('/api', '');
   const photoUrl = person.photo_url
-    ? (person.photo_url.startsWith('http') ? person.photo_url : `${API_BASE}${person.photo_url}`)
+    ? (person.photo_url.startsWith('http') ? person.photo_url : `${MEDIA_BASE}${person.photo_url}`)
     : null;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
       {/* Background Orbs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
         {/* ── HEADER PREMIUM ── */}
-        <div className="group relative overflow-hidden rounded-[40px] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-[40px] bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="detailGrid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -178,7 +179,7 @@ export default function PersonnelDetail() {
             </div>
 
             <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
-              <div className="relative group flex-shrink-0">
+              <div className="relative group shrink-0">
                 <div className="absolute inset-0 bg-white/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative">
                   {photoUrl ? (
@@ -189,7 +190,7 @@ export default function PersonnelDetail() {
                       onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                     />
                   ) : null}
-                  <div className={`h-40 w-40 rounded-[32px] bg-gradient-to-br ${avatarColor} items-center justify-center shadow-2xl ring-4 ring-white/30 ${photoUrl ? 'hidden' : 'flex'}`}>
+                  <div className={`h-40 w-40 rounded-[32px] bg-linear-to-br ${avatarColor} items-center justify-center shadow-2xl ring-4 ring-white/30 ${photoUrl ? 'hidden' : 'flex'}`}>
                     <span className="text-5xl font-bold text-white font-outfit">
                       {person.first_name?.[0]}{person.last_name?.[0]}
                     </span>
@@ -229,7 +230,7 @@ export default function PersonnelDetail() {
           {/* Main Dossier */}
           <div className="lg:col-span-8 space-y-8">
             <div className="bg-white/70 backdrop-blur-xl rounded-[32px] shadow-xl border border-white/40 overflow-hidden animate-fadeInUp" style={{ animationDelay: '100ms' }}>
-              <div className="p-8 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-white">
+              <div className="p-8 border-b border-slate-100 bg-linear-to-r from-slate-50/50 to-white">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-indigo-100 rounded-xl text-indigo-600"><IdentificationIcon className="h-6 w-6" /></div>
                   <h2 className="text-xl font-black text-slate-900 font-outfit tracking-tight">Dossier Professionnel</h2>
@@ -264,7 +265,7 @@ export default function PersonnelDetail() {
           {/* Sidebar: Contacts & Times */}
           <div className="lg:col-span-4 space-y-8">
             <div className="bg-white/70 backdrop-blur-xl rounded-[32px] shadow-xl border border-white/40 overflow-hidden animate-fadeInUp" style={{ animationDelay: '200ms' }}>
-              <div className="p-8 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-white">
+              <div className="p-8 border-b border-slate-100 bg-linear-to-r from-slate-50/50 to-white">
                 <h3 className="text-lg font-black text-slate-900 font-outfit tracking-tight">Canaux de Contact</h3>
               </div>
               <div className="p-6 space-y-4">
@@ -297,7 +298,7 @@ export default function PersonnelDetail() {
             </div>
 
             <div className="bg-white/70 backdrop-blur-xl rounded-[32px] shadow-xl border border-white/40 overflow-hidden animate-fadeInUp" style={{ animationDelay: '300ms' }}>
-              <div className="p-8 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-white">
+              <div className="p-8 border-b border-slate-100 bg-linear-to-r from-slate-50/50 to-white">
                 <h3 className="text-lg font-black text-slate-900 font-outfit tracking-tight">Traçabilité</h3>
               </div>
               <div className="p-8 space-y-6">

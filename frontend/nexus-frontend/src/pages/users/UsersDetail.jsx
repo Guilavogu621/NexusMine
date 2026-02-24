@@ -18,16 +18,17 @@ import {
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const MEDIA_BASE = API_BASE.replace('/api', '');
 
 function getPhotoUrl(user) {
   if (user.profile_photo_url) {
     if (user.profile_photo_url.startsWith('http')) return user.profile_photo_url;
-    return `${API_BASE}${user.profile_photo_url}`;
+    return `${MEDIA_BASE}${user.profile_photo_url}`;
   }
   if (user.profile_photo) {
     if (user.profile_photo.startsWith('http')) return user.profile_photo;
-    return `${API_BASE}/media/${user.profile_photo}`;
+    return `${MEDIA_BASE}/media/${user.profile_photo}`;
   }
   return null;
 }
@@ -115,7 +116,7 @@ export default function UsersDetail() {
 
   if (!isAdmin()) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center max-w-md shadow-lg">
           <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <ShieldCheckIcon className="h-8 w-8 text-red-600" />
@@ -129,7 +130,7 @@ export default function UsersDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="relative w-20 h-20 mx-auto">
             <div className="absolute inset-0 rounded-full border-4 border-slate-200 animate-spin border-t-indigo-600 border-r-indigo-500"></div>
@@ -143,7 +144,7 @@ export default function UsersDetail() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
         <div className="text-center space-y-4 bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-8 max-w-md shadow-lg">
           <div className="p-4 bg-slate-100 rounded-full w-16 h-16 mx-auto inline-flex items-center justify-center">
             <UserIcon className="h-8 w-8 text-slate-400" />
@@ -161,7 +162,7 @@ export default function UsersDetail() {
   const photoUrl = getPhotoUrl(user);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
       {/* Background pattern */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
@@ -169,13 +170,13 @@ export default function UsersDetail() {
 
       <div className="relative max-w-5xl mx-auto space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
         {/* Header Premium - MÊME DESIGN QUE LES AUTRES PAGES */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown">
           {/* SVG Grid Pattern */}
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="userDetailGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100" height="100" fill="url(#userDetailGrid)" />
@@ -208,7 +209,7 @@ export default function UsersDetail() {
                     onError={() => setPhotoError(true)}
                   />
                 ) : (
-                  <div className={`h-20 w-20 bg-gradient-to-br ${roleConf.gradient} rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white/30`}>
+                  <div className={`h-20 w-20 bg-linear-to-br ${roleConf.gradient} rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white/30`}>
                     <span className="text-2xl font-bold text-white">{user.first_name?.[0]}{user.last_name?.[0]}</span>
                   </div>
                 )}
@@ -228,9 +229,8 @@ export default function UsersDetail() {
                       <span>{roleEmojis[user.role]}</span>
                       {roleLabels[user.role]}
                     </span>
-                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold ${
-                      user.is_active ? 'bg-emerald-200 text-emerald-800' : 'bg-white/30 text-white'
-                    }`}>
+                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold ${user.is_active ? 'bg-emerald-200 text-emerald-800' : 'bg-white/30 text-white'
+                      }`}>
                       {user.is_active ? (
                         <>
                           <CheckCircleIcon className="h-4 w-4" />
@@ -251,11 +251,10 @@ export default function UsersDetail() {
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={handleToggleActive}
-                  className={`inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 ${
-                    user.is_active
-                      ? 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
-                      : 'bg-emerald-500 text-white hover:bg-emerald-600'
-                  }`}
+                  className={`inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 ${user.is_active
+                    ? 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/30'
+                    : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    }`}
                 >
                   {user.is_active ? <XCircleIcon className="h-5 w-5" /> : <CheckCircleIcon className="h-5 w-5" />}
                   {user.is_active ? 'Désactiver' : 'Activer'}
@@ -287,11 +286,11 @@ export default function UsersDetail() {
           <div className="lg:col-span-2 space-y-6">
             {/* Role Card */}
             <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-5">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${roleConf.gradient} shadow-lg`}>
+                  <div className={`p-3 rounded-xl bg-linear-to-br ${roleConf.gradient} shadow-lg`}>
                     <ShieldCheckIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -306,7 +305,7 @@ export default function UsersDetail() {
             {/* Sites Assignés */}
             {user.role !== 'ADMIN' && (
               <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-5">
@@ -325,7 +324,7 @@ export default function UsersDetail() {
                         <Link
                           key={site.id}
                           to={`/sites/${site.id}`}
-                          className="group/site p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-200/60 hover:border-indigo-300 hover:shadow-md transition-all duration-300"
+                          className="group/site p-4 bg-linear-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-200/60 hover:border-indigo-300 hover:shadow-md transition-all duration-300"
                         >
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-lg bg-indigo-200 flex items-center justify-center group-hover/site:scale-110 transition-transform">
@@ -351,7 +350,7 @@ export default function UsersDetail() {
 
             {/* Informations Personnelles */}
             <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
               <div className="relative z-10">
                 <h2 className="text-lg font-bold text-slate-900 mb-6">Informations personnelles</h2>
@@ -384,7 +383,7 @@ export default function UsersDetail() {
           <div className="space-y-6">
             {/* Status Card */}
             <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
               <div className="relative z-10">
                 <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -392,13 +391,12 @@ export default function UsersDetail() {
                   Statut
                 </h3>
 
-                <div className={`p-4 rounded-xl border ${
-                  user.is_active ? 'bg-emerald-50/80 border-emerald-200' : 'bg-red-50/80 border-red-200'
-                }`}>
+                <div className={`p-4 rounded-xl border ${user.is_active ? 'bg-emerald-50/80 border-emerald-200' : 'bg-red-50/80 border-red-200'
+                  }`}>
                   <div className="flex items-start gap-3">
                     {user.is_active ? (
                       <>
-                        <div className="p-2.5 bg-emerald-100 rounded-lg flex-shrink-0">
+                        <div className="p-2.5 bg-emerald-100 rounded-lg shrink-0">
                           <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
                         </div>
                         <div>
@@ -408,7 +406,7 @@ export default function UsersDetail() {
                       </>
                     ) : (
                       <>
-                        <div className="p-2.5 bg-red-100 rounded-lg flex-shrink-0">
+                        <div className="p-2.5 bg-red-100 rounded-lg shrink-0">
                           <XCircleIcon className="h-5 w-5 text-red-600" />
                         </div>
                         <div>
@@ -424,7 +422,7 @@ export default function UsersDetail() {
 
             {/* Activity Card */}
             <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
               <div className="relative z-10">
                 <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -435,7 +433,7 @@ export default function UsersDetail() {
                 <div className="space-y-3">
                   <div className="p-4 rounded-xl bg-blue-50/80 border border-blue-200/60">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                      <div className="p-2 bg-blue-100 rounded-lg shrink-0">
                         <CalendarIcon className="h-4 w-4 text-blue-600" />
                       </div>
                       <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Créé</p>
@@ -447,7 +445,7 @@ export default function UsersDetail() {
 
                   <div className="p-4 rounded-xl bg-purple-50/80 border border-purple-200/60">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                      <div className="p-2 bg-purple-100 rounded-lg shrink-0">
                         <ClockIcon className="h-4 w-4 text-purple-600" />
                       </div>
                       <p className="text-xs font-bold text-purple-600 uppercase tracking-wider">Connexion</p>

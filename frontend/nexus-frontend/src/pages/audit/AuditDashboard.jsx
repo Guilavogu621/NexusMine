@@ -250,7 +250,7 @@ const AuditDashboard = () => {
 
   if (!user || !['MMG', 'ADMIN'].includes(user.role)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center max-w-md shadow-lg">
           <div className="p-4 bg-amber-100 rounded-full w-16 h-16 mx-auto mb-4 inline-flex items-center justify-center">
             <ExclamationTriangleIcon className="h-8 w-8 text-amber-600" />
@@ -263,14 +263,14 @@ const AuditDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.05),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.05),transparent_50%)]"></div>
       </div>
 
       <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
         {/* Header Premium */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown max-w-7xl mx-auto w-full">
+        <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 shadow-2xl animate-fadeInDown max-w-7xl mx-auto w-full">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
@@ -299,7 +299,7 @@ const AuditDashboard = () => {
                 </div>
               </div>
 
-              <div className="text-white text-center flex-shrink-0">
+              <div className="text-white text-center shrink-0">
                 <p className="text-4xl font-bold font-outfit">{stats.total || 0}</p>
                 <p className="text-blue-100 text-sm mt-1 font-medium">📊 Actions tracées</p>
               </div>
@@ -338,7 +338,7 @@ const AuditDashboard = () => {
                 { label: 'Utilisateurs', value: stats.uniqueUsers, gradient: 'from-indigo-500 to-indigo-600', bg: 'bg-indigo-100/80', text: 'text-indigo-700', icon: '👥' },
               ].map((kpi, i) => (
                 <div key={i} className={`group relative ${kpi.bg} backdrop-blur-sm rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden`}>
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                  <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
                   <div className="relative z-10">
                     <div className="text-3xl font-bold mb-2">{kpi.icon}</div>
                     <div className={`text-3xl font-bold ${kpi.text} mb-1`}>{kpi.value}</div>
@@ -354,7 +354,7 @@ const AuditDashboard = () => {
             <div className="space-y-6 animate-fadeInUp">
               {anomalies.length === 0 ? (
                 <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-12 shadow-lg overflow-hidden flex flex-col items-center justify-center min-h-[300px]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                  <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
                   <div className="relative z-10 text-center">
                     <CheckIcon className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
                     <h3 className="text-2xl font-bold text-slate-900 mb-2">✅ Aucune anomalie détectée</h3>
@@ -375,14 +375,14 @@ const AuditDashboard = () => {
                       key={i}
                       className={`group relative ${classes.bg} backdrop-blur-sm rounded-2xl border ${classes.border} hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden`}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                      <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
                       <div className="relative z-10 flex items-start gap-4">
-                        <div className="text-4xl flex-shrink-0">{anomaly.icon}</div>
+                        <div className="text-4xl shrink-0">{anomaly.icon}</div>
                         <div className="flex-1 min-w-0">
                           <h4 className={`font-bold text-lg ${classes.text} mb-1`}>{anomaly.title}</h4>
                           <p className={`text-sm ${classes.text}`}>{anomaly.description}</p>
                         </div>
-                        <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${classes.badge} flex-shrink-0`}>
+                        <div className={`px-3 py-1.5 rounded-lg text-xs font-bold ${classes.badge} shrink-0`}>
                           {anomaly.severity}
                         </div>
                       </div>
@@ -426,12 +426,12 @@ const AuditDashboard = () => {
               ) : (
                 auditLogs.filter(l => l.action === 'DELETE').map((log) => (
                   <div key={log.id} className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-red-200/40 hover:border-red-300/60 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-red-500 to-red-600 rounded-l-2xl" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-linear-to-b from-red-500 to-red-600 rounded-l-2xl" />
                     <div className="relative z-10 p-6 pl-7">
                       {/* Header */}
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex items-start gap-4 flex-1 min-w-0">
-                          <div className="p-3 bg-red-100 rounded-xl flex-shrink-0">
+                          <div className="p-3 bg-red-100 rounded-xl shrink-0">
                             <TrashIcon className="h-6 w-6 text-red-600" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -452,7 +452,7 @@ const AuditDashboard = () => {
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-2 shrink-0">
                           <div className="text-right text-xs text-slate-500">
                             <div>📅 {formatDateFR(log.timestamp)}</div>
                             <div>🕐 {new Date(log.timestamp).toLocaleTimeString('fr-FR')}</div>
@@ -510,7 +510,7 @@ const AuditDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeInUp">
               {/* Top Users */}
               <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-lg text-slate-900 mb-6 flex items-center gap-2">
                     <div className="p-2.5 rounded-lg bg-indigo-100">
@@ -552,7 +552,7 @@ const AuditDashboard = () => {
 
               {/* Most Modified Objects */}
               <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-lg text-slate-900 mb-6 flex items-center gap-2">
                     <div className="p-2.5 rounded-lg bg-blue-100">
@@ -568,7 +568,7 @@ const AuditDashboard = () => {
                           <span className="font-bold text-slate-900 min-w-8 text-right text-sm">{obj.count}</span>
                         </div>
                         <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-indigo-600 to-blue-600 transition-all" style={{ width: `${(obj.count / Math.max(...topObjects.map(o => o.count), 1)) * 100}%` }} />
+                          <div className="h-full bg-linear-to-r from-indigo-600 to-blue-600 transition-all" style={{ width: `${(obj.count / Math.max(...topObjects.map(o => o.count), 1)) * 100}%` }} />
                         </div>
                       </div>
                     ))}
@@ -578,7 +578,7 @@ const AuditDashboard = () => {
 
               {/* Timeline Chart */}
               <div className="lg:col-span-2 group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
                 <div className="relative z-10">
                   <h3 className="font-bold text-lg text-slate-900 mb-6 flex items-center gap-2">
                     <div className="p-2.5 rounded-lg bg-emerald-100">
@@ -591,7 +591,7 @@ const AuditDashboard = () => {
                       timeline.map((day, i) => (
                         <div key={i} className="flex-1 flex flex-col items-center gap-2">
                           <div
-                            className="w-full bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t transition-all hover:shadow-lg hover:from-indigo-700 hover:to-indigo-500"
+                            className="w-full bg-linear-to-t from-indigo-600 to-indigo-400 rounded-t transition-all hover:shadow-lg hover:from-indigo-700 hover:to-indigo-500"
                             style={{ height: `${(day.count / Math.max(...timeline.map(d => d.count), 1)) * 180}px` }}
                             title={`📅 ${day.date}: ${day.count} actions`}
                           />
@@ -610,7 +610,7 @@ const AuditDashboard = () => {
           {/* Filters */}
           {viewMode === 'timeline' && (
             <div className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden animate-fadeInUp">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
               <div className="relative z-10">
                 <h3 className="font-bold text-lg text-slate-900 mb-6 flex items-center gap-2">
                   <div className="p-2.5 rounded-lg bg-slate-100">
@@ -620,13 +620,13 @@ const AuditDashboard = () => {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
                       🔎 Recherche
                     </label>
                     <input type="text" placeholder="User, objet, raison..." value={filters.search} onChange={(e) => setFilters({ ...filters, search: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/50 border border-slate-200/60 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
                       ⚙️ Type d'action
                     </label>
                     <select value={filters.action} onChange={(e) => setFilters({ ...filters, action: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/50 border border-slate-200/60 text-slate-900 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium cursor-pointer appearance-none pr-8">
@@ -639,7 +639,7 @@ const AuditDashboard = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
                       📦 Type de données
                     </label>
                     <select value={filters.content_type} onChange={(e) => setFilters({ ...filters, content_type: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/50 border border-slate-200/60 text-slate-900 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium cursor-pointer appearance-none pr-8">
@@ -652,7 +652,7 @@ const AuditDashboard = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
                       📅 Période
                     </label>
                     <select value={filters.date_range} onChange={(e) => setFilters({ ...filters, date_range: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-white/50 border border-slate-200/60 text-slate-900 focus:bg-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 font-medium cursor-pointer appearance-none pr-8">
@@ -687,16 +687,16 @@ const AuditDashboard = () => {
                     style={{ animationDelay: `${idx * 50}ms` }}
                   >
                     {/* Color accent bar */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl ${log.action === 'DELETE' ? 'bg-gradient-to-b from-red-500 to-red-600' :
-                      log.action === 'CREATE' ? 'bg-gradient-to-b from-emerald-500 to-emerald-600' :
-                        log.action === 'UPDATE' ? 'bg-gradient-to-b from-blue-500 to-blue-600' :
-                          log.action === 'APPROVE' ? 'bg-gradient-to-b from-purple-500 to-purple-600' :
-                            'bg-gradient-to-b from-slate-400 to-slate-500'
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl ${log.action === 'DELETE' ? 'bg-linear-to-b from-red-500 to-red-600' :
+                      log.action === 'CREATE' ? 'bg-linear-to-b from-emerald-500 to-emerald-600' :
+                        log.action === 'UPDATE' ? 'bg-linear-to-b from-blue-500 to-blue-600' :
+                          log.action === 'APPROVE' ? 'bg-linear-to-b from-purple-500 to-purple-600' :
+                            'bg-linear-to-b from-slate-400 to-slate-500'
                       }`} />
                     <div className="relative z-10 p-6 pl-7">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex items-start gap-4 flex-1 min-w-0">
-                          <div className="text-3xl flex-shrink-0">{getActionIcon(log.action)}</div>
+                          <div className="text-3xl shrink-0">{getActionIcon(log.action)}</div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
                               <span className={`text-xs font-bold px-3 py-1.5 rounded-lg border ${getActionColor(log.action)}`}>
@@ -727,7 +727,7 @@ const AuditDashboard = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-2 shrink-0">
                           <div className="text-right text-sm">
                             <div className="flex items-center gap-1 text-slate-600 mb-1 justify-end">
                               <UserIcon className="h-4 w-4" />
