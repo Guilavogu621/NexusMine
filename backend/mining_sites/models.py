@@ -100,6 +100,16 @@ class MiningSite(models.Model):
     
     description = models.TextField(blank=True, verbose_name="Description")
     
+    # Données Géologiques (SIG MG)
+    geological_reserve = models.DecimalField(
+        max_digits=15, decimal_places=2, null=True, blank=True,
+        verbose_name="Réserve géologique estimée (tonnes)"
+    )
+    geology_risk_index = models.IntegerField(
+        default=0, verbose_name="Index de risque géologique (0-100)",
+        help_text="Calculé par l'IA basée sur les sols et l'humidité"
+    )
+    
     # Date d'obtention de la licence
     license_date = models.DateField(
         null=True, blank=True,
@@ -123,14 +133,84 @@ class MiningSite(models.Model):
     
     def is_point_in_concession(self, lat, lon):
         """
-        Vérifie si un point GPS est à l'intérieur du polygone de concession (geofencing)
-        Utilisé pour valider les saisies terrain
+        Vérifie si un point GPS (lat, lon) est à l'intérieur du polygone de concession.
+        Implémentation de l'algorithme de Ray Casting (Point in Polygon).
         """
         if not self.concession_geojson:
-            return True  # Pas de polygone défini, on accepte
+            return True
+
+        try:
+            # Conversion en flottants pour la précision
+            lat = float(lat)
+            lon = float(lon)
+            
+            geojson = self.concession_geojson
+            geom_type = geojson.get('type')
+            coords = geojson.get('coordinates', [])
+
+            if geom_type == 'Polygon':
+                # Un polygone GeoJSON est une liste de "rings", le 1er est l'extérieur
+                return self._ray_casting(lat, lon, coords[0])
+            
+            elif geom_type == 'MultiPolygon':
+                # Un MultiPolygon est une liste de Polygones
+                for polygon_coords in coords:
+                    if self._ray_casting(lat, lon, polygon_coords[0]):
+                        return True
+                return False
+            
+            return True # Type non supporté, on autorise par défaut
+        except (ValueError, TypeError, IndexError, KeyError):
+            return True # Erreur de format, on ne bloque pas l'utilisateur
+
+    def _ray_casting(self, lat, lon, ring):
+        """Algorithme de Ray Casting : compte les intersections avec les segments du polygone"""
+        n = len(ring)
+        inside = False
         
-        # Implémentation basique - pour une vraie implémentation, utiliser Shapely
-        # from shapely.geometry import Point, shape
-        # polygon = shape(self.concession_geojson)
-        # return polygon.contains(Point(lon, lat))
-        return True  # À implémenter avec Shapely/PostGIS
+        # En GeoJSON, les points sont [longitude, latitude]
+        p1x, p1y = ring[0]
+        for i in range(1, n + 1):
+            p2x, p2y = ring[i % n]
+            
+            # Vérifie si le rayon horizontal depuis (lon, lat) intersecte le segment [p1, p2]
+            if lat > min(p1y, p2y):
+                if lat <= max(p1y, p2y):
+                    if lon <= max(p1x, p2x):
+                        if p1y != p2y:
+                            xinters = (lat - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                        if p1x == p2x or lon <= xinters:
+                            inside = not inside
+            p1x, p1y = p2x, p2y
+            
+        return inside
+
+
+class DistributedNode(models.Model):
+    """
+    Représente un nœud d'intelligence locale (Edge Node) sur un site minier.
+    Composant de l'architecture distribuée.
+    """
+    site = models.OneToOneField(
+        MiningSite, on_delete=models.CASCADE, 
+        related_name='distributed_node',
+        verbose_name="Site rattaché"
+    )
+    node_id = models.CharField(max_length=100, unique=True, verbose_name="Identifiant du nœud")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="Adresse IP locale")
+    status = models.CharField(
+        max_length=20,
+        choices=[('ONLINE', 'En ligne'), ('OFFLINE', 'Hors ligne'), ('SYNCING', 'Synchronisation')],
+        default='OFFLINE'
+    )
+    last_sync = models.DateTimeField(null=True, blank=True, verbose_name="Dernière synchronisation")
+    cpu_usage = models.FloatField(default=0.0, verbose_name="Utilisation CPU (%)")
+    memory_usage = models.FloatField(default=0.0, verbose_name="Utilisation RAM (%)")
+    ai_model_version = models.CharField(max_length=50, default="v1.0-alpha")
+
+    def __str__(self):
+        return f"Node {self.node_id} ({self.site.name})"
+
+    class Meta:
+        verbose_name = "Nœud Distribué"
+        verbose_name_plural = "Nœuds Distribués"

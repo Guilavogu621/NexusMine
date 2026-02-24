@@ -120,8 +120,9 @@ class PDFExportMixin:
 
         # --- QR CODE & METADATA SECTION ---
         # QR Code deeply linked to mobile app or dashboard
-        # Format: nexusmine://reports/{id}
-        qr_data = f"https://nexusmine.app/reports/{obj.id}" 
+        # Format: base_url/api/reports/{id}/verify/
+        base_url = request.build_absolute_uri('/')[:-1]
+        qr_data = f"{base_url}/api/reports/{obj.id}/verify/"
         qr_img = self._get_qr_code(qr_data, size=1.2*inch)
         
         meta_table_data = [

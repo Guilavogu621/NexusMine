@@ -124,7 +124,7 @@ export default function FloatingChatbot() {
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <img
-                src="/logo_nexuss.svg"
+                src="/logo_nexuss.png"
                 alt="NexusMine"
                 className="w-8 h-8 rounded-full bg-white p-0.5"
                 onError={(e) => {
@@ -173,16 +173,15 @@ export default function FloatingChatbot() {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                    msg.role === 'user'
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${msg.role === 'user'
                       ? 'bg-indigo-600 text-white rounded-br-md'
                       : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-md'
-                  }`}
+                    }`}
                 >
                   {msg.role === 'assistant' && (
                     <div className="flex items-center gap-1.5 mb-1">
                       <img
-                        src="/logo_nexuss.svg"
+                        src="/logo_nexuss.png"
                         alt=""
                         className="w-4 h-4 rounded-full"
                         onError={(e) => {
@@ -251,11 +250,10 @@ export default function FloatingChatbot() {
       {/* ── Bouton Flottant (toujours en bas à droite) ── */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${
-          isOpen
+        className={`fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${isOpen
             ? 'bg-gray-600 hover:bg-gray-700 rotate-0'
             : 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
-        }`}
+          }`}
         title="NexusMine Copilot"
       >
         {isOpen ? (
@@ -263,7 +261,7 @@ export default function FloatingChatbot() {
         ) : (
           <div className="relative">
             <img
-              src="/logo_nexuss.svg"
+              src="/logo_nexuss.png"
               alt="NexusMine Copilot"
               className="w-9 h-9 rounded-full"
               onError={(e) => {

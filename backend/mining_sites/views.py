@@ -3,8 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
-from .models import MiningSite
-from .serializers import MiningSiteSerializer, MiningSiteListSerializer
+from .models import MiningSite, DistributedNode
+from .serializers import MiningSiteSerializer, MiningSiteListSerializer, DistributedNodeSerializer
 from accounts.permissions import CanManageSites, IsAdmin
 from accounts.mixins import SiteScopedMixin
 from accounts.serializers import UserSerializer
@@ -31,6 +31,20 @@ class MiningSiteViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     search_fields = ['name', 'location']
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
+    
+    def get_queryset(self):
+        from django.db.models import Count, Q
+        qs = super().get_queryset()
+        qs = qs.annotate(
+            personnel_count=Count('personnel', distinct=True),
+            equipment_count=Count('equipment', distinct=True),
+            incidents_count=Count(
+                'incidents', 
+                filter=Q(incidents__status__in=['REPORTED', 'INVESTIGATING', 'ACTION_REQUIRED']), 
+                distinct=True
+            )
+        )
+        return qs
     
     def get_serializer_class(self):
         if self.action == 'list':
@@ -97,3 +111,14 @@ class MiningSiteViewSet(SiteScopedMixin, viewsets.ModelViewSet):
                 {'detail': 'Utilisateur non trouvé.'},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+
+class DistributedNodeViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Vue pour monitorer l'état de l'architecture IA distribuée.
+    ReadOnly à ce stade pour simulation.
+    """
+    site_field = 'site'
+    queryset = DistributedNode.objects.all()
+    serializer_class = DistributedNodeSerializer
+    permission_classes = [permissions.IsAuthenticated]

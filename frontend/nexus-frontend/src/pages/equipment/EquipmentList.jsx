@@ -90,7 +90,7 @@ export default function EquipmentList() {
   const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const navigate = useNavigate();
 
-  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isTechnicien();
 
   const stats = {
     total: equipment.length,
@@ -107,12 +107,12 @@ export default function EquipmentList() {
       if (filterStatus) params.append('status', filterStatus);
       if (filterType) params.append('equipment_type', filterType);
       if (filterSite) params.append('site', filterSite);
-      
+
       const [equipmentRes, sitesRes] = await Promise.all([
         api.get(`/equipment/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setEquipment(equipmentRes.data.results || equipmentRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -140,11 +140,11 @@ export default function EquipmentList() {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-12">
       <div className="max-w-7xl mx-auto px-4 pt-8 space-y-6">
-        
+
         {/* ── HEADER PREMIUM AZURE (Design Capture) ── */}
         <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 shadow-xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-          
+
           <div className="relative p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <div className="p-4 bg-white/20 backdrop-blur-md rounded-[24px] shadow-lg">
@@ -157,28 +157,28 @@ export default function EquipmentList() {
             </div>
 
             <div className="flex items-center gap-3">
-               <div className="flex bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20">
-                  <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-white hover:bg-white/10'}`}>
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-white hover:bg-white/10'}`}>
-                    <ListBulletIcon className="h-5 w-5" />
-                  </button>
-               </div>
-               {canEdit && (
-                 <Link to="/equipment/new" className="px-6 py-3 bg-white text-blue-700 rounded-2xl font-black shadow-lg hover:scale-105 transition-all flex items-center gap-2">
-                   <PlusIcon className="h-5 w-5" /> Nouveau
-                 </Link>
-               )}
+              <div className="flex bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20">
+                <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-blue-600 shadow-sm' : 'text-white hover:bg-white/10'}`}>
+                  <Squares2X2Icon className="h-5 w-5" />
+                </button>
+                <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-blue-600 shadow-sm' : 'text-white hover:bg-white/10'}`}>
+                  <ListBulletIcon className="h-5 w-5" />
+                </button>
+              </div>
+              {canEdit && (
+                <Link to="/equipment/new" className="px-6 py-3 bg-white text-blue-700 rounded-2xl font-black shadow-lg hover:scale-105 transition-all flex items-center gap-2">
+                  <PlusIcon className="h-5 w-5" /> Nouveau
+                </Link>
+              )}
             </div>
           </div>
 
           {/* Quick Stats Overlay Header */}
           <div className="relative px-8 pb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-             <QuickStat label="Total" value={stats.total} color="bg-white/10" />
-             <QuickStat label="Opérationnels" value={stats.operational} color="bg-emerald-500/20" dot="bg-emerald-400" />
-             <QuickStat label="Maintenance" value={stats.maintenance} color="bg-amber-500/20" dot="bg-amber-400" />
-             <QuickStat label="En Panne" value={stats.breakdown} color="bg-red-500/20" dot="bg-red-400" />
+            <QuickStat label="Total" value={stats.total} color="bg-white/10" />
+            <QuickStat label="Opérationnels" value={stats.operational} color="bg-emerald-500/20" dot="bg-emerald-400" />
+            <QuickStat label="Maintenance" value={stats.maintenance} color="bg-amber-500/20" dot="bg-amber-400" />
+            <QuickStat label="En Panne" value={stats.breakdown} color="bg-red-500/20" dot="bg-red-400" />
           </div>
         </div>
 
@@ -196,9 +196,9 @@ export default function EquipmentList() {
               />
             </div>
             <div className="flex flex-wrap gap-3">
-              <FilterSelect value={filterSite} onChange={setFilterSite} options={sites.map(s => ({v: s.id, l: s.name}))} placeholder="Tous les sites" />
-              <FilterSelect value={filterType} onChange={setFilterType} options={Object.entries(typeLabels).map(([v,l]) => ({v, l: `${typeEmojis[v]} ${l}`}))} placeholder="Tous types" />
-              <FilterSelect value={filterStatus} onChange={setFilterStatus} options={Object.entries(statusLabels).map(([v,l]) => ({v, l}))} placeholder="Tous statuts" />
+              <FilterSelect value={filterSite} onChange={setFilterSite} options={sites.map(s => ({ v: s.id, l: s.name }))} placeholder="Tous les sites" />
+              <FilterSelect value={filterType} onChange={setFilterType} options={Object.entries(typeLabels).map(([v, l]) => ({ v, l: `${typeEmojis[v]} ${l}` }))} placeholder="Tous types" />
+              <FilterSelect value={filterStatus} onChange={setFilterStatus} options={Object.entries(statusLabels).map(([v, l]) => ({ v, l }))} placeholder="Tous statuts" />
             </div>
           </div>
         </div>
@@ -219,46 +219,46 @@ export default function EquipmentList() {
           </div>
         ) : (
           <div className="bg-[#f0f9ff] rounded-[32px] p-1 border border-blue-50 overflow-hidden animate-fadeInUp">
-             <div className="bg-white rounded-[28px] overflow-hidden">
-                <table className="min-w-full">
-                  <thead className="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Équipement</th>
-                      <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Site</th>
-                      <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Statut</th>
-                      <th className="px-6 py-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
+            <div className="bg-white rounded-[28px] overflow-hidden">
+              <table className="min-w-full">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Équipement</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Site</th>
+                    <th className="px-6 py-4 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Statut</th>
+                    <th className="px-6 py-4 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {equipment.map((item) => (
+                    <tr key={item.id} onClick={() => navigate(`/equipment/${item.id}`)} className="hover:bg-blue-50/50 transition-colors cursor-pointer group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className={`p-2 rounded-xl bg-gradient-to-br ${typeColors[item.equipment_type]} text-white text-lg shadow-sm`}>{typeEmojis[item.equipment_type]}</div>
+                          <div>
+                            <p className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{item.name}</p>
+                            <p className="text-xs text-slate-400 font-medium">S/N: {item.serial_number}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-slate-600">{item.site_name || '—'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusColors[item.status]}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${statusDots[item.status]}`}></span>
+                          {statusLabels[item.status]}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}/edit`); }} className="p-2 text-blue-500 hover:bg-blue-100 rounded-lg transition-all"><PencilSquareIcon className="h-5 w-5" /></button>
+                          <button onClick={(e) => handleDelete(item.id, e)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"><TrashIcon className="h-5 w-5" /></button>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {equipment.map((item) => (
-                      <tr key={item.id} onClick={() => navigate(`/equipment/${item.id}`)} className="hover:bg-blue-50/50 transition-colors cursor-pointer group">
-                        <td className="px-6 py-4">
-                           <div className="flex items-center gap-4">
-                              <div className={`p-2 rounded-xl bg-gradient-to-br ${typeColors[item.equipment_type]} text-white text-lg shadow-sm`}>{typeEmojis[item.equipment_type]}</div>
-                              <div>
-                                <p className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{item.name}</p>
-                                <p className="text-xs text-slate-400 font-medium">S/N: {item.serial_number}</p>
-                              </div>
-                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm font-bold text-slate-600">{item.site_name || '—'}</td>
-                        <td className="px-6 py-4">
-                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusColors[item.status]}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${statusDots[item.status]}`}></span>
-                              {statusLabels[item.status]}
-                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                           <div className="flex justify-end gap-2">
-                             <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}/edit`); }} className="p-2 text-blue-500 hover:bg-blue-100 rounded-lg transition-all"><PencilSquareIcon className="h-5 w-5" /></button>
-                             <button onClick={(e) => handleDelete(item.id, e)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"><TrashIcon className="h-5 w-5" /></button>
-                           </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-             </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
@@ -315,27 +315,27 @@ function EquipmentCard({ item, navigate, canEdit, onDelete }) {
             {statusLabels[item.status]}
           </span>
         </div>
-        
+
         <div>
           <h3 className="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">{item.name}</h3>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{typeLabels[item.equipment_type]}</p>
         </div>
 
         <div className="space-y-2 pt-2 border-t border-slate-50">
-           <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-             <MapPinIcon className="h-4 w-4 text-red-500" /> {item.site_name || 'Non assigné'}
-           </div>
-           <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
-             <CogIcon className="h-4 w-4 text-blue-500" /> S/N: {item.serial_number}
-           </div>
+          <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
+            <MapPinIcon className="h-4 w-4 text-red-500" /> {item.site_name || 'Non assigné'}
+          </div>
+          <div className="flex items-center gap-3 text-sm font-bold text-slate-600">
+            <CogIcon className="h-4 w-4 text-blue-500" /> S/N: {item.serial_number}
+          </div>
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-           <div className="flex gap-1">
-             <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}`); }} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><EyeIcon className="h-5 w-5" /></button>
-             {canEdit && <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}/edit`); }} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><PencilSquareIcon className="h-5 w-5" /></button>}
-           </div>
-           {canEdit && <button onClick={(e) => { e.stopPropagation(); onDelete(item.id, e); }} className="p-2 bg-red-50 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all"><TrashIcon className="h-5 w-5" /></button>}
+          <div className="flex gap-1">
+            <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}`); }} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><EyeIcon className="h-5 w-5" /></button>
+            {canEdit && <button onClick={(e) => { e.stopPropagation(); navigate(`/equipment/${item.id}/edit`); }} className="p-2 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-600 transition-all"><PencilSquareIcon className="h-5 w-5" /></button>}
+          </div>
+          {canEdit && <button onClick={(e) => { e.stopPropagation(); onDelete(item.id, e); }} className="p-2 bg-red-50 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all"><TrashIcon className="h-5 w-5" /></button>}
         </div>
       </div>
     </div>

@@ -81,7 +81,7 @@ export default function AlertsDetail() {
   const [deleting, setDeleting] = useState(false);
 
   // Peut éditer si ADMIN, SITE_MANAGER, ANALYST, MMG, TECHNICIEN
-  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isTechnicien();
 
   useEffect(() => {
     fetchData();
@@ -170,17 +170,17 @@ export default function AlertsDetail() {
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <pattern id="alertGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#alertGrid)" />
           </svg>
         </div>
-        
+
         {/* Gradient orbs */}
         <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-blue-400 opacity-10 blur-3xl"></div>
-        
+
         <div className="relative px-8 py-8">
           {/* Back button */}
           <Link
@@ -190,7 +190,7 @@ export default function AlertsDetail() {
             <ArrowLeftIcon className="h-4 w-4" />
             <span className="text-sm font-medium">Retour aux alertes</span>
           </Link>
-          
+
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex items-center gap-5">
               <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
@@ -220,7 +220,7 @@ export default function AlertsDetail() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 flex-wrap">
               {isSupervisor() && alert.status !== 'RESOLVED' && alert.status !== 'ARCHIVED' && (
                 <button
@@ -267,12 +267,12 @@ export default function AlertsDetail() {
             <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
               <h2 className="text-lg font-semibold text-slate-800">Message de l'alerte</h2>
             </div>
-            
+
             <div className="p-6">
               <p className="text-base text-slate-500 leading-relaxed whitespace-pre-line bg-slate-50 p-4 rounded-xl">
                 {alert.message || 'Aucun message'}
               </p>
-              
+
               <div className="mt-6 pt-6 border-t border-slate-100">
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
@@ -287,7 +287,7 @@ export default function AlertsDetail() {
                       </dd>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
                     <div className="p-2.5 bg-blue-100 rounded-xl">
                       <MapPinIcon className="h-5 w-5 text-indigo-600" />

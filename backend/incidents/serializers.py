@@ -69,6 +69,25 @@ class IncidentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def validate(self, data):
+        """Validation SIG MG : Geofencing des incidents"""
+        lat = data.get('gps_latitude')
+        lon = data.get('gps_longitude')
+        site = data.get('site')
+        
+        # En cas d'update partial, on récupère les valeurs existantes si non fournies
+        if self.instance:
+            lat = lat if lat is not None else self.instance.gps_latitude
+            lon = lon if lon is not None else self.instance.gps_longitude
+            site = site if site else self.instance.site
+
+        if lat is not None and lon is not None and site:
+            if not site.is_point_in_concession(lat, lon):
+                raise serializers.ValidationError({
+                    'gps_latitude': "Alerte SIG MG : Les coordonnées GPS de l'incident se trouvent en dehors de la concession autorisée pour ce site minier."
+                })
+        return data
+
 
 class IncidentListSerializer(serializers.ModelSerializer):
     """Serializer simplifié pour les listes"""

@@ -50,6 +50,18 @@ export default function useFormPermissions(module) {
     };
   }
 
+  // TECHNICIEN : opérations de terrain
+  if (role === 'TECHNICIEN') {
+    if (['operations', 'incidents', 'equipment', 'reports', 'personnel'].includes(module)) return full;
+    return {
+      readOnly: true,
+      canCreate: false,
+      canEdit: false,
+      canSubmit: false,
+      roleBanner: 'En tant que technicien, ce module est en lecture seule. Vous pouvez gérer les opérations, incidents, équipements et rapports.',
+    };
+  }
+
   // ANALYST, MMG, tout autre rôle → lecture seule
   return {
     readOnly: true,

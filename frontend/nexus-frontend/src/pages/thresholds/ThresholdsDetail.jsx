@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 const dataTypeLabels = {
   AIR_QUALITY: 'Qualité de l\'air',
@@ -175,7 +176,7 @@ export default function ThresholdsDetail() {
           <AdjustmentsHorizontalIcon className="h-5 w-5 text-teal-600" />
           Valeurs seuils
         </h2>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-indigo-50 rounded-lg p-4 text-center">
             <div className="text-base text-indigo-600 mb-1">Minimum</div>
@@ -184,7 +185,7 @@ export default function ThresholdsDetail() {
             </div>
             <div className="text-sm text-indigo-500">{data.unit}</div>
           </div>
-          
+
           <div className="bg-red-50 rounded-lg p-4 text-center">
             <div className="text-base text-red-600 mb-1">Maximum</div>
             <div className="text-xl font-semibold text-red-700">
@@ -192,7 +193,7 @@ export default function ThresholdsDetail() {
             </div>
             <div className="text-sm text-red-500">{data.unit}</div>
           </div>
-          
+
           <div className="bg-amber-50 rounded-lg p-4 text-center">
             <div className="text-base text-amber-600 mb-1">Alerte Min</div>
             <div className="text-xl font-semibold text-amber-700">
@@ -200,7 +201,7 @@ export default function ThresholdsDetail() {
             </div>
             <div className="text-sm text-amber-500">{data.unit}</div>
           </div>
-          
+
           <div className="bg-amber-50 rounded-lg p-4 text-center">
             <div className="text-base text-amber-600 mb-1">Alerte Max</div>
             <div className="text-xl font-semibold text-amber-700">
@@ -214,7 +215,7 @@ export default function ThresholdsDetail() {
       {/* Informations complémentaires */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 p-6">
         <h2 className="text-lg font-semibold text-slate-800 mb-4">Informations</h2>
-        
+
         <div className="space-y-4">
           {data.regulatory_reference && (
             <div>
@@ -222,25 +223,25 @@ export default function ThresholdsDetail() {
               <p className="text-slate-800 mt-1">{data.regulatory_reference}</p>
             </div>
           )}
-          
+
           {data.description && (
             <div>
               <label className="text-base font-semibold text-slate-500">Description</label>
               <p className="text-slate-800 mt-1">{data.description}</p>
             </div>
           )}
-          
+
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
             <div>
               <label className="text-base font-semibold text-slate-500">Créé le</label>
               <p className="text-slate-800 mt-1">
-                {data.created_at ? new Date(data.created_at).toLocaleDateString('fr-FR') : '-'}
+                {formatDateFR(data.created_at)}
               </p>
             </div>
             <div>
               <label className="text-base font-semibold text-slate-500">Modifié le</label>
               <p className="text-slate-800 mt-1">
-                {data.updated_at ? new Date(data.updated_at).toLocaleDateString('fr-FR') : '-'}
+                {formatDateFR(data.updated_at)}
               </p>
             </div>
           </div>

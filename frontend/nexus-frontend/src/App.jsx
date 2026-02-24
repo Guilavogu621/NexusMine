@@ -81,6 +81,8 @@ const IntelligenceDashboard = lazy(() => import('./pages/intelligence').then(m =
 const StockList = lazy(() => import('./pages/stock').then(m => ({ default: m.StockList })));
 const StockForm = lazy(() => import('./pages/stock').then(m => ({ default: m.StockForm })));
 const StockDetail = lazy(() => import('./pages/stock').then(m => ({ default: m.StockDetail })));
+const StockLocationsList = lazy(() => import('./pages/stock').then(m => ({ default: m.StockLocationsList })));
+const StockLocationForm = lazy(() => import('./pages/stock').then(m => ({ default: m.StockLocationForm })));
 
 // Users
 const UsersList = lazy(() => import('./pages/users').then(m => ({ default: m.UsersList })));
@@ -99,157 +101,168 @@ function App() {
 
   return (
     <Suspense fallback={<PageLoader />}>
-    <Routes>
-      {/* Landing Page - Public */}
-      <Route path="/home" element={<><LandingPage /><FloatingChatbot /></>} />
-      
-      {/* Public routes */}
-      <Route
-        path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <><Login /><FloatingChatbot /></>}
-      />
-      <Route
-        path="/forgot-password"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
-      />
+      <Routes>
+        {/* Landing Page - Public */}
+        <Route path="/home" element={<><LandingPage /><FloatingChatbot /></>} />
 
-      {/* Protected routes */}
-      <Route
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/* Profil et Paramètres */}
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        
-        {/* Sites Miniers */}
-        <Route path="/sites" element={<SitesList />} />
-        <Route path="/sites/map" element={<SitesMap />} />
-        <Route path="/sites/new" element={
-          <ProtectedRoute roles={['ADMIN']}>
-            <SiteForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/sites/:id" element={<SiteDetail />} />
-        <Route path="/sites/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <SiteForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Personnel */}
-        <Route path="/personnel" element={<PersonnelList />} />
-        <Route path="/personnel/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <PersonnelForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/personnel/:id" element={<PersonnelDetail />} />
-        <Route path="/personnel/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <PersonnelForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Équipements */}
-        <Route path="/equipment" element={<EquipmentList />} />
-        <Route path="/equipment/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <EquipmentForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/equipment/:id" element={<EquipmentDetail />} />
-        <Route path="/equipment/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <EquipmentForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Opérations */}
-        <Route path="/operations" element={<OperationsList />} />
-        <Route path="/operations/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <OperationsForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/operations/:id" element={<OperationsDetail />} />
-        <Route path="/operations/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <OperationsForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Incidents */}
-        <Route path="/incidents" element={<IncidentsList />} />
-        <Route path="/incidents/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <IncidentsForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/incidents/:id" element={<IncidentsDetail />} />
-        <Route path="/incidents/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <IncidentsForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Environnement */}
-        <Route path="/environment" element={<EnvironmentList />} />
-        <Route path="/environment/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <EnvironmentForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/environment/:id" element={<EnvironmentDetail />} />
-        <Route path="/environment/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <EnvironmentForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Alertes */}
-        <Route path="/alerts" element={<AlertsList />} />
-        <Route path="/alerts/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <AlertsForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/alerts/:id" element={<AlertsDetail />} />
-        <Route path="/alerts/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
-            <AlertsForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Rapports */}
-        <Route path="/reports" element={<ReportsList />} />
-        <Route path="/reports/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN']}>
-            <ReportsForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/reports/:id" element={<ReportsDetail />} />
-        <Route path="/reports/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN']}>
-            <ReportsForm />
-          </ProtectedRoute>
-        } />
+        {/* Public routes */}
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <><Login /><FloatingChatbot /></>}
+        />
+        <Route
+          path="/forgot-password"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
+        />
 
-        {/* Stock */}
-        <Route path="/stock" element={<StockList />} />
-        <Route path="/stock/new" element={
-          <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
-            <StockForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/stock/:id" element={<StockDetail />} />
+        {/* Protected routes */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Phase 2 — Maintenance (IA)
+          {/* Profil et Paramètres */}
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+
+          {/* Sites Miniers */}
+          <Route path="/sites" element={<SitesList />} />
+          <Route path="/sites/map" element={<SitesMap />} />
+          <Route path="/sites/new" element={
+            <ProtectedRoute roles={['ADMIN']}>
+              <SiteForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/sites/:id" element={<SiteDetail />} />
+          <Route path="/sites/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <SiteForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Personnel */}
+          <Route path="/personnel" element={<PersonnelList />} />
+          <Route path="/personnel/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <PersonnelForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/personnel/:id" element={<PersonnelDetail />} />
+          <Route path="/personnel/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <PersonnelForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Équipements */}
+          <Route path="/equipment" element={<EquipmentList />} />
+          <Route path="/equipment/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <EquipmentForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/equipment/:id" element={<EquipmentDetail />} />
+          <Route path="/equipment/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <EquipmentForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Opérations */}
+          <Route path="/operations" element={<OperationsList />} />
+          <Route path="/operations/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <OperationsForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/operations/:id" element={<OperationsDetail />} />
+          <Route path="/operations/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <OperationsForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Incidents */}
+          <Route path="/incidents" element={<IncidentsList />} />
+          <Route path="/incidents/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <IncidentsForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/incidents/:id" element={<IncidentsDetail />} />
+          <Route path="/incidents/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <IncidentsForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Environnement */}
+          <Route path="/environment" element={<EnvironmentList />} />
+          <Route path="/environment/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <EnvironmentForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/environment/:id" element={<EnvironmentDetail />} />
+          <Route path="/environment/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <EnvironmentForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Alertes */}
+          <Route path="/alerts" element={<AlertsList />} />
+          <Route path="/alerts/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <AlertsForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/alerts/:id" element={<AlertsDetail />} />
+          <Route path="/alerts/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER']}>
+              <AlertsForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Rapports */}
+          <Route path="/reports" element={<ReportsList />} />
+          <Route path="/reports/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN']}>
+              <ReportsForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/reports/:id" element={<ReportsDetail />} />
+          <Route path="/reports/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'ANALYST', 'TECHNICIEN']}>
+              <ReportsForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Stock */}
+          <Route path="/stock" element={<StockList />} />
+          <Route path="/stock/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <StockForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/stock/locations" element={<StockLocationsList />} />
+          <Route path="/stock/locations/new" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <StockLocationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/stock/locations/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'SITE_MANAGER', 'TECHNICIEN']}>
+              <StockLocationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/stock/:id" element={<StockDetail />} />
+
+          {/* Phase 2 — Maintenance (IA)
         <Route path="/maintenance" element={<MaintenanceList />} />
         <Route path="/maintenance/new" element={
           <ProtectedRoute roles={['ADMIN', 'SUPERVISOR']}>
@@ -259,7 +272,7 @@ function App() {
         <Route path="/maintenance/:id" element={<MaintenanceDetail />} />
         */}
 
-        {/* Phase 2 — Seuils Environnementaux (IA)
+          {/* Phase 2 — Seuils Environnementaux (IA)
         <Route path="/thresholds" element={<ThresholdsList />} />
         <Route path="/thresholds/new" element={
           <ProtectedRoute roles={['ADMIN', 'SUPERVISOR']}>
@@ -274,7 +287,7 @@ function App() {
         } />
         */}
 
-        {/* Phase 2 — Règles d'Alerte (IA)}
+          {/* Phase 2 — Règles d'Alerte (IA)}
         <Route path="/alert-rules" element={<AlertRulesList />} />
         <Route path="/alert-rules/new" element={
           <ProtectedRoute roles={['ADMIN', 'SUPERVISOR']}>
@@ -289,7 +302,7 @@ function App() {
         } />
         */}
 
-        {/* Phase 2 — Zones de Travail (IA)
+          {/* Phase 2 — Zones de Travail (IA)
         <Route path="/workzones" element={<WorkZonesList />} />
         <Route path="/workzones/new" element={
           <ProtectedRoute roles={['ADMIN', 'SUPERVISOR']}>
@@ -304,7 +317,7 @@ function App() {
         } />
         */}
 
-        {/* Phase 2 — Rotations / Shifts (IA)
+          {/* Phase 2 — Rotations / Shifts (IA)
         <Route path="/shifts" element={<ShiftsList />} />
         <Route path="/shifts/new" element={
           <ProtectedRoute roles={['ADMIN', 'SUPERVISOR']}>
@@ -318,76 +331,76 @@ function App() {
           </ProtectedRoute>
         } />
         */}
-        
-        {/* 🧠 Intelligence (AI Dashboard) */}
-        <Route path="/intelligence" element={<IntelligenceDashboard />} />
-        
-        {/* Indicateurs (Analytics) */}
-        <Route path="/analytics" element={<AnalyticsList />} />
-        <Route path="/analytics/new" element={
-          <ProtectedRoute roles={['ADMIN', 'ANALYST']}>
-            <AnalyticsForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/analytics/:id" element={<AnalyticsDetail />} />
-        <Route path="/analytics/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN', 'ANALYST']}>
-            <AnalyticsForm />
-          </ProtectedRoute>
-        } />
-        
-        {/* Utilisateurs (ADMIN only) */}
-        <Route path="/users" element={
-          <ProtectedRoute roles={['ADMIN']}>
-            <UsersList />
-          </ProtectedRoute>
-        } />
-        <Route path="/users/new" element={
-          <ProtectedRoute roles={['ADMIN']}>
-            <UsersForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/users/:id" element={
-          <ProtectedRoute roles={['ADMIN']}>
-            <UsersDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/users/:id/edit" element={
-          <ProtectedRoute roles={['ADMIN']}>
-            <UsersForm />
-          </ProtectedRoute>
-        } />
 
-        {/* Audit & Compliance (MMG + ADMIN) */}
-        <Route path="/audit" element={
-          <ProtectedRoute roles={['MMG', 'ADMIN']}>
-            <AuditDashboard />
-          </ProtectedRoute>
-        } />
-      </Route>
+          {/* 🧠 Intelligence (AI Dashboard) */}
+          <Route path="/intelligence" element={<IntelligenceDashboard />} />
 
-      {/* Redirect root to landing or dashboard */}
-      <Route
-        path="/"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/home" replace />}
-      />
+          {/* Indicateurs (Analytics) */}
+          <Route path="/analytics" element={<AnalyticsList />} />
+          <Route path="/analytics/new" element={
+            <ProtectedRoute roles={['ADMIN', 'ANALYST']}>
+              <AnalyticsForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics/:id" element={<AnalyticsDetail />} />
+          <Route path="/analytics/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN', 'ANALYST']}>
+              <AnalyticsForm />
+            </ProtectedRoute>
+          } />
 
-      {/* 404 */}
-      <Route
-        path="*"
-        element={
-          <div className="flex items-center justify-center min-h-screen bg-gray-50">
-            <div className="text-center">
-              <h1 className="text-6xl font-bold text-gray-900">404</h1>
-              <p className="mt-4 text-xl text-gray-600">Page non trouvée</p>
-              <a href="/home" className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Retour à l&apos;accueil
-              </a>
+          {/* Utilisateurs (ADMIN only) */}
+          <Route path="/users" element={
+            <ProtectedRoute roles={['ADMIN']}>
+              <UsersList />
+            </ProtectedRoute>
+          } />
+          <Route path="/users/new" element={
+            <ProtectedRoute roles={['ADMIN']}>
+              <UsersForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/users/:id" element={
+            <ProtectedRoute roles={['ADMIN']}>
+              <UsersDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/users/:id/edit" element={
+            <ProtectedRoute roles={['ADMIN']}>
+              <UsersForm />
+            </ProtectedRoute>
+          } />
+
+          {/* Audit & Compliance (MMG + ADMIN) */}
+          <Route path="/audit" element={
+            <ProtectedRoute roles={['MMG', 'ADMIN']}>
+              <AuditDashboard />
+            </ProtectedRoute>
+          } />
+        </Route>
+
+        {/* Redirect root to landing or dashboard */}
+        <Route
+          path="/"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/home" replace />}
+        />
+
+        {/* 404 */}
+        <Route
+          path="*"
+          element={
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+              <div className="text-center">
+                <h1 className="text-6xl font-bold text-gray-900">404</h1>
+                <p className="mt-4 text-xl text-gray-600">Page non trouvée</p>
+                <a href="/home" className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  Retour à l&apos;accueil
+                </a>
+              </div>
             </div>
-          </div>
-        }
-      />
-    </Routes>
+          }
+        />
+      </Routes>
     </Suspense>
   );
 }

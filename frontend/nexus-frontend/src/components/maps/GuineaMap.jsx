@@ -57,6 +57,39 @@ const createCustomIcon = (color, type, isSelected = false) => {
   });
 };
 
+const createAssetIcon = (type, speed) => {
+  const icons = {
+    TRUCK: '🚚',
+    TRAIN: '🚆',
+    CONVEYOR: '📠',
+    OTHER: '📦'
+  };
+  const size = 32;
+  const isMoving = speed > 0;
+
+  return L.divIcon({
+    html: `
+      <div style="position:relative;width:${size}px;height:${size}px;">
+        ${isMoving ? `<div style="position:absolute;inset:-4px;border-radius:50%;border:2px solid #6366F1;opacity:.6;animation:marker-pulse 1s ease-out infinite;"></div>` : ''}
+        <div style="
+          background: white;
+          width:${size}px; height:${size}px;
+          border-radius:50%;
+          display:flex; align-items:center; justify-content:center;
+          box-shadow:0 2px 8px rgba(0,0,0,0.2);
+          border:2px solid #6366F1;
+          font-size: 16px;
+        ">
+          ${icons[type] || '📦'}
+        </div>
+      </div>
+    `,
+    className: 'asset-marker',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+};
+
 /* --- Couleurs par statut --- */
 const statusColors = {
   ACTIVE: '#10B981',
@@ -79,20 +112,20 @@ const guineaBorder = {
   geometry: {
     type: 'Polygon',
     coordinates: [[
-      [-15.13,10.83],[-14.67,11.11],[-14.38,11.51],[-14.12,11.65],
-      [-13.72,11.83],[-13.25,11.91],[-12.93,11.65],[-12.30,11.37],
-      [-12.01,11.08],[-11.47,10.64],[-11.15,10.05],[-10.67,9.31],
-      [-10.27,8.41],[-9.78,8.08],[-9.34,7.53],[-9.12,7.37],
-      [-8.60,7.69],[-8.39,7.62],[-8.22,8.12],[-7.95,8.39],
-      [-7.65,8.42],[-7.54,8.78],[-8.01,9.17],[-8.13,9.50],
-      [-8.03,9.99],[-7.89,10.30],[-8.00,10.50],[-8.31,10.61],
-      [-8.50,10.95],[-8.68,11.01],[-8.82,10.82],[-9.04,10.87],
-      [-9.23,11.11],[-9.38,11.17],[-9.49,11.49],[-9.69,11.65],
-      [-10.05,11.88],[-10.30,12.02],[-10.65,11.90],[-10.87,12.18],
-      [-11.24,12.08],[-11.49,12.19],[-11.73,12.08],[-12.04,12.21],
-      [-12.19,12.39],[-12.47,12.33],[-13.05,12.07],[-13.23,12.00],
-      [-13.70,12.51],[-13.95,12.68],[-14.27,12.55],[-14.57,12.22],
-      [-14.76,12.00],[-15.05,11.68],[-15.08,11.21],[-15.13,10.83],
+      [-15.13, 10.83], [-14.67, 11.11], [-14.38, 11.51], [-14.12, 11.65],
+      [-13.72, 11.83], [-13.25, 11.91], [-12.93, 11.65], [-12.30, 11.37],
+      [-12.01, 11.08], [-11.47, 10.64], [-11.15, 10.05], [-10.67, 9.31],
+      [-10.27, 8.41], [-9.78, 8.08], [-9.34, 7.53], [-9.12, 7.37],
+      [-8.60, 7.69], [-8.39, 7.62], [-8.22, 8.12], [-7.95, 8.39],
+      [-7.65, 8.42], [-7.54, 8.78], [-8.01, 9.17], [-8.13, 9.50],
+      [-8.03, 9.99], [-7.89, 10.30], [-8.00, 10.50], [-8.31, 10.61],
+      [-8.50, 10.95], [-8.68, 11.01], [-8.82, 10.82], [-9.04, 10.87],
+      [-9.23, 11.11], [-9.38, 11.17], [-9.49, 11.49], [-9.69, 11.65],
+      [-10.05, 11.88], [-10.30, 12.02], [-10.65, 11.90], [-10.87, 12.18],
+      [-11.24, 12.08], [-11.49, 12.19], [-11.73, 12.08], [-12.04, 12.21],
+      [-12.19, 12.39], [-12.47, 12.33], [-13.05, 12.07], [-13.23, 12.00],
+      [-13.70, 12.51], [-13.95, 12.68], [-14.27, 12.55], [-14.57, 12.22],
+      [-14.76, 12.00], [-15.05, 11.68], [-15.08, 11.21], [-15.13, 10.83],
     ]],
   },
 };
@@ -144,6 +177,7 @@ export default function GuineaMap({
   showZones = true,
   onSiteClick,
   selectedSite = null,
+  assets = [],
   interactive = true,
 }) {
   const mapRef = useRef(null);
@@ -163,7 +197,13 @@ export default function GuineaMap({
   };
 
   const getMarkerIcon = (site) => {
-    const color = statusColors[site.status] || statusColors.ACTIVE;
+    let color = statusColors[site.status] || statusColors.ACTIVE;
+
+    // Logique intelligente: Rouge si incident ouvert
+    if (site.incidents_count > 0) {
+      color = '#ef4444'; // Red-500
+    }
+
     const isSelected = selectedSite?.id === site.id;
     return createCustomIcon(color, site.site_type, isSelected);
   };
@@ -282,15 +322,14 @@ export default function GuineaMap({
               <div className="p-3">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`p-2 rounded-xl ${
-                    site.status === 'ACTIVE' ? 'bg-emerald-100' :
+                  <div className={`p-2 rounded-xl ${site.status === 'ACTIVE' ? 'bg-emerald-100' :
                     site.status === 'SUSPENDED' ? 'bg-amber-100' :
-                    site.status === 'CLOSED' ? 'bg-red-100' : 'bg-blue-100'
-                  }`}>
+                      site.status === 'CLOSED' ? 'bg-red-100' : 'bg-blue-100'
+                    }`}>
                     <span className="text-2xl">
                       {site.site_type === 'OPEN_PIT' ? '⛏' :
-                       site.site_type === 'UNDERGROUND' ? '🔨' :
-                       site.site_type === 'ALLUVIAL' ? '💧' : '⚙'}
+                        site.site_type === 'UNDERGROUND' ? '🔨' :
+                          site.site_type === 'ALLUVIAL' ? '💧' : '⚙'}
                     </span>
                   </div>
                   <div>
@@ -305,17 +344,16 @@ export default function GuineaMap({
                     <span className="text-xs text-gray-500">Type</span>
                     <span className="text-xs font-medium text-gray-800">
                       {site.site_type === 'OPEN_PIT' ? 'Ciel ouvert' :
-                       site.site_type === 'UNDERGROUND' ? 'Souterrain' :
-                       site.site_type === 'ALLUVIAL' ? 'Alluvionnaire' : 'Mixte'}
+                        site.site_type === 'UNDERGROUND' ? 'Souterrain' :
+                          site.site_type === 'ALLUVIAL' ? 'Alluvionnaire' : 'Mixte'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-1.5 px-2.5 bg-gray-50 rounded-lg">
                     <span className="text-xs text-gray-500">Statut</span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      site.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' :
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${site.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' :
                       site.status === 'SUSPENDED' ? 'bg-amber-100 text-amber-700' :
-                      site.status === 'CLOSED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
-                    }`}>
+                        site.status === 'CLOSED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                      }`}>
                       {statusLabels[site.status] || site.status}
                     </span>
                   </div>
@@ -360,6 +398,37 @@ export default function GuineaMap({
                 >
                   Voir les détails →
                 </Link>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
+        {/* Marqueurs des Équipements (Tracking Temps Réel) */}
+        {assets.filter(a => a.last_latitude && a.last_longitude).map((asset) => (
+          <Marker
+            key={`asset-${asset.id}`}
+            position={[parseFloat(asset.last_latitude), parseFloat(asset.last_longitude)]}
+            icon={createAssetIcon(asset.equipment_type, asset.current_speed)}
+          >
+            <Popup className="custom-popup" maxWidth={250}>
+              <div className="p-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">{asset.equipment_type === 'TRUCK' ? '🚚' : '🚆'}</span>
+                  <div>
+                    <h5 className="font-bold text-xs">{asset.equipment_code}</h5>
+                    <p className="text-[10px] text-gray-500">{asset.name}</p>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-gray-400 uppercase font-black">Vitesse</span>
+                    <span className="font-bold text-indigo-600">{asset.current_speed.toFixed(1)} km/h</span>
+                  </div>
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-gray-400 uppercase font-black">Mis à jour</span>
+                    <span className="text-gray-600">{new Date(asset.last_position_update).toLocaleTimeString()}</span>
+                  </div>
+                </div>
               </div>
             </Popup>
           </Marker>

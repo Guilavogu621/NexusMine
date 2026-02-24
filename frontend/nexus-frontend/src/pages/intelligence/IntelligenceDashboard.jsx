@@ -15,6 +15,8 @@ import {
   CheckCircleIcon,
   SparklesIcon,
   ArrowPathIcon,
+  ServerStackIcon,
+  CubeTransparentIcon,
 } from '@heroicons/react/24/outline';
 
 // Helper: animated counter
@@ -221,7 +223,8 @@ export default function IntelligenceDashboard() {
     equipment_at_risk,
     recommendations,
     cv_audit,
-    kpis
+    kpis,
+    distributed_nodes
   } = data;
 
   return (
@@ -492,6 +495,94 @@ export default function IntelligenceDashboard() {
           </ChartCard>
         </div>
 
+        {/* ── DISTRIBUTED ARCHITECTURE & GEOLOGICAL INSIGHTS (SIG MG) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+
+          {/* Edge Nodes Monitor */}
+          <ChartCard
+            title="Architecture Distribuée : Edge Nodes"
+            icon={ServerStackIcon}
+            subtitle="État des serveurs d'intelligence locale sur site"
+            className="lg:col-span-2"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {distributed_nodes?.map((node) => (
+                <div key={node.id} className="p-4 rounded-2xl bg-slate-900 text-white shadow-xl border border-slate-800">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="font-bold text-indigo-400 text-sm tracking-tight">{node.node_id}</h4>
+                      <p className="text-[10px] text-slate-400 uppercase font-black">{node.site_name}</p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[8px] font-black ${node.status === 'ONLINE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                      {node.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[8px] text-slate-500 font-bold">
+                        <span>CPU</span>
+                        <span>{node.cpu_usage.toFixed(1)}%</span>
+                      </div>
+                      <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500" style={{ width: `${node.cpu_usage}%` }} />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[8px] text-slate-500 font-bold">
+                        <span>RAM</span>
+                        <span>{node.memory_usage.toFixed(1)}%</span>
+                      </div>
+                      <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500" style={{ width: `${node.memory_usage}%` }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-[8px] font-medium text-slate-500 pt-2 border-t border-slate-800">
+                    <span>IP: {node.ip_address}</span>
+                    <span>IA: {node.version}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+
+          {/* Geological Insights (SIG MG) */}
+          <ChartCard
+            title="SIG MG : Analyse du Sous-sol"
+            icon={CubeTransparentIcon}
+            subtitle="Données géologiques et réserves estimées"
+            className="lg:col-span-1"
+          >
+            <div className="space-y-6">
+              {site_risks?.map((site) => (
+                <div key={site.site_id} className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <h5 className="text-xs font-bold text-slate-700">{site.site_name}</h5>
+                    <span className="text-[10px] font-black text-indigo-600">
+                      {(site.geological_reserve / 1000000).toFixed(1)}M tonnes
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[8px] uppercase font-black text-slate-400 tracking-tighter">
+                      <span>Index de risque géologique</span>
+                      <span className={site.geology_risk_index > 60 ? 'text-rose-500' : 'text-emerald-500'}>
+                        {site.geology_risk_index}/100
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-1000 ${site.geology_risk_index > 60 ? 'bg-rose-500' : 'bg-indigo-500'}`}
+                        style={{ width: `${site.geology_risk_index}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+        </div>
       </div>
 
       <style>{`

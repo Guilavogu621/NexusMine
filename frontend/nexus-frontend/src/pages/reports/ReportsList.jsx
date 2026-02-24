@@ -107,7 +107,7 @@ export default function ReportsList() {
   const [filterSite, setFilterSite] = useState('');
   const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
 
-  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isTechnicien();
 
   const fetchData = async () => {
     try {

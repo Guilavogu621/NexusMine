@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 const typeLabels = {
   AIR_QUALITY: 'Qualité de l\'air',
@@ -63,12 +64,12 @@ export default function EnvironmentList() {
       if (search) params.append('search', search);
       if (filterType) params.append('data_type', filterType);
       if (filterSite) params.append('site', filterSite);
-      
+
       const [envRes, sitesRes] = await Promise.all([
         api.get(`/environmental-data/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setData(envRes.data.results || envRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -125,7 +126,7 @@ export default function EnvironmentList() {
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="envListGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100" height="100" fill="url(#envListGrid)" />
@@ -329,7 +330,7 @@ export default function EnvironmentList() {
                       <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
                         <span className="text-sm text-slate-500">📅 Date</span>
                         <span className="text-sm font-bold text-slate-900">
-                          {new Date(item.measurement_date).toLocaleDateString('fr-FR')}
+                          {formatDateFR(item.measurement_date)}
                         </span>
                       </div>
                       {item.location_details && (

@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 const typeLabels = {
   THRESHOLD_EXCEEDED: 'Seuil dépassé',
@@ -79,7 +80,7 @@ export default function AlertsList() {
   const [filterSite, setFilterSite] = useState('');
   const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
 
-  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isTechnicien();
 
   const fetchData = useCallback(async () => {
     try {
@@ -88,12 +89,12 @@ export default function AlertsList() {
       if (filterStatus) params.append('status', filterStatus);
       if (filterSeverity) params.append('severity', filterSeverity);
       if (filterSite) params.append('site', filterSite);
-      
+
       const [alertsRes, sitesRes] = await Promise.all([
         api.get(`/alerts/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setAlerts(alertsRes.data.results || alertsRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -150,13 +151,13 @@ export default function AlertsList() {
       </div>
 
       <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-7xl mx-auto">
-        
+
         {/* Header Premium */}
         <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="alertsGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
               <rect width="100" height="100" fill="url(#alertsGrid)" />
             </svg>
@@ -238,7 +239,7 @@ export default function AlertsList() {
               </button>
             )}
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <select
               value={filterSite}
@@ -302,13 +303,12 @@ export default function AlertsList() {
                 const prioConf = severityConfig[alertItem.severity] || severityConfig.LOW;
                 const statConf = statusConfig[alertItem.status] || statusConfig.NEW;
                 const isNew = alertItem.status === 'NEW';
-                
+
                 return (
                   <div
                     key={alertItem.id}
-                    className={`group relative bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden animate-fadeInUp ${
-                      isNew ? 'bg-orange-50/30' : ''
-                    }`}
+                    className={`group relative bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden animate-fadeInUp ${isNew ? 'bg-orange-50/30' : ''
+                      }`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Severity Left Border Indicator */}
@@ -316,13 +316,13 @@ export default function AlertsList() {
 
                     <div className="p-5 sm:p-6 ml-2">
                       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
-                        
+
                         {/* Info Section */}
                         <div className="flex items-start gap-4 flex-1 min-w-0">
                           <div className={`p-3 rounded-2xl ${prioConf.bg} shadow-inner shrink-0`}>
                             <span className="text-2xl">{typeEmojis[alertItem.alert_type] || '🔔'}</span>
                           </div>
-                          
+
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-2.5">
                               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${prioConf.bg} ${prioConf.text} shadow-sm border border-white/50`}>
@@ -337,14 +337,14 @@ export default function AlertsList() {
                                 {typeLabels[alertItem.alert_type] || alertItem.alert_type}
                               </span>
                             </div>
-                            
+
                             <h3 className="text-lg font-bold text-slate-900 truncate font-outfit mb-1">
                               {alertItem.title}
                             </h3>
                             <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
                               {alertItem.message}
                             </p>
-                            
+
                             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
                               <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                                 <MapPinIcon className="h-4 w-4 text-slate-400" />
@@ -352,7 +352,7 @@ export default function AlertsList() {
                               </span>
                               <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
                                 <ClockIcon className="h-4 w-4 text-slate-400" />
-                                {new Date(alertItem.generated_at).toLocaleString('fr-FR')}
+                                {formatDateFR(alertItem.generated_at, true)}
                               </span>
                             </div>
                           </div>
@@ -387,7 +387,7 @@ export default function AlertsList() {
                               <EyeIcon className="h-5 w-5" />
                             </Link>
                           </div>
-                          
+
                           {canEdit && (
                             <div className="flex items-center gap-2 ml-auto lg:ml-0 lg:mt-2">
                               <Link

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Equipment, MaintenanceRecord
+from .models import Equipment, MaintenanceRecord, EquipmentTracking
 from django.core.exceptions import ValidationError
 
 
@@ -62,6 +62,13 @@ class MaintenanceRecordListSerializer(serializers.ModelSerializer):
         ]
 
 
+class EquipmentTrackingSerializer(serializers.ModelSerializer):
+    """Serializer pour le suivi GPS en temps réel"""
+    class Meta:
+        model = EquipmentTracking
+        fields = ['id', 'equipment', 'latitude', 'longitude', 'speed', 'timestamp']
+
+
 class EquipmentSerializer(serializers.ModelSerializer):
     """Serializer complet pour le modèle Equipment"""
     equipment_type_display = serializers.CharField(
@@ -88,6 +95,7 @@ class EquipmentSerializer(serializers.ModelSerializer):
             'hours_operated', 'fuel_consumption_rate',
             'capacity', 'capacity_unit',
             'photo', 'notes',
+            'last_latitude', 'last_longitude', 'current_speed', 'last_position_update',
             'maintenance_records', 'last_maintenance',
             'created_at', 'updated_at'
         ]
@@ -120,6 +128,7 @@ class EquipmentListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'equipment_code', 'name', 'equipment_type',
             'status', 'status_display', 'site_name',
+            'last_latitude', 'last_longitude', 'current_speed',
             'next_maintenance_date', 'hours_operated'
         ]
 

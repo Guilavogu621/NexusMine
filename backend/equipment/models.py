@@ -128,6 +128,22 @@ class Equipment(models.Model):
     
     notes = models.TextField(blank=True, verbose_name="Notes")
     
+    # Real-time Tracking (SIG MG)
+    last_latitude = models.DecimalField(
+        max_digits=10, decimal_places=7, null=True, blank=True,
+        verbose_name="Dernière Latitude connue"
+    )
+    last_longitude = models.DecimalField(
+        max_digits=10, decimal_places=7, null=True, blank=True,
+        verbose_name="Dernière Longitude connue"
+    )
+    current_speed = models.FloatField(
+        default=0.0, verbose_name="Vitesse actuelle (km/h)"
+    )
+    last_position_update = models.DateTimeField(
+        null=True, blank=True, verbose_name="Horodatage position"
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -262,3 +278,26 @@ class MaintenanceRecord(models.Model):
     
     def __str__(self):
         return f"{self.maintenance_code} - {self.equipment.equipment_code}"
+
+
+class EquipmentTracking(models.Model):
+    """
+    Historique des positions GPS pour le tracking en temps réel.
+    Élément clé de l'architecture SIG MG distribuée.
+    """
+    equipment = models.ForeignKey(
+        Equipment, on_delete=models.CASCADE, 
+        related_name='tracking_history'
+    )
+    latitude = models.DecimalField(max_digits=10, decimal_places=7)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    speed = models.FloatField(default=0.0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Tracking Équipement"
+        verbose_name_plural = "Tracking Équipements"
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.equipment.equipment_code} at {self.timestamp}"

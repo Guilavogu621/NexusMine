@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 const typeLabels = {
   AIR_QUALITY: 'Qualité de l\'air',
@@ -128,17 +129,17 @@ export default function EnvironmentDetail() {
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <pattern id="envGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#envGrid)" />
           </svg>
         </div>
-        
+
         {/* Gradient orbs */}
         <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-teal-400 opacity-10 blur-3xl"></div>
-        
+
         <div className="relative px-8 py-8">
           {/* Back button */}
           <Link
@@ -148,7 +149,7 @@ export default function EnvironmentDetail() {
             <ArrowLeftIcon className="h-4 w-4" />
             <span className="text-sm font-medium">Retour aux données</span>
           </Link>
-          
+
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex items-center gap-5">
               <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
@@ -160,7 +161,7 @@ export default function EnvironmentDetail() {
                 </h1>
                 <p className="mt-2 text-emerald-100 flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4" />
-                  Mesure du {new Date(data.measurement_date).toLocaleDateString('fr-FR')}
+                  Mesure du {formatDateFR(data.measurement_date)}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${typeConf.bg} ${typeConf.text}`}>
@@ -176,7 +177,7 @@ export default function EnvironmentDetail() {
                 </div>
               </div>
             </div>
-            
+
             {isSupervisor() && (
               <div className="flex items-center gap-3">
                 <Link
@@ -223,7 +224,7 @@ export default function EnvironmentDetail() {
             <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
               <h2 className="text-lg font-semibold text-slate-800">Détails de la mesure</h2>
             </div>
-            
+
             <div className="p-6">
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
@@ -238,7 +239,7 @@ export default function EnvironmentDetail() {
                     </dd>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
                   <div className="p-2.5 bg-blue-100 rounded-xl">
                     <MapPinIcon className="h-5 w-5 text-indigo-600" />
@@ -258,12 +259,12 @@ export default function EnvironmentDetail() {
                   <div>
                     <dt className="text-base font-semibold text-slate-500">Date et heure</dt>
                     <dd className="mt-1 text-base font-semibold text-slate-800">
-                      {new Date(data.measurement_date).toLocaleDateString('fr-FR')}
+                      {formatDateFR(data.measurement_date)}
                       {data.measurement_time && ` à ${data.measurement_time}`}
                     </dd>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl">
                   <div className="p-2.5 bg-amber-100 rounded-xl">
                     <MapPinIcon className="h-5 w-5 text-amber-600" />
@@ -307,11 +308,7 @@ export default function EnvironmentDetail() {
                 <div>
                   <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Créé le</p>
                   <p className="text-base font-semibold text-slate-800 mt-0.5">
-                    {new Date(data.created_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                    {formatDateFR(data.created_at)}
                   </p>
                 </div>
               </div>
@@ -322,11 +319,7 @@ export default function EnvironmentDetail() {
                 <div>
                   <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">Modifié le</p>
                   <p className="text-base font-semibold text-slate-800 mt-0.5">
-                    {new Date(data.updated_at).toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                    {formatDateFR(data.updated_at)}
                   </p>
                 </div>
               </div>

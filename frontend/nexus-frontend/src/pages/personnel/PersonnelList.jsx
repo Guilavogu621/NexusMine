@@ -72,8 +72,9 @@ export default function PersonnelList() {
   const [filterSite, setFilterSite] = useState('');
   const [filterApproval, setFilterApproval] = useState('');
   const [viewMode, setViewMode] = useState('grid');
-  const { isSupervisor, isAdmin } = useAuthStore();
-  const canEdit = isSupervisor() || isAdmin();
+  const { isSupervisor, isAdmin, isTechnicien } = useAuthStore();
+  const canEdit = isSupervisor() || isAdmin() || isTechnicien();
+  const canDelete = isSupervisor() || isAdmin();
   const navigate = useNavigate();
 
   const hasActiveFilters = search || filterStatus || filterSite || filterApproval;
@@ -388,12 +389,16 @@ export default function PersonnelList() {
                         </button>
                       </div>
                     )}
-                    <button onClick={(e) => { e.stopPropagation(); navigate(`/personnel/${p.id}/edit`); }} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
-                      <PencilSquareIcon className="h-4 w-4" />
-                    </button>
-                    <button onClick={(e) => handleDelete(p.id, p.last_name, e)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all">
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+                    {canEdit && (
+                      <button onClick={(e) => { e.stopPropagation(); navigate(`/personnel/${p.id}/edit`); }} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                        <PencilSquareIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button onClick={(e) => handleDelete(p.id, p.last_name, e)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -442,12 +447,16 @@ export default function PersonnelList() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={(e) => { e.stopPropagation(); navigate(`/personnel/${p.id}/edit`); }} className="p-2 text-indigo-600 hover:bg-white rounded-lg shadow-sm">
-                            <PencilSquareIcon className="h-4 w-4" />
-                          </button>
-                          <button onClick={(e) => handleDelete(p.id, p.last_name, e)} className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm">
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
+                          {canEdit && (
+                            <button onClick={(e) => { e.stopPropagation(); navigate(`/personnel/${p.id}/edit`); }} className="p-2 text-indigo-600 hover:bg-white rounded-lg shadow-sm">
+                              <PencilSquareIcon className="h-4 w-4" />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button onClick={(e) => handleDelete(p.id, p.last_name, e)} className="p-2 text-red-600 hover:bg-white rounded-lg shadow-sm">
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

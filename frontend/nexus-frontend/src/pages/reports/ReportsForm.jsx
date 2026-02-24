@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
+import {
   DocumentTextIcon,
   MapPinIcon,
   CalendarIcon,
@@ -62,7 +62,7 @@ export default function ReportsForm() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [sites, setSites] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     title: '',
     report_type: 'MONTHLY',
@@ -107,25 +107,25 @@ export default function ReportsForm() {
   const handleSubmit = async (e, forceStatus = null) => {
     if (e) e.preventDefault();
     setSaving(true);
-    
+
     try {
       // Pour TECHNICIEN: seul PENDING_APPROVAL ou DRAFT sont autorisés
       let finalStatus = forceStatus || formData.status;
       if (isTechnicien && !['DRAFT', 'PENDING_APPROVAL'].includes(finalStatus)) {
         finalStatus = 'DRAFT';
       }
-      
-      const payload = { 
-        ...formData, 
+
+      const payload = {
+        ...formData,
         status: finalStatus
       };
-      
+
       if (isEdit) {
         await api.put(`/reports/${id}/`, payload);
       } else {
         await api.post('/reports/', payload);
       }
-      
+
       setSuccess(true);
       setTimeout(() => navigate('/reports'), 1500);
     } catch (err) {
@@ -142,7 +142,7 @@ export default function ReportsForm() {
       const response = await api.get(`/reports/${id}/generate_pdf/`, {
         responseType: 'blob'
       });
-      
+
       // Créer un lien de téléchargement
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -173,7 +173,7 @@ export default function ReportsForm() {
       {success && <Alert type="success">Action effectuée avec succès. Redirection...</Alert>}
       {error && <Alert type="error" title="Oups !">{error}</Alert>}
       <ReadOnlyBanner message={roleBanner} />
-      
+
       {isApprovalPending && (
         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 flex gap-4 items-start shadow-sm">
           <div className="p-3 bg-amber-100 rounded-xl flex-shrink-0">
@@ -189,7 +189,7 @@ export default function ReportsForm() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Colonne Principale : Formulaire */}
         <div className="lg:col-span-2 space-y-6">
           <form id="report-form" onSubmit={handleSubmit} className="space-y-6">
@@ -199,13 +199,14 @@ export default function ReportsForm() {
                   <PencilSquareIcon className="h-5 w-5" />
                   <h3 className="font-bold uppercase tracking-wider text-sm">Identification</h3>
                 </div>
-                
+
                 <InputField
                   label="Titre du document"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   required
+                  disabled={readOnly || isApprovalPending}
                   placeholder="Ex: Rapport de forage Q1 2026"
                 />
 
@@ -215,6 +216,7 @@ export default function ReportsForm() {
                     name="report_type"
                     value={formData.report_type}
                     onChange={handleChange}
+                    disabled={readOnly || isApprovalPending}
                     options={REPORT_TYPES}
                   />
                   <SelectField
@@ -222,6 +224,7 @@ export default function ReportsForm() {
                     name="site"
                     value={formData.site}
                     onChange={handleChange}
+                    disabled={readOnly || isApprovalPending}
                     options={sites}
                     placeholder="Tous les sites"
                   />
@@ -235,7 +238,7 @@ export default function ReportsForm() {
                   <CalendarIcon className="h-5 w-5" />
                   <h3 className="font-bold uppercase tracking-wider text-sm">Période de validité</h3>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputField
                     label="Début de période"
@@ -243,6 +246,7 @@ export default function ReportsForm() {
                     type="date"
                     value={formData.period_start}
                     onChange={handleChange}
+                    disabled={readOnly || isApprovalPending}
                     required
                   />
                   <InputField
@@ -251,6 +255,7 @@ export default function ReportsForm() {
                     type="date"
                     value={formData.period_end}
                     onChange={handleChange}
+                    disabled={readOnly || isApprovalPending}
                     required
                   />
                 </div>
@@ -264,6 +269,7 @@ export default function ReportsForm() {
                   name="summary"
                   value={formData.summary}
                   onChange={handleChange}
+                  disabled={readOnly || isApprovalPending}
                   rows={3}
                   placeholder="Points clés pour la direction..."
                 />
@@ -272,6 +278,7 @@ export default function ReportsForm() {
                   name="content"
                   value={formData.content}
                   onChange={handleChange}
+                  disabled={readOnly || isApprovalPending}
                   required
                   rows={12}
                   placeholder="Détails techniques, analyses et observations..."
@@ -302,8 +309,8 @@ export default function ReportsForm() {
                         className={`
                           flex items-center gap-3 p-3 rounded-xl border-2 transition-all
                           ${isApprovalPending || readOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-                          ${formData.status === key 
-                            ? `${cfg.color} border-current ring-2 ring-offset-2 ring-indigo-500/20` 
+                          ${formData.status === key
+                            ? `${cfg.color} border-current ring-2 ring-offset-2 ring-indigo-500/20`
                             : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}
                         `}
                       >

@@ -38,6 +38,12 @@ class ReportViewSet(PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
             return ReportListSerializer
         return ReportSerializer
     
+    def get_permissions(self):
+        """Allow public access to verification endpoint AND pdf download."""
+        if self.action in ['verify', 'export_pdf']:
+            return [permissions.AllowAny()]
+        return super().get_permissions()
+    
     def perform_create(self, serializer):
         """
         Logique de création:
@@ -88,6 +94,78 @@ class ReportViewSet(PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
             return Response(ReportSerializer(report).data)
         
         return response
+
+    @action(detail=True, methods=['get'])
+    def verify(self, request, pk=None):
+        """Web view for report verification via QR Code"""
+        from django.http import HttpResponse
+        report = self.get_object()
+        
+        status_color = "#10B981" if report.status in ['VALIDATED', 'PUBLISHED', 'GENERATED'] else "#F59E0B"
+        
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Verification Rapport NexusMine</title>
+            <style>
+                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f8fafc; color: #1e293b; }}
+                .container {{ max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }}
+                .header {{ text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 25px; margin-bottom: 25px; }}
+                h1 {{ color: #4F46E5; margin: 0 0 15px 0; font-size: 28px; font-weight: 900; }}
+                .badge {{ display: inline-block; background-color: {status_color}; color: white; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 10px; }}
+                .description {{ color: #64748b; font-size: 14px; margin-top: 10px; }}
+                .grid {{ display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 30px; }}
+                .info-item {{ background: #f1f5f9; padding: 15px; border-radius: 10px; }}
+                .info-label {{ font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }}
+                .info-value {{ font-size: 15px; margin-top: 5px; font-weight: 600; color: #0f172a; }}
+                .btn {{ display: block; width: 100%; box-sizing: border-box; text-align: center; background: #4F46E5; color: white; padding: 16px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: background 0.3s; }}
+                .btn:hover {{ background: #4338ca; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>NEXUSMINE</h1>
+                    <div class="badge">✓ Document Certifié et Authentique</div>
+                    <p class="description">Ce document a été généré via le système de traçabilité NexusMine.</p>
+                </div>
+                
+                <div class="grid">
+                    <div class="info-item">
+                        <div class="info-label">Référence du Rapport</div>
+                        <div class="info-value">#{report.id}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Titre</div>
+                        <div class="info-value">{report.title}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Type de Rapport</div>
+                        <div class="info-value">{report.get_report_type_display()}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Statut Actuel</div>
+                        <div class="info-value">{report.get_status_display()}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Site concerné</div>
+                        <div class="info-value">{report.site.name if report.site else 'Tous sites'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Auteur (Email)</div>
+                        <div class="info-value">{report.generated_by.email if report.generated_by else 'Système'}</div>
+                    </div>
+                </div>
+                
+                <a href="/api/reports/{report.id}/export_pdf/" class="btn">Télécharger le Document (PDF)</a>
+            </div>
+        </body>
+        </html>
+        """
+        return HttpResponse(html)
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):

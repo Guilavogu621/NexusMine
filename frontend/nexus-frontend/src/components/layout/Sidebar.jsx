@@ -86,8 +86,11 @@ const navigationGroups = [
   {
     name: 'Stock',
     icon: CubeIcon,
-    href: '/stock',
     roles: ['ADMIN', 'SITE_MANAGER', 'SUPERVISOR', 'OPERATOR', 'ANALYST', 'MMG'],
+    children: [
+      { name: 'Mouvements', href: '/stock', icon: CubeIcon },
+      { name: 'Zones / Emplacements', href: '/stock/locations', icon: MapPinIcon },
+    ],
   },
   {
     name: 'Rapports',
@@ -125,10 +128,9 @@ function NavGroup({ group, hasRole }) {
       <NavLink
         to={group.href}
         className={({ isActive }) =>
-          `group flex items-center gap-x-3 rounded-xl px-4 py-3 text-[18px] font-medium transition-all duration-200 ${
-            isActive
-              ? 'bg-slate-800 text-white'
-              : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+          `group flex items-center gap-x-3 rounded-xl px-4 py-3 text-[18px] font-medium transition-all duration-200 ${isActive
+            ? 'bg-slate-800 text-white'
+            : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
           }`
         }
       >
@@ -139,14 +141,14 @@ function NavGroup({ group, hasRole }) {
   }
 
   // Filtrer les enfants par rôle
-  const visibleChildren = group.children.filter(child => 
+  const visibleChildren = group.children.filter(child =>
     !child.roles || hasRole(child.roles)
   );
 
   if (visibleChildren.length === 0) return null;
 
   // Vérifier si un enfant est actif
-  const hasActiveChild = visibleChildren.some(child => 
+  const hasActiveChild = visibleChildren.some(child =>
     location.pathname === child.href || location.pathname.startsWith(child.href + '/')
   );
 
@@ -154,11 +156,10 @@ function NavGroup({ group, hasRole }) {
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[18px] font-medium transition-all duration-200 ${
-          hasActiveChild
+        className={`w-full group flex items-center justify-between rounded-xl px-4 py-3 text-[18px] font-medium transition-all duration-200 ${hasActiveChild
             ? 'bg-slate-800 text-white'
             : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-        }`}
+          }`}
       >
         <span className="flex items-center gap-x-3">
           <group.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -170,7 +171,7 @@ function NavGroup({ group, hasRole }) {
           <ChevronRightIcon className="h-4 w-4 transition-transform" />
         )}
       </button>
-      
+
       {/* Sous-menu */}
       <div className={`overflow-hidden transition-all duration-200 ${isOpen ? 'max-h-48' : 'max-h-0'}`}>
         <ul className="mt-1 ml-8 border-l border-slate-700/30 pl-3 space-y-0.5">
@@ -179,10 +180,9 @@ function NavGroup({ group, hasRole }) {
               <NavLink
                 to={child.href}
                 className={({ isActive }) =>
-                  `group flex items-center gap-x-3 rounded-xl px-3 py-2.5 text-[16px] font-medium transition-all duration-200 ${
-                    isActive
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
+                  `group flex items-center gap-x-3 rounded-xl px-3 py-2.5 text-[16px] font-medium transition-all duration-200 ${isActive
+                    ? 'bg-slate-800 text-white'
+                    : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
                   }`
                 }
               >
@@ -208,9 +208,9 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="shrink-0 px-6 py-5 border-b border-white/[0.06]">
         <div className="flex flex-col items-center gap-2">
-          <img 
-            src="/logo.png" 
-            alt="NexusMine" 
+          <img
+            src="/logo.png"
+            alt="NexusMine"
             className="h-14 w-auto"
           />
           <span className="text-xl font-semibold text-white/90 tracking-tight">NexusMine</span>

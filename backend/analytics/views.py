@@ -11,7 +11,7 @@ from .models import Indicator
 from .serializers import IndicatorSerializer, IndicatorListSerializer
 from accounts.permissions import CanManageAnalytics
 from accounts.mixins import SiteScopedMixin
-from mining_sites.models import MiningSite
+from mining_sites.models import MiningSite, DistributedNode
 from personnel.models import Personnel
 from equipment.models import Equipment
 from incidents.models import Incident
@@ -256,9 +256,29 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
                 'unresolved_incidents': unresolved,
                 'broken_equipment': broken_eq,
                 'total_equipment': total_eq,
+                'geological_reserve': float(site.geological_reserve or 0),
+                'geology_risk_index': site.geology_risk_index,
             })
         
         site_risks.sort(key=lambda x: x['risk_score'], reverse=True)
+        
+        # ══════════════════════════════════════════════
+        # 1.1 INFRASTRUCTURE DISTRIBUÉE (EDGE NODES)
+        # ══════════════════════════════════════════════
+        nodes_qs = DistributedNode.objects.filter(
+            **({'site__in': site_ids} if site_ids is not None else {})
+        ).select_related('site')
+        
+        distributed_nodes = [{
+            'id': node.id,
+            'node_id': node.node_id,
+            'site_name': node.site.name,
+            'status': node.status,
+            'cpu_usage': node.cpu_usage,
+            'memory_usage': node.memory_usage,
+            'last_sync': node.last_sync,
+            'version': node.ai_model_version
+        } for node in nodes_qs]
         
         # ══════════════════════════════════════════════
         # 2. PRÉDICTIONS DE PRODUCTION (TIME SERIES)
@@ -423,6 +443,7 @@ class IndicatorViewSet(SiteScopedMixin, viewsets.ModelViewSet):
         
         return Response({
             'site_risks': site_risks,
+            'distributed_nodes': distributed_nodes,
             'production_forecast': {
                 'next_30d': forecast_30d,
                 'confidence': 85, # Simplifié pour la démo

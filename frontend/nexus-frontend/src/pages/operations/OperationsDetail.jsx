@@ -19,6 +19,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 /* ---------------- CONFIG ---------------- */
 
@@ -158,7 +159,7 @@ export default function OperationsDetail() {
         {/* ── HEADER PREMIUM ── */}
         <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 shadow-xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-          
+
           <div className="relative p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <Link to="/operations" className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white/30 transition-all shadow-lg">
@@ -219,11 +220,11 @@ export default function OperationsDetail() {
         {/* ── CONTENT GRID ── */}
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-2">
-            
+
             <StyledSection icon={BeakerIcon} title="Détails logistiques" iconBg="bg-blue-100">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <DetailCard icon={MapPinIcon} color="text-red-500" label="Site d'opération" value={operation.site_name} />
-                <DetailCard icon={CalendarIcon} color="text-blue-500" label="Date prévue" value={new Date(operation.date).toLocaleDateString('fr-FR')} />
+                <DetailCard icon={CalendarIcon} color="text-blue-500" label="Date prévue" value={formatDateFR(operation.date)} />
                 <DetailCard icon={ClockIcon} color="text-amber-500" label="Horaires" value={`${operation.start_time || '--'} → ${operation.end_time || '--'}`} />
                 <DetailCard icon={ChartBarIcon} color="text-indigo-500" label="Type d'activité" value={typeLabels[operation.operation_type]} />
               </div>
@@ -239,37 +240,37 @@ export default function OperationsDetail() {
           {/* SIDEBAR STATUS */}
           <div className="space-y-6">
             <div className={`p-6 rounded-[32px] border ${cfg.dot.replace('bg-', 'border-').replace('500', '200')} ${cfg.bg} shadow-sm`}>
-               <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-white shadow-sm">
-                    <StatusIcon className={`h-6 w-6 ${cfg.text}`} />
-                  </div>
-                  <div>
-                    <p className={`text-xs font-bold uppercase opacity-70 ${cfg.text}`}>Statut Actuel</p>
-                    <p className={`text-xl font-black ${cfg.text}`}>{cfg.label || operation.status}</p>
-                  </div>
-               </div>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-white shadow-sm">
+                  <StatusIcon className={`h-6 w-6 ${cfg.text}`} />
+                </div>
+                <div>
+                  <p className={`text-xs font-bold uppercase opacity-70 ${cfg.text}`}>Statut Actuel</p>
+                  <p className={`text-xl font-black ${cfg.text}`}>{cfg.label || operation.status}</p>
+                </div>
+              </div>
             </div>
 
             <div className={`p-6 rounded-[32px] border ${valCfg.dot.replace('bg-', 'border-').replace('500', '200')} ${valCfg.bg} shadow-sm`}>
-               <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-white shadow-sm">
-                    <CheckCircleIcon className={`h-6 w-6 ${valCfg.text}`} />
-                  </div>
-                  <div>
-                    <p className={`text-xs font-bold uppercase opacity-70 ${valCfg.text}`}>Validation</p>
-                    <p className={`text-xl font-black ${valCfg.text}`}>{validationLabels[operation.validation_status]}</p>
-                  </div>
-               </div>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-white shadow-sm">
+                  <CheckCircleIcon className={`h-6 w-6 ${valCfg.text}`} />
+                </div>
+                <div>
+                  <p className={`text-xs font-bold uppercase opacity-70 ${valCfg.text}`}>Validation</p>
+                  <p className={`text-xl font-black ${valCfg.text}`}>{validationLabels[operation.validation_status]}</p>
+                </div>
+              </div>
             </div>
 
             <div className="bg-white rounded-[32px] p-2 border border-slate-100 shadow-sm">
-               <div className="px-6 py-4 border-b border-slate-50">
-                  <h3 className="font-bold text-slate-800">Traçabilité</h3>
-               </div>
-               <div className="p-4 space-y-3">
-                  <HistoryItem label="Création" date={operation.created_at} dot="bg-blue-500" />
-                  <HistoryItem label="Mise à jour" date={operation.updated_at} dot="bg-amber-500" />
-               </div>
+              <div className="px-6 py-4 border-b border-slate-50">
+                <h3 className="font-bold text-slate-800">Traçabilité</h3>
+              </div>
+              <div className="p-4 space-y-3">
+                <HistoryItem label="Création" date={operation.created_at} dot="bg-blue-500" />
+                <HistoryItem label="Mise à jour" date={operation.updated_at} dot="bg-amber-500" />
+              </div>
             </div>
           </div>
         </div>
@@ -280,10 +281,10 @@ export default function OperationsDetail() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
           <div className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl animate-scaleIn">
             <div className="flex items-center gap-4 mb-6">
-               <div className="p-3 bg-orange-100 rounded-2xl text-orange-600">
-                  <ExclamationTriangleIcon className="h-6 w-6" />
-               </div>
-               <h3 className="text-xl font-black text-slate-800">Motif du rejet</h3>
+              <div className="p-3 bg-orange-100 rounded-2xl text-orange-600">
+                <ExclamationTriangleIcon className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-black text-slate-800">Motif du rejet</h3>
             </div>
             <textarea
               value={rejectReason}
@@ -338,7 +339,7 @@ function HistoryItem({ label, date, dot }) {
       <div className={`h-2 w-2 rounded-full ${dot}`} />
       <div>
         <p className="text-[10px] font-bold text-slate-400 uppercase">{label}</p>
-        <p className="text-sm font-bold text-slate-700">{new Date(date).toLocaleString('fr-FR')}</p>
+        <p className="text-sm font-bold text-slate-700">{formatDateFR(date, true)}</p>
       </div>
     </div>
   );

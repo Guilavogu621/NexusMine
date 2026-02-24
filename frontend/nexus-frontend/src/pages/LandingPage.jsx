@@ -137,47 +137,46 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
-      }`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
+        }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center">
-              <img
-                src="/logo_nexuss.svg"
-                alt="NexusMine"
-                className="h-12 w-auto"
-              />
-              NexusMine
-
-            </div>
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-indigo-500 rounded-lg blur-md opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                <img
+                  src="/logo_nexuss.png"
+                  alt="NexusMine"
+                  className="h-10 w-auto relative transform group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <span className={`text-xl font-black tracking-tight font-outfit ${isScrolled ? 'text-slate-900' : 'text-white'
+                }`}>
+                Nexus<span className="text-indigo-500">Mine</span>
+              </span>
+            </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
-              }`}>
+              <a href="#features" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
+                }`}>
                 Fonctionnalités
               </a>
-              <a href="#stats" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
-              }`}>
+              <a href="#stats" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
+                }`}>
                 Impact
               </a>
-              <a href="#resources" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
-              }`}>
+              <a href="#resources" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
+                }`}>
                 Ressources
               </a>
-              <a href="#testimonials" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
-              }`}>
+              <a href="#testimonials" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
+                }`}>
                 Témoignages
               </a>
-              <a href="#contact" className={`text-sm font-medium transition-colors ${
-                isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
-              }`}>
+              <a href="#contact" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
+                }`}>
                 Contact
               </a>
             </div>
@@ -186,9 +185,8 @@ export default function LandingPage() {
             <div className="hidden md:flex items-center space-x-4">
               <Link
                 to="/login"
-                className={`text-sm font-medium transition-colors ${
-                  isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
-                }`}
+                className={`text-sm font-medium transition-colors ${isScrolled ? 'text-slate-600 hover:text-indigo-600' : 'text-white hover:text-blue-200'
+                  }`}
               >
                 Connexion
               </Link>
@@ -233,7 +231,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image - Vue aérienne site minier Simandou */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('/vue-aerieenne.png')`,
@@ -257,18 +255,18 @@ export default function LandingPage() {
                 <CpuChipIcon className="h-5 w-5 mr-2" />
                 Plateforme d'Intelligence Minière
               </div>
-              
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-8 tracking-tight font-outfit">
                 Optimisez vos{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400">
                   Opérations Minières
                 </span>{' '}
                 en Guinée
               </h1>
-              
-              <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-xl">
-                NexusMine centralise la gestion de vos sites, équipements, personnel et production 
-                pour une exploitation minière plus efficace, sécurisée et durable.
+
+              <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-xl leading-relaxed font-light">
+                NexusMine est la plateforme d'intelligence géospatiale et opérationnelle
+                conçue pour transformer les défis miniers en opportunités de croissance durable.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -307,7 +305,7 @@ export default function LandingPage() {
             {/* Dashboard Preview - Style CRM Premium */}
             <div className="hidden lg:block relative">
               <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden transform hover:scale-[1.01] transition-transform duration-500" style={{ width: '520px' }}>
-                
+
                 {/* Dashboard Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -328,7 +326,7 @@ export default function LandingPage() {
 
                 {/* Dashboard Content */}
                 <div className="p-4 bg-gray-50">
-                  
+
                   {/* KPI Cards Row 1 */}
                   <div className="grid grid-cols-4 gap-2 mb-3">
                     <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white">
@@ -373,7 +371,7 @@ export default function LandingPage() {
                   <div className="grid grid-cols-5 gap-3">
                     {/* Left Column - Charts */}
                     <div className="col-span-3 space-y-3">
-                      
+
                       {/* Area Chart - Production */}
                       <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
                         <div className="flex items-center justify-between mb-3">
@@ -391,27 +389,27 @@ export default function LandingPage() {
                         <div className="relative h-20">
                           <svg className="w-full h-full" viewBox="0 0 300 80" preserveAspectRatio="none">
                             {/* Grid lines */}
-                            <line x1="0" y1="20" x2="300" y2="20" stroke="#f0f0f0" strokeWidth="1"/>
-                            <line x1="0" y1="40" x2="300" y2="40" stroke="#f0f0f0" strokeWidth="1"/>
-                            <line x1="0" y1="60" x2="300" y2="60" stroke="#f0f0f0" strokeWidth="1"/>
-                            
+                            <line x1="0" y1="20" x2="300" y2="20" stroke="#f0f0f0" strokeWidth="1" />
+                            <line x1="0" y1="40" x2="300" y2="40" stroke="#f0f0f0" strokeWidth="1" />
+                            <line x1="0" y1="60" x2="300" y2="60" stroke="#f0f0f0" strokeWidth="1" />
+
                             {/* Area fill - Bauxite */}
                             <defs>
                               <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3"/>
-                                <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.05"/>
+                                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.05" />
                               </linearGradient>
                               <linearGradient id="cyanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.3"/>
-                                <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.05"/>
+                                <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.05" />
                               </linearGradient>
                             </defs>
-                            
-                            <path d="M0,60 L25,55 L50,35 L75,25 L100,30 L125,35 L150,28 L175,40 L200,35 L225,45 L250,30 L275,25 L300,20 L300,80 L0,80 Z" fill="url(#blueGradient)"/>
-                            <path d="M0,60 L25,55 L50,35 L75,25 L100,30 L125,35 L150,28 L175,40 L200,35 L225,45 L250,30 L275,25 L300,20" fill="none" stroke="#3B82F6" strokeWidth="2"/>
-                            
+
+                            <path d="M0,60 L25,55 L50,35 L75,25 L100,30 L125,35 L150,28 L175,40 L200,35 L225,45 L250,30 L275,25 L300,20 L300,80 L0,80 Z" fill="url(#blueGradient)" />
+                            <path d="M0,60 L25,55 L50,35 L75,25 L100,30 L125,35 L150,28 L175,40 L200,35 L225,45 L250,30 L275,25 L300,20" fill="none" stroke="#3B82F6" strokeWidth="2" />
+
                             {/* Line - Or */}
-                            <path d="M0,65 L25,62 L50,55 L75,50 L100,52 L125,48 L150,45 L175,50 L200,48 L225,52 L250,45 L275,42 L300,38" fill="none" stroke="#06B6D4" strokeWidth="2"/>
+                            <path d="M0,65 L25,62 L50,55 L75,50 L100,52 L125,48 L150,45 L175,50 L200,48 L225,52 L250,45 L275,42 L300,38" fill="none" stroke="#06B6D4" strokeWidth="2" />
                           </svg>
                           {/* Y-axis labels */}
                           <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[8px] text-slate-400 -ml-1">
@@ -441,13 +439,13 @@ export default function LandingPage() {
                         {/* SVG Area Chart */}
                         <div className="relative h-16">
                           <svg className="w-full h-full" viewBox="0 0 300 60" preserveAspectRatio="none">
-                            <line x1="0" y1="15" x2="300" y2="15" stroke="#f0f0f0" strokeWidth="1"/>
-                            <line x1="0" y1="30" x2="300" y2="30" stroke="#f0f0f0" strokeWidth="1"/>
-                            <line x1="0" y1="45" x2="300" y2="45" stroke="#f0f0f0" strokeWidth="1"/>
-                            
-                            <path d="M0,45 L50,40 L100,35 L150,25 L200,30 L250,22 L300,18 L300,60 L0,60 Z" fill="url(#blueGradient)"/>
-                            <path d="M0,45 L50,40 L100,35 L150,25 L200,30 L250,22 L300,18" fill="none" stroke="#3B82F6" strokeWidth="2"/>
-                            <path d="M0,50 L50,45 L100,40 L150,35 L200,32 L250,28 L300,25" fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="4,2"/>
+                            <line x1="0" y1="15" x2="300" y2="15" stroke="#f0f0f0" strokeWidth="1" />
+                            <line x1="0" y1="30" x2="300" y2="30" stroke="#f0f0f0" strokeWidth="1" />
+                            <line x1="0" y1="45" x2="300" y2="45" stroke="#f0f0f0" strokeWidth="1" />
+
+                            <path d="M0,45 L50,40 L100,35 L150,25 L200,30 L250,22 L300,18 L300,60 L0,60 Z" fill="url(#blueGradient)" />
+                            <path d="M0,45 L50,40 L100,35 L150,25 L200,30 L250,22 L300,18" fill="none" stroke="#3B82F6" strokeWidth="2" />
+                            <path d="M0,50 L50,45 L100,40 L150,35 L200,32 L250,28 L300,25" fill="none" stroke="#10B981" strokeWidth="2" strokeDasharray="4,2" />
                           </svg>
                         </div>
                         <div className="flex justify-between mt-1 text-[8px] text-slate-400 px-2">
@@ -458,7 +456,7 @@ export default function LandingPage() {
 
                     {/* Right Column - Donut Charts */}
                     <div className="col-span-2 space-y-3">
-                      
+
                       {/* Donut Chart - Sites par type */}
                       <div className="bg-white rounded-xl p-3 shadow-sm border border-slate-200/60">
                         <span className="text-xs font-semibold text-slate-600">Répartition Sites</span>
@@ -466,11 +464,11 @@ export default function LandingPage() {
                           {/* SVG Donut */}
                           <div className="relative w-16 h-16">
                             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#E5E7EB" strokeWidth="4"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#3B82F6" strokeWidth="4" strokeDasharray="35 65" strokeLinecap="round"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#10B981" strokeWidth="4" strokeDasharray="25 75" strokeDashoffset="-35" strokeLinecap="round"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#F59E0B" strokeWidth="4" strokeDasharray="20 80" strokeDashoffset="-60" strokeLinecap="round"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#EF4444" strokeWidth="4" strokeDasharray="15 85" strokeDashoffset="-80" strokeLinecap="round"/>
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#E5E7EB" strokeWidth="4" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#3B82F6" strokeWidth="4" strokeDasharray="35 65" strokeLinecap="round" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#10B981" strokeWidth="4" strokeDasharray="25 75" strokeDashoffset="-35" strokeLinecap="round" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#F59E0B" strokeWidth="4" strokeDasharray="20 80" strokeDashoffset="-60" strokeLinecap="round" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#EF4444" strokeWidth="4" strokeDasharray="15 85" strokeDashoffset="-80" strokeLinecap="round" />
                             </svg>
                           </div>
                           <div className="ml-2 space-y-1">
@@ -501,11 +499,11 @@ export default function LandingPage() {
                           {/* SVG Donut */}
                           <div className="relative w-16 h-16">
                             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#E5E7EB" strokeWidth="4"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#8B5CF6" strokeWidth="4" strokeDasharray="32 68" strokeLinecap="round"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" strokeWidth="4" strokeDasharray="25 75" strokeDashoffset="-32" strokeLinecap="round"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#F97316" strokeWidth="4" strokeDasharray="22 78" strokeDashoffset="-57" strokeLinecap="round"/>
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="#14B8A6" strokeWidth="4" strokeDasharray="18 82" strokeDashoffset="-79" strokeLinecap="round"/>
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#E5E7EB" strokeWidth="4" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#8B5CF6" strokeWidth="4" strokeDasharray="32 68" strokeLinecap="round" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#EC4899" strokeWidth="4" strokeDasharray="25 75" strokeDashoffset="-32" strokeLinecap="round" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#F97316" strokeWidth="4" strokeDasharray="22 78" strokeDashoffset="-57" strokeLinecap="round" />
+                              <circle cx="18" cy="18" r="14" fill="none" stroke="#14B8A6" strokeWidth="4" strokeDasharray="18 82" strokeDashoffset="-79" strokeLinecap="round" />
                             </svg>
                           </div>
                           <div className="ml-2 space-y-1">
@@ -604,7 +602,7 @@ export default function LandingPage() {
               <span className="text-indigo-600">l'Industrie Minière</span>
             </h2>
             <p className="text-lg text-slate-500 max-w-3xl mx-auto">
-              NexusMine combine les meilleurs outils de gestion pour optimiser 
+              NexusMine combine les meilleurs outils de gestion pour optimiser
               chaque aspect de vos opérations minières.
             </p>
           </div>
@@ -673,8 +671,8 @@ export default function LandingPage() {
                 de la Guinée
               </h2>
               <p className="text-lg text-slate-500 mb-8">
-                La Guinée possède les plus grandes réserves de bauxite au monde et des gisements 
-                exceptionnels d'or, de fer et de diamants. NexusMine est conçu pour optimiser 
+                La Guinée possède les plus grandes réserves de bauxite au monde et des gisements
+                exceptionnels d'or, de fer et de diamants. NexusMine est conçu pour optimiser
                 l'exploitation de ces ressources précieuses.
               </p>
 
@@ -745,11 +743,11 @@ export default function LandingPage() {
                 <span className="text-indigo-600">Équipements Lourds</span>
               </h2>
               <p className="text-lg text-slate-500 mb-8">
-                Réduisez vos temps d'arrêt et optimisez la durée de vie de vos équipements 
-                grâce à notre système d'intelligence artificielle qui anticipe les pannes 
+                Réduisez vos temps d'arrêt et optimisez la durée de vie de vos équipements
+                grâce à notre système d'intelligence artificielle qui anticipe les pannes
                 avant qu'elles ne surviennent.
               </p>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -803,11 +801,11 @@ export default function LandingPage() {
                 Sécurisées
               </h2>
               <p className="text-lg text-slate-300 mb-8">
-                Nos équipes d'experts travaillent dans les conditions les plus exigeantes. 
-                NexusMine assure le suivi en temps réel du personnel, la surveillance des 
+                Nos équipes d'experts travaillent dans les conditions les plus exigeantes.
+                NexusMine assure le suivi en temps réel du personnel, la surveillance des
                 conditions environnementales et la gestion des équipements de sécurité.
               </p>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/10">
                   <div className="text-3xl font-semibold text-yellow-400 mb-2">24/7</div>
@@ -934,7 +932,7 @@ export default function LandingPage() {
             Prêt à Transformer vos Opérations Minières ?
           </h2>
           <p className="text-lg text-slate-300 mb-8">
-            Rejoignez les leaders de l'industrie minière guinéenne qui ont choisi NexusMine 
+            Rejoignez les leaders de l'industrie minière guinéenne qui ont choisi NexusMine
             pour optimiser leur production et améliorer leur performance.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -965,7 +963,7 @@ export default function LandingPage() {
                 Contactez-nous
               </h2>
               <p className="text-lg text-slate-500 mb-8">
-                Notre équipe est disponible pour répondre à toutes vos questions 
+                Notre équipe est disponible pour répondre à toutes vos questions
                 et vous accompagner dans votre transformation digitale.
               </p>
 
@@ -1073,23 +1071,23 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="md:col-span-2">
               <img
-                src="/logo_nexuss.svg"
+                src="/logo_nexuss.png"
                 alt="NexusMine"
                 className="h-10 w-auto mb-4 brightness-200"
               />
               <p className="text-slate-400 mb-6 max-w-md">
-                NexusMine est la plateforme de référence pour la gestion intelligente 
+                NexusMine est la plateforme de référence pour la gestion intelligente
                 des opérations minières en Afrique de l'Ouest.
               </p>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors">
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                   </svg>
                 </a>
                 <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors">
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                   </svg>
                 </a>
               </div>

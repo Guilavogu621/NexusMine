@@ -27,6 +27,13 @@ const typeLabels = {
   SYSTEM: 'Système',
 };
 
+const severityLabels = {
+  LOW: 'Faible',
+  MEDIUM: 'Moyen',
+  HIGH: 'Élevé',
+  CRITICAL: 'Critique',
+};
+
 const typeEmojis = {
   THRESHOLD_EXCEEDED: '📊',
   SAFETY: '🛡️',
@@ -124,7 +131,7 @@ export default function AlertsForm() {
               <rect width="100" height="100" fill="url(#alertGrid)" />
             </svg>
           </div>
-          
+
           <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-5">
               <Link to="/alerts" className="p-3 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-white/30 transition-all shadow-lg">
@@ -139,7 +146,7 @@ export default function AlertsForm() {
                 </p>
               </div>
             </div>
-            
+
             <div className={`hidden md:flex items-center gap-3 bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 shadow-xl`}>
               <span className="text-2xl">{typeEmojis[formData.alert_type]}</span>
               <div className="text-left">
@@ -151,13 +158,13 @@ export default function AlertsForm() {
         </div>
 
         {loading ? (
-           <div className="bg-white/80 backdrop-blur-md rounded-3xl p-20 shadow-xl flex flex-col items-center justify-center">
-             <div className="relative w-16 h-16">
-                <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
-                <div className="absolute inset-0 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent"></div>
-             </div>
-             <p className="mt-6 text-slate-500 font-bold animate-pulse">Synchronisation des données...</p>
-           </div>
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl p-20 shadow-xl flex flex-col items-center justify-center">
+            <div className="relative w-16 h-16">
+              <div className="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent"></div>
+            </div>
+            <p className="mt-6 text-slate-500 font-bold animate-pulse">Synchronisation des données...</p>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
@@ -189,7 +196,7 @@ export default function AlertsForm() {
                     className="w-full rounded-2xl py-4 px-5 bg-white border border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-semibold text-slate-800 shadow-sm"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">Description détaillée *</label>
                   <div className="relative">
@@ -241,17 +248,16 @@ export default function AlertsForm() {
                           key={sev}
                           type="button"
                           onClick={() => setFormData(p => ({ ...p, severity: sev }))}
-                          className={`py-3 px-2 rounded-xl text-xs font-bold border-2 transition-all ${
-                            formData.severity === sev 
-                            ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md' 
-                            : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200'
-                          }`}
+                          className={`py-3 px-2 rounded-xl text-xs font-bold border-2 transition-all ${formData.severity === sev
+                              ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md'
+                              : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200'
+                            }`}
                         >
                           {sev === 'CRITICAL' && '🔥 '}
                           {sev === 'HIGH' && '⚡ '}
                           {sev === 'MEDIUM' && '🛡️ '}
                           {sev === 'LOW' && '🍃 '}
-                          {sev}
+                          {severityLabels[sev]}
                         </button>
                       ))}
                     </div>
@@ -287,8 +293,8 @@ export default function AlertsForm() {
                   <div className="space-y-2">
                     <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Statut du traitement</label>
                     <div className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${currentSeverity.bg} ${currentSeverity.border}`}>
-                       <div className={`h-3 w-3 rounded-full ${currentSeverity.dot} ${currentSeverity.animation}`}></div>
-                       <select
+                      <div className={`h-3 w-3 rounded-full ${currentSeverity.dot} ${currentSeverity.animation}`}></div>
+                      <select
                         name="status"
                         value={formData.status}
                         onChange={handleChange}
@@ -320,7 +326,7 @@ export default function AlertsForm() {
                 className="w-full sm:w-auto flex items-center justify-center gap-3 px-12 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-2xl font-bold shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50"
               >
                 {saving ? (
-                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <CheckCircleIcon className="h-6 w-6" />
                 )}

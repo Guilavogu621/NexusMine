@@ -23,6 +23,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 const typeLabels = {
   EXTRACTION: 'Extraction',
@@ -90,7 +91,7 @@ export default function OperationsList() {
   const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const navigate = useNavigate();
 
-  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isMMG() || isTechnicien();
+  const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isTechnicien();
 
   const stats = {
     total: operations.length,
@@ -109,12 +110,12 @@ export default function OperationsList() {
       if (filterStatus) params.append('status', filterStatus);
       if (filterType) params.append('operation_type', filterType);
       if (filterSite) params.append('site', filterSite);
-      
+
       const [opsRes, sitesRes] = await Promise.all([
         api.get(`/operations/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setOperations(opsRes.data.results || opsRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -164,7 +165,7 @@ export default function OperationsList() {
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
                 <pattern id="operationsGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                  <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100" height="100" fill="url(#operationsGrid)" />
@@ -254,22 +255,20 @@ export default function OperationsList() {
               <div className="flex items-center bg-slate-100/60 rounded-lg p-1 border border-slate-200/60">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-all duration-300 ${
-                    viewMode === 'grid'
-                      ? 'bg-white shadow-sm text-indigo-600'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`p-2 rounded-md transition-all duration-300 ${viewMode === 'grid'
+                    ? 'bg-white shadow-sm text-indigo-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                    }`}
                   title="Vue grille"
                 >
                   <Squares2X2Icon className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-all duration-300 ${
-                    viewMode === 'list'
-                      ? 'bg-white shadow-sm text-indigo-600'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`p-2 rounded-md transition-all duration-300 ${viewMode === 'list'
+                    ? 'bg-white shadow-sm text-indigo-600'
+                    : 'text-slate-400 hover:text-slate-600'
+                    }`}
                   title="Vue tableau"
                 >
                   <ListBulletIcon className="h-5 w-5" />
@@ -415,7 +414,7 @@ export default function OperationsList() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-600">
                         <CalendarDaysIcon className="h-4 w-4 flex-shrink-0" />
-                        <span>{new Date(op.date).toLocaleDateString('fr-FR')}</span>
+                        <span>{formatDateFR(op.date)}</span>
                       </div>
                       {op.quantity_extracted && (
                         <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -513,7 +512,7 @@ export default function OperationsList() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">
-                          {new Date(op.date).toLocaleDateString('fr-FR')}
+                          {formatDateFR(op.date)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-sm font-bold text-slate-900">

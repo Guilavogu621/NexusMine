@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { translateField, translateValue, formatDateFR } from '../../utils/translationUtils';
 
 class AuditAnalyzer {
   static analyzeAnomalies(logs) {
@@ -95,7 +96,7 @@ class AuditAnalyzer {
   static getActionTimeline(logs) {
     const timeline = {};
     logs.forEach(log => {
-      const date = new Date(log.timestamp).toLocaleDateString('fr-FR');
+      const date = formatDateFR(log.timestamp);
       timeline[date] = (timeline[date] || 0) + 1;
     });
     return Object.entries(timeline)
@@ -172,7 +173,7 @@ const AuditDashboard = () => {
     if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
     if (diff < 86400) return `il y a ${Math.floor(diff / 3600)}h`;
     if (diff < 604800) return `il y a ${Math.floor(diff / 86400)}j`;
-    return date.toLocaleDateString('fr-FR');
+    return formatDateFR(date);
   };
 
   useEffect(() => {
@@ -453,7 +454,7 @@ const AuditDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <div className="text-right text-xs text-slate-500">
-                            <div>📅 {new Date(log.timestamp).toLocaleDateString('fr-FR')}</div>
+                            <div>📅 {formatDateFR(log.timestamp)}</div>
                             <div>🕐 {new Date(log.timestamp).toLocaleTimeString('fr-FR')}</div>
                           </div>
                           <button
@@ -483,8 +484,8 @@ const AuditDashboard = () => {
                               <tbody>
                                 {Object.entries(typeof log.old_value === 'string' ? JSON.parse(log.old_value) : log.old_value).map(([key, value], i) => (
                                   <tr key={key} className={i % 2 === 0 ? 'bg-white/50' : 'bg-red-50/30'}>
-                                    <td className="px-4 py-2 font-semibold text-slate-700 whitespace-nowrap">{key}</td>
-                                    <td className="px-4 py-2 text-slate-600 break-all">{String(value)}</td>
+                                    <td className="px-4 py-2 font-semibold text-slate-700 whitespace-nowrap">{translateField(key)}</td>
+                                    <td className="px-4 py-2 text-slate-600 break-all">{translateValue(value)}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -687,10 +688,10 @@ const AuditDashboard = () => {
                   >
                     {/* Color accent bar */}
                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl ${log.action === 'DELETE' ? 'bg-gradient-to-b from-red-500 to-red-600' :
-                        log.action === 'CREATE' ? 'bg-gradient-to-b from-emerald-500 to-emerald-600' :
-                          log.action === 'UPDATE' ? 'bg-gradient-to-b from-blue-500 to-blue-600' :
-                            log.action === 'APPROVE' ? 'bg-gradient-to-b from-purple-500 to-purple-600' :
-                              'bg-gradient-to-b from-slate-400 to-slate-500'
+                      log.action === 'CREATE' ? 'bg-gradient-to-b from-emerald-500 to-emerald-600' :
+                        log.action === 'UPDATE' ? 'bg-gradient-to-b from-blue-500 to-blue-600' :
+                          log.action === 'APPROVE' ? 'bg-gradient-to-b from-purple-500 to-purple-600' :
+                            'bg-gradient-to-b from-slate-400 to-slate-500'
                       }`} />
                     <div className="relative z-10 p-6 pl-7">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -733,7 +734,7 @@ const AuditDashboard = () => {
                               <span className="font-bold text-xs">👤 {log.user_name || log.user_email}</span>
                             </div>
                             <div className="text-xs text-slate-500">
-                              📅 {new Date(log.timestamp).toLocaleDateString('fr-FR')} 🕐 {new Date(log.timestamp).toLocaleTimeString('fr-FR')}
+                              📅 {formatDateFR(log.timestamp, true)}
                             </div>
                             {log.ip_address && (
                               <div className="text-xs text-slate-400 mt-0.5">🌐 {log.ip_address}</div>
@@ -765,8 +766,8 @@ const AuditDashboard = () => {
                                     <tbody>
                                       {Object.entries(typeof log.old_value === 'string' ? JSON.parse(log.old_value) : log.old_value).map(([key, value], i) => (
                                         <tr key={key} className={i % 2 === 0 ? 'bg-white/50' : ''}>
-                                          <td className="px-3 py-1.5 font-semibold text-slate-700 whitespace-nowrap text-xs">{key}</td>
-                                          <td className="px-3 py-1.5 text-slate-600 break-all text-xs">{String(value)}</td>
+                                          <td className="px-3 py-1.5 font-semibold text-slate-700 whitespace-nowrap text-xs">{translateField(key)}</td>
+                                          <td className="px-3 py-1.5 text-slate-600 break-all text-xs">{translateValue(value)}</td>
                                         </tr>
                                       ))}
                                     </tbody>

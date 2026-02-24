@@ -3,11 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
-from .models import Equipment, MaintenanceRecord
+from django.utils import timezone
+from .models import Equipment, MaintenanceRecord, EquipmentTracking
 from .serializers import (
     EquipmentSerializer, EquipmentListSerializer,
     EquipmentStatusUpdateSerializer,
-    MaintenanceRecordSerializer, MaintenanceRecordListSerializer
+    MaintenanceRecordSerializer, MaintenanceRecordListSerializer,
+    EquipmentTrackingSerializer
 )
 from accounts.permissions import CanManageEquipment
 from accounts.mixins import SiteScopedMixin
@@ -37,6 +39,8 @@ class EquipmentViewSet(SiteScopedMixin, viewsets.ModelViewSet):
             return EquipmentListSerializer
         if self.action == 'update_status':
             return EquipmentStatusUpdateSerializer
+        if self.action == 'update_tracking':
+            return EquipmentTrackingSerializer
         return EquipmentSerializer
     
     @action(detail=True, methods=['post'])
@@ -50,6 +54,40 @@ class EquipmentViewSet(SiteScopedMixin, viewsets.ModelViewSet):
             serializer.save()
             return Response(EquipmentSerializer(equipment).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def update_tracking(self, request, pk=None):
+        """Mise à jour de la position GPS en temps réel"""
+        equipment = self.get_object()
+        lat = request.data.get('latitude')
+        lon = request.data.get('longitude')
+        speed = request.data.get('speed', 0.0)
+
+        if lat is None or lon is None:
+            return Response(
+                {"error": "Latitude et Longitude sont requises"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Mettre à jour l'équipement
+        equipment.last_latitude = lat
+        equipment.last_longitude = lon
+        equipment.current_speed = speed
+        equipment.last_position_update = timezone.now()
+        equipment.save()
+
+        # Enregistrer dans l'historique
+        tracking = EquipmentTracking.objects.create(
+            equipment=equipment,
+            latitude=lat,
+            longitude=lon,
+            speed=speed
+        )
+        
+        # BROADCASH REAL-TIME (Simulé ou via Channels si configuré)
+        # self.broadcast_position(equipment)
+
+        return Response(EquipmentTrackingSerializer(tracking).data)
     
     @action(detail=True, methods=['get'])
     def maintenance_history(self, request, pk=None):

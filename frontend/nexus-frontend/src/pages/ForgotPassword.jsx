@@ -71,7 +71,7 @@ export default function ForgotPassword() {
         <div className="flex items-center gap-3 mb-8 justify-center">
           <div className="relative">
             <div className="absolute inset-0 bg-indigo-500 rounded-xl blur-lg opacity-30"></div>
-            <img src="/logo_nexuss.svg" alt="NexusMine" className="h-14 w-auto relative" />
+            <img src="/logo_nexuss.png" alt="NexusMine" className="h-14 w-auto relative" />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-slate-800">NexusMine</h2>

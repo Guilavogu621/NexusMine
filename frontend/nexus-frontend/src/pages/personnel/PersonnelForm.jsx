@@ -16,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import { Avatar } from '../../components/ui/UIComponents';
+import { formatDateFR } from '../../utils/translationUtils';
 import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
 
@@ -315,7 +316,16 @@ export default function PersonnelForm() {
                     if (file) { setPhotoFile(file); setPhotoPreview(URL.createObjectURL(file)); }
                   }}
                 />
-                <span className="text-xs text-slate-400 font-medium">{readOnly ? 'Photo' : 'Cliquer pour changer'}</span>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('personnel-photo-input')?.click()}
+                    className="mt-2 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors"
+                  >
+                    Choisir une photo
+                  </button>
+                )}
+                <span className="text-[10px] text-slate-400 font-medium">{readOnly ? 'Photo' : 'Format JPG ou PNG'}</span>
               </div>
 
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -478,7 +488,7 @@ export default function PersonnelForm() {
                   </span>
                   {formData.hire_date && (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 ring-1 ring-inset ring-gray-600/20">
-                      📅 Embauché le {new Date(formData.hire_date).toLocaleDateString('fr-FR')}
+                      📅 Embauché le {formatDateFR(formData.hire_date)}
                     </span>
                   )}
                 </div>

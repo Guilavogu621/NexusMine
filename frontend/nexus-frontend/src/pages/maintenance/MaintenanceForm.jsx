@@ -86,9 +86,7 @@ export default function MaintenanceForm() {
       navigate('/maintenance');
     } catch (err) {
       console.error('Erreur sauvegarde:', err);
-      setError(err.response?.data?.detail || r) {
-      console.error('Erreur sauvegarde:', err);
-      setError('Impossible d\'enregistrer la maintenance');
+      setError(err.response?.data?.detail || 'Impossible d\'enregistrer la maintenance');
     } finally {
       setSaving(false);
     }
@@ -179,6 +177,8 @@ export default function MaintenanceForm() {
               onChange={handleChange}
               required
               className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
+            />
+          </div>
         </div>
 
         {/* Plage de dates avec validation */}
@@ -211,15 +211,12 @@ export default function MaintenanceForm() {
               className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 
-            <label className="block text-base font-semibold text-slate-700">Coût (GNF)</label>
+          <div>
+            <label className="block text-base font-semibold text-slate-700">Heures au compteur</label>
             <input
               type="number"
-              step="0.01"
-              name="cost"
-              value={formData.cost}
+              name="hours_at_maintenance"
+              value={formData.hours_at_maintenance}
               onChange={handleChange}
               className="mt-2 w-full rounded-xl border border-slate-200/60 px-3 py-3 text-base focus:ring-2 focus:ring-amber-500"
             />
@@ -294,7 +291,7 @@ export default function MaintenanceForm() {
           </button>
           <Link to="/maintenance" className="text-base font-medium text-slate-500 hover:text-slate-600">Annuler</Link>
         </div>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 }

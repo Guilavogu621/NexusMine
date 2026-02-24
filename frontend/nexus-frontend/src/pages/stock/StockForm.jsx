@@ -14,6 +14,7 @@ import {
 import api from '../../api/axios';
 import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
+import SearchableSelect from '../../components/ui/SearchableSelect';
 
 const mineralOptions = [
   { value: 'BAUXITE', label: 'Bauxite', emoji: '🪨' },
@@ -262,8 +263,8 @@ export default function StockForm() {
                         type="button"
                         onClick={() => setFormData(p => ({ ...p, mineral_type: opt.value }))}
                         className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all font-bold text-sm ${formData.mineral_type === opt.value
-                            ? 'border-blue-600 bg-blue-50 text-blue-700'
-                            : 'border-slate-100 hover:border-slate-200 text-slate-500'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          : 'border-slate-100 hover:border-slate-200 text-slate-500'
                           }`}
                       >
                         <span>{opt.emoji}</span> {opt.label}
@@ -311,33 +312,24 @@ export default function StockForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 pt-10 border-t border-slate-50">
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Emplacement Source</label>
-                  <select
-                    name="location"
+                  <SearchableSelect
+                    options={locations}
                     value={formData.location}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all font-bold text-slate-700"
-                  >
-                    <option value="">Sélectionner une zone</option>
-                    {locations.map((loc) => (
-                      <option key={loc.id} value={loc.id}>📍 {loc.code} - {loc.name}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
+                    placeholder="Tapez pour chercher une zone source..."
+                    required={true}
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Emplacement Cible (Optionnel)</label>
-                  <select
-                    name="destination_location"
+                  <SearchableSelect
+                    options={locations}
                     value={formData.destination_location}
-                    onChange={handleChange}
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all font-bold text-slate-700"
-                  >
-                    <option value="">Aucun transfert interne</option>
-                    {locations.map((loc) => (
-                      <option key={loc.id} value={loc.id}>🎯 {loc.code} - {loc.name}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData(prev => ({ ...prev, destination_location: val }))}
+                    placeholder="Tapez pour chercher une zone cible..."
+                    required={false}
+                  />
                 </div>
               </div>
             </div>

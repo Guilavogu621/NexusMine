@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
+import { formatDateFR } from '../../utils/translationUtils';
 
 const typeLabels = {
   ACCIDENT: 'Accident corporel',
@@ -142,13 +143,13 @@ export default function IncidentsDetail() {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-12">
       <div className="max-w-5xl mx-auto px-4 pt-8 space-y-6">
-        
+
         {/* ── HEADER BLEU PREMIUM (Design Capture) ── */}
         <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 shadow-xl">
           <div className="absolute inset-0 opacity-10">
-             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           </div>
-          
+
           <div className="relative p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <Link to="/incidents" className="p-3 bg-white/20 backdrop-blur-md text-white rounded-2xl hover:bg-white/30 transition-all shadow-lg">
@@ -190,7 +191,7 @@ export default function IncidentsDetail() {
         {/* ── CONTENU PRINCIPAL ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-2">
-            
+
             {/* 1. Informations Principales */}
             <StyledSection icon={BeakerIcon} title="Détails de l'incident" iconBg="bg-blue-100">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -212,7 +213,7 @@ export default function IncidentsDetail() {
                   <CalendarIcon className="h-6 w-6 text-blue-500" />
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase">Date</p>
-                    <p className="text-sm font-bold text-slate-700">{new Date(incident.date).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-sm font-bold text-slate-700">{formatDateFR(incident.date)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-[20px]">
@@ -246,45 +247,45 @@ export default function IncidentsDetail() {
           <div className="space-y-6">
             {/* Badge Gravité */}
             <div className={`p-6 rounded-[32px] border ${sevConfig.border} ${sevConfig.bg} shadow-sm`}>
-               <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-2xl bg-white shadow-sm`}>
-                    <ShieldExclamationIcon className={`h-6 w-6 ${sevConfig.text}`} />
-                  </div>
-                  <div>
-                    <p className={`text-xs font-bold uppercase opacity-70 ${sevConfig.text}`}>Gravité</p>
-                    <p className={`text-xl font-black ${sevConfig.text}`}>{severityLabels[incident.severity]}</p>
-                  </div>
-               </div>
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-2xl bg-white shadow-sm`}>
+                  <ShieldExclamationIcon className={`h-6 w-6 ${sevConfig.text}`} />
+                </div>
+                <div>
+                  <p className={`text-xs font-bold uppercase opacity-70 ${sevConfig.text}`}>Gravité</p>
+                  <p className={`text-xl font-black ${sevConfig.text}`}>{severityLabels[incident.severity]}</p>
+                </div>
+              </div>
             </div>
 
             {/* Historique */}
             <div className="bg-white rounded-[32px] p-2 border border-slate-100 shadow-sm">
-               <div className="px-6 py-4 border-b border-slate-50">
-                  <h3 className="font-bold text-slate-800">Historique</h3>
-               </div>
-               <div className="p-4 space-y-3">
-                  <div className="p-4 bg-slate-50 rounded-[20px] flex items-center gap-4">
-                    <div className="h-2 w-2 rounded-full bg-blue-500" />
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Créé le</p>
-                      <p className="text-sm font-bold text-slate-700">{new Date(incident.created_at).toLocaleString()}</p>
-                    </div>
+              <div className="px-6 py-4 border-b border-slate-50">
+                <h3 className="font-bold text-slate-800">Historique</h3>
+              </div>
+              <div className="p-4 space-y-3">
+                <div className="p-4 bg-slate-50 rounded-[20px] flex items-center gap-4">
+                  <div className="h-2 w-2 rounded-full bg-blue-500" />
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Créé le</p>
+                    <p className="text-sm font-bold text-slate-700">{formatDateFR(incident.created_at, true)}</p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-[20px] flex items-center gap-4">
-                    <div className="h-2 w-2 rounded-full bg-amber-500" />
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Dernière modif.</p>
-                      <p className="text-sm font-bold text-slate-700">{new Date(incident.updated_at).toLocaleString()}</p>
-                    </div>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-[20px] flex items-center gap-4">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" />
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Dernière modif.</p>
+                    <p className="text-sm font-bold text-slate-700">{formatDateFR(incident.updated_at, true)}</p>
                   </div>
-                  <div className="p-4 bg-blue-50 rounded-[20px] flex items-center gap-4">
-                    <div className="h-2 w-2 rounded-full bg-blue-600" />
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Statut</p>
-                      <p className="text-sm font-bold text-blue-700">{statusLabels[incident.status]}</p>
-                    </div>
+                </div>
+                <div className="p-4 bg-blue-50 rounded-[20px] flex items-center gap-4">
+                  <div className="h-2 w-2 rounded-full bg-blue-600" />
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Statut</p>
+                    <p className="text-sm font-bold text-blue-700">{statusLabels[incident.status]}</p>
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

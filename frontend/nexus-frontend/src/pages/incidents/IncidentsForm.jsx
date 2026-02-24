@@ -20,26 +20,26 @@ import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
 
 const INCIDENT_TYPES = [
-  { value: 'SAFETY',        label: 'Sécurité',       emoji: '🛡️', gradient: 'from-blue-500 to-blue-600',    bg: 'bg-blue-100 text-blue-700'       },
-  { value: 'EQUIPMENT',     label: 'Équipement',     emoji: '🔧', gradient: 'from-orange-500 to-orange-600', bg: 'bg-orange-100 text-orange-700'   },
-  { value: 'ENVIRONMENTAL', label: 'Environnement',  emoji: '🌿', gradient: 'from-emerald-500 to-emerald-600',bg: 'bg-emerald-100 text-emerald-700' },
-  { value: 'OPERATIONAL',   label: 'Opérationnel',   emoji: '⚙️', gradient: 'from-purple-500 to-purple-600', bg: 'bg-purple-100 text-purple-700'   },
-  { value: 'OTHER',         label: 'Autre',           emoji: '📋', gradient: 'from-slate-500 to-slate-600',  bg: 'bg-slate-100 text-slate-700'     },
+  { value: 'SAFETY', label: 'Sécurité', emoji: '🛡️', gradient: 'from-blue-500 to-blue-600', bg: 'bg-blue-100 text-blue-700' },
+  { value: 'EQUIPMENT', label: 'Équipement', emoji: '🔧', gradient: 'from-orange-500 to-orange-600', bg: 'bg-orange-100 text-orange-700' },
+  { value: 'ENVIRONMENTAL', label: 'Environnement', emoji: '🌿', gradient: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-100 text-emerald-700' },
+  { value: 'OPERATIONAL', label: 'Opérationnel', emoji: '⚙️', gradient: 'from-purple-500 to-purple-600', bg: 'bg-purple-100 text-purple-700' },
+  { value: 'OTHER', label: 'Autre', emoji: '📋', gradient: 'from-slate-500 to-slate-600', bg: 'bg-slate-100 text-slate-700' },
 ];
 
 const SEVERITY_OPTIONS = [
-  { value: 'LOW',      label: 'Faible',   emoji: '🟢', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-300', pulse: false },
-  { value: 'MEDIUM',   label: 'Moyen',    emoji: '🟡', dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-700',     border: 'border-amber-300',   pulse: false },
-  { value: 'HIGH',     label: 'Élevé',    emoji: '🟠', dot: 'bg-orange-500',  badge: 'bg-orange-100 text-orange-700',   border: 'border-orange-300',  pulse: true  },
-  { value: 'CRITICAL', label: 'Critique', emoji: '🔴', dot: 'bg-red-500',     badge: 'bg-red-100 text-red-700',         border: 'border-red-300',     pulse: true  },
+  { value: 'LOW', label: 'Faible', emoji: '🟢', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-300', pulse: false },
+  { value: 'MEDIUM', label: 'Moyen', emoji: '🟡', dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700', border: 'border-amber-300', pulse: false },
+  { value: 'HIGH', label: 'Élevé', emoji: '🟠', dot: 'bg-orange-500', badge: 'bg-orange-100 text-orange-700', border: 'border-orange-300', pulse: true },
+  { value: 'CRITICAL', label: 'Critique', emoji: '🔴', dot: 'bg-red-500', badge: 'bg-red-100 text-red-700', border: 'border-red-300', pulse: true },
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'REPORTED',      label: 'Signalé',              emoji: '📋', dot: 'bg-indigo-500',  badge: 'bg-blue-100/80 text-blue-800'     },
-  { value: 'INVESTIGATING', label: 'En investigation',     emoji: '🔍', dot: 'bg-amber-500',   badge: 'bg-amber-100/80 text-amber-800'   },
-  { value: 'IN_PROGRESS',   label: 'En cours de résolution',emoji: '⚙️', dot: 'bg-purple-500',  badge: 'bg-purple-100/80 text-purple-800' },
-  { value: 'RESOLVED',      label: 'Résolu',               emoji: '✅', dot: 'bg-emerald-500', badge: 'bg-emerald-100/80 text-emerald-800'},
-  { value: 'CLOSED',        label: 'Clôturé',              emoji: '🔒', dot: 'bg-slate-500',   badge: 'bg-slate-100/80 text-slate-800'   },
+  { value: 'REPORTED', label: 'Signalé', emoji: '📋', dot: 'bg-indigo-500', badge: 'bg-blue-100/80 text-blue-800' },
+  { value: 'INVESTIGATING', label: 'En investigation', emoji: '🔍', dot: 'bg-amber-500', badge: 'bg-amber-100/80 text-amber-800' },
+  { value: 'IN_PROGRESS', label: 'En cours de résolution', emoji: '⚙️', dot: 'bg-purple-500', badge: 'bg-purple-100/80 text-purple-800' },
+  { value: 'RESOLVED', label: 'Résolu', emoji: '✅', dot: 'bg-emerald-500', badge: 'bg-emerald-100/80 text-emerald-800' },
+  { value: 'CLOSED', label: 'Clôturé', emoji: '🔒', dot: 'bg-slate-500', badge: 'bg-slate-100/80 text-slate-800' },
 ];
 
 // Style des inputs pour correspondre à la capture
@@ -67,20 +67,20 @@ export default function IncidentsForm() {
   const { readOnly, canSubmit, roleBanner } = useFormPermissions('incidents');
 
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving]   = useState(false);
-  const [error, setError]     = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [sites, setSites]     = useState([]);
+  const [sites, setSites] = useState([]);
 
   const [formData, setFormData] = useState({
     incident_code: '',
     incident_type: 'OTHER',
-    site:          '',
-    date:          new Date().toISOString().split('T')[0],
-    time:          '',
-    severity:      'LOW',
-    status:        'REPORTED',
-    description:   '',
+    site: '',
+    date: new Date().toISOString().split('T')[0],
+    time: '',
+    severity: 'LOW',
+    status: 'REPORTED',
+    description: '',
     actions_taken: '',
   });
 
@@ -91,7 +91,7 @@ export default function IncidentsForm() {
 
   const generateIncidentCode = () => {
     const d = new Date();
-    const code = `INC-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    const code = `INC-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
     setFormData(prev => ({ ...prev, incident_code: code }));
   };
 
@@ -110,12 +110,12 @@ export default function IncidentsForm() {
       setFormData({
         incident_code: response.data.incident_code || '',
         incident_type: response.data.incident_type || 'OTHER',
-        site:          response.data.site          || '',
-        date:          response.data.date          || '',
-        time:          response.data.time          || '',
-        severity:      response.data.severity      || 'LOW',
-        status:        response.data.status        || 'REPORTED',
-        description:   response.data.description   || '',
+        site: response.data.site || '',
+        date: response.data.date || '',
+        time: response.data.time || '',
+        severity: response.data.severity || 'LOW',
+        status: response.data.status || 'REPORTED',
+        description: response.data.description || '',
         actions_taken: response.data.actions_taken || '',
       });
     } catch (err) {
@@ -158,9 +158,9 @@ export default function IncidentsForm() {
     }
   };
 
-  const currentType     = INCIDENT_TYPES.find(t => t.value === formData.incident_type)  || INCIDENT_TYPES[4];
-  const currentSeverity = SEVERITY_OPTIONS.find(s => s.value === formData.severity)       || SEVERITY_OPTIONS[0];
-  const currentStatus   = STATUS_OPTIONS.find(s => s.value === formData.status)           || STATUS_OPTIONS[0];
+  const currentType = INCIDENT_TYPES.find(t => t.value === formData.incident_type) || INCIDENT_TYPES[4];
+  const currentSeverity = SEVERITY_OPTIONS.find(s => s.value === formData.severity) || SEVERITY_OPTIONS[0];
+  const currentStatus = STATUS_OPTIONS.find(s => s.value === formData.status) || STATUS_OPTIONS[0];
 
   if (loading) {
     return (
@@ -177,9 +177,9 @@ export default function IncidentsForm() {
         {/* ── HEADER BLEU (Design Capture) ── */}
         <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 shadow-xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
-             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           </div>
-          
+
           <div className="relative p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <button
@@ -202,8 +202,8 @@ export default function IncidentsForm() {
             </div>
 
             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/30 text-white font-bold">
-               <ChartBarIcon className="h-5 w-5" />
-               {currentType.label}
+              <ChartBarIcon className="h-5 w-5" />
+              {currentType.label}
             </div>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function IncidentsForm() {
           <StyledSection icon={BeakerIcon} title="Informations principales" iconBg="bg-blue-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Type de mesure *</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Type d'incident *</label>
                 <div className="relative">
                   <span className="absolute left-4 top-3.5 text-lg pointer-events-none">📊</span>
                   <select name="incident_type" value={formData.incident_type} onChange={handleChange}
@@ -258,28 +258,28 @@ export default function IncidentsForm() {
           {/* ── 2 · Données de l'incident (Evaluation) ── */}
           <StyledSection icon={ChartBarIcon} title="Évaluation et Gravité" iconBg="bg-blue-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-3">Niveau de sévérité *</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {SEVERITY_OPTIONS.map(option => (
-                      <label key={option.value} className={`
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-3">Niveau de sévérité *</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {SEVERITY_OPTIONS.map(option => (
+                    <label key={option.value} className={`
                         flex items-center justify-center gap-2 p-3 rounded-xl cursor-pointer border-2 transition-all text-sm font-bold
                         ${formData.severity === option.value ? `${option.badge} ${option.border} shadow-sm` : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-white'}
                       `}>
-                        <input type="radio" name="severity" value={option.value} checked={formData.severity === option.value}
-                          onChange={handleChange} disabled={readOnly} className="sr-only" />
-                        {option.label}
-                      </label>
-                    ))}
-                  </div>
+                      <input type="radio" name="severity" value={option.value} checked={formData.severity === option.value}
+                        onChange={handleChange} disabled={readOnly} className="sr-only" />
+                      {option.label}
+                    </label>
+                  ))}
                 </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-3">Statut actuel *</label>
-                  <select name="status" value={formData.status} onChange={handleChange}
-                    disabled={readOnly} className={inputCls}>
-                    {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.emoji} {o.label}</option>)}
-                  </select>
-                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-3">Statut actuel *</label>
+                <select name="status" value={formData.status} onChange={handleChange}
+                  disabled={readOnly} className={inputCls}>
+                  {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.emoji} {o.label}</option>)}
+                </select>
+              </div>
             </div>
           </StyledSection>
 

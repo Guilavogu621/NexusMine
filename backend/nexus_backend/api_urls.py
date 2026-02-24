@@ -9,7 +9,7 @@ from accounts.views import UserViewSet
 from accounts.audit_views import AuditLogViewSet, LockedStatusViewSet
 from accounts.password_reset import password_reset_request, password_reset_confirm
 from nexus_backend.chatbot import chatbot_message
-from mining_sites.views import MiningSiteViewSet
+from mining_sites.views import MiningSiteViewSet, DistributedNodeViewSet
 from personnel.views import PersonnelViewSet
 from equipment.views import EquipmentViewSet, MaintenanceRecordViewSet
 from operations.views import OperationViewSet, WorkZoneViewSet, ShiftViewSet
@@ -23,6 +23,7 @@ from stock.views import StockLocationViewSet, StockMovementViewSet, StockSummary
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'sites', MiningSiteViewSet)
+router.register(r'distributed-nodes', DistributedNodeViewSet, basename='distributed-node')
 router.register(r'personnel', PersonnelViewSet)
 router.register(r'equipment', EquipmentViewSet)
 router.register(r'maintenance', MaintenanceRecordViewSet)

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  EyeIcon, 
-  EyeSlashIcon, 
+import {
+  EyeIcon,
+  EyeSlashIcon,
   SparklesIcon,
   ShieldCheckIcon,
   ChartBarIcon,
@@ -36,37 +36,37 @@ export default function Login() {
           <svg width="100%" height="100%">
             <defs>
               <pattern id="dotPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="#000"/>
+                <circle cx="2" cy="2" r="1" fill="#000" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#dotPattern)"/>
+            <rect width="100%" height="100%" fill="url(#dotPattern)" />
           </svg>
         </div>
 
         <div className="w-full max-w-md relative z-10">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-10">
+          <Link to="/" className="flex items-center gap-3 mb-12 group">
             <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 rounded-xl blur-lg opacity-30"></div>
-              <img 
-                src="/logo_nexuss.svg" 
-                alt="NexusMine" 
-                className="h-14 w-auto relative"
+              <div className="absolute inset-0 bg-indigo-500 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <img
+                src="/logo_nexuss.png"
+                alt="NexusMine"
+                className="h-14 w-auto relative transform group-hover:scale-105 transition-transform duration-300"
               />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800">NexusMine</h2>
-              <p className="text-sm text-indigo-600 font-medium tracking-wide">MINING INTELLIGENCE</p>
+              <h2 className="text-2xl font-black text-slate-800 font-outfit tracking-tight">NexusMine</h2>
+              <p className="text-[10px] text-indigo-600 font-black tracking-[0.2em] uppercase">Mining Intelligence</p>
             </div>
-          </div>
+          </Link>
 
           {/* Titre */}
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-slate-800 mb-2">
-              
+            <h1 className="text-3xl font-extrabold text-slate-900 mb-3 font-outfit tracking-tight">
+              Bienvenue sur NexusMine
             </h1>
-            <p className="text-slate-500">
-              Connectez-vous pour accéder à votre espace de gestion minière
+            <p className="text-slate-500 font-medium">
+              Accédez à la plateforme de gestion minière la plus avancée de Guinée.
             </p>
           </div>
 
@@ -217,7 +217,7 @@ export default function Login() {
       {/* Partie droite - Image du tunnel minier */}
       <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden">
         {/* Image de fond - Tunnel minier */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('/mine-tunnel.png')` }}
         >
@@ -246,13 +246,13 @@ export default function Login() {
               <SparklesIcon className="h-8 w-8 text-yellow-400" />
               <span className="text-yellow-400 font-semibold tracking-wide">INTELLIGENCE MINIÈRE</span>
             </div>
-            
+
             <h2 className="text-4xl xl:text-4xl font-semibold text-white leading-tight mb-6">
               Gérez vos opérations minières avec précision
             </h2>
-            
+
             <p className="text-lg text-slate-300 mb-10 leading-relaxed">
-              Surveillance en temps réel, analytics prédictifs et gestion intelligente 
+              Surveillance en temps réel, analytics prédictifs et gestion intelligente
               pour maximiser la sécurité et la productivité de vos sites.
             </p>
 
@@ -264,22 +264,20 @@ export default function Login() {
                 { icon: BellAlertIcon, text: 'Alertes intelligentes', color: 'yellow' },
                 { icon: CpuChipIcon, text: 'IA prédictive', color: 'purple' },
               ].map((feature, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10 hover:bg-white/10 transition-colors"
                 >
-                  <div className={`p-2 rounded-lg ${
-                    feature.color === 'blue' ? 'bg-indigo-500/20' :
+                  <div className={`p-2 rounded-lg ${feature.color === 'blue' ? 'bg-indigo-500/20' :
                     feature.color === 'green' ? 'bg-green-500/20' :
-                    feature.color === 'yellow' ? 'bg-yellow-500/20' :
-                    'bg-purple-500/20'
-                  }`}>
-                    <feature.icon className={`h-5 w-5 ${
-                      feature.color === 'blue' ? 'text-indigo-400' :
+                      feature.color === 'yellow' ? 'bg-yellow-500/20' :
+                        'bg-purple-500/20'
+                    }`}>
+                    <feature.icon className={`h-5 w-5 ${feature.color === 'blue' ? 'text-indigo-400' :
                       feature.color === 'green' ? 'text-green-400' :
-                      feature.color === 'yellow' ? 'text-yellow-400' :
-                      'text-purple-400'
-                    }`} />
+                        feature.color === 'yellow' ? 'text-yellow-400' :
+                          'text-purple-400'
+                      }`} />
                   </div>
                   <span className="text-white text-base font-medium">{feature.text}</span>
                 </div>

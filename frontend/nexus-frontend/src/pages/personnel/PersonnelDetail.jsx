@@ -45,7 +45,7 @@ const avatarColors = [
 export default function PersonnelDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSupervisor, isAdmin } = useAuthStore();
+  const { isSupervisor, isAdmin, isTechnicien } = useAuthStore();
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -150,7 +150,7 @@ export default function PersonnelDetail() {
                 <span className="text-sm font-bold uppercase tracking-widest font-outfit">Liste Personnel</span>
               </Link>
 
-              {(isSupervisor() || isAdmin()) && (
+              {(isSupervisor() || isAdmin() || isTechnicien()) && (
                 <div className="flex items-center gap-3">
                   <Link
                     to={`/personnel/${id}/edit`}
@@ -159,18 +159,20 @@ export default function PersonnelDetail() {
                     <PencilSquareIcon className="h-4 w-4" />
                     Modifier
                   </Link>
-                  <button
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className="group inline-flex items-center gap-2 px-6 py-3 bg-red-500/10 backdrop-blur-md text-white border border-white/20 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-lg hover:bg-red-600 hover:shadow-red-500/20 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50"
-                  >
-                    {deleting ? (
-                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <TrashIcon className="h-4 w-4 group-hover:animate-bounce" />
-                    )}
-                    Supprimer
-                  </button>
+                  {(isSupervisor() || isAdmin()) && (
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="group inline-flex items-center gap-2 px-6 py-3 bg-red-500/10 backdrop-blur-md text-white border border-white/20 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-lg hover:bg-red-600 hover:shadow-red-500/20 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50"
+                    >
+                      {deleting ? (
+                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <TrashIcon className="h-4 w-4 group-hover:animate-bounce" />
+                      )}
+                      Supprimer
+                    </button>
+                  )}
                 </div>
               )}
             </div>
