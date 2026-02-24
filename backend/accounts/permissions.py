@@ -346,6 +346,9 @@ class CanManageAnalytics(permissions.BasePermission):
             return False
         if request.method in permissions.SAFE_METHODS:
             return True
+        # L'analyste peut créer/modifier mais PAS supprimer
+        if request.method == 'DELETE':
+            return request.user.role == 'ADMIN'
         return request.user.role in ['ADMIN', 'ANALYST']
 
 
