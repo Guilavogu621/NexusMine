@@ -74,7 +74,7 @@ export default function Login() {
           <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-base flex items-center gap-2 animate-shake">
-                <svg className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 {error}
@@ -221,7 +221,7 @@ export default function Login() {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('/mine-tunnel.png')` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-indigo-900/70"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-slate-900/80 via-slate-900/60 to-indigo-900/70"></div>
         </div>
 
         {/* Content overlay */}
@@ -299,7 +299,7 @@ export default function Login() {
               <p className="text-2xl font-semibold text-white">127</p>
               <p className="text-base text-slate-400">Jours sans incident</p>
             </div>
-            <div className="bg-gradient-to-r from-green-500/20 to-green-400/20 backdrop-blur-md rounded-2xl px-6 py-4 border border-green-400/30">
+            <div className="bg-linear-to-r from-green-500/20 to-green-400/20 backdrop-blur-md rounded-2xl px-6 py-4 border border-green-400/30">
               <p className="text-2xl font-semibold text-green-400">99.9%</p>
               <p className="text-base text-green-300">Disponibilité</p>
             </div>

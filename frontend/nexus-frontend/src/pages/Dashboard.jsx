@@ -231,9 +231,9 @@ const ActivityItem = ({ icon: IconComponent, iconBg, title, subtitle, time, stat
       <p className="text-xs text-slate-400 whitespace-nowrap">{time}</p>
       {status && (
         <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold mt-2 ${status === 'success' ? 'bg-emerald-100 text-emerald-700' :
-            status === 'warning' ? 'bg-amber-100 text-amber-700' :
-              status === 'error' ? 'bg-rose-100 text-rose-700' :
-                'bg-slate-100 text-slate-600'
+          status === 'warning' ? 'bg-amber-100 text-amber-700' :
+            status === 'error' ? 'bg-rose-100 text-rose-700' :
+              'bg-slate-100 text-slate-600'
           }`}>
           {status === 'success' ? '✓ Terminé' :
             status === 'warning' ? '⏱ En cours' :
@@ -780,24 +780,24 @@ export default function Dashboard() {
                 <div
                   key={alert.id}
                   className={`group p-5 rounded-xl border-l-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer backdrop-blur-sm ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
-                      ? 'bg-red-50/80 border-red-500 hover:bg-red-100/80'
-                      : alert.severity === 'MEDIUM'
-                        ? 'bg-amber-50/80 border-amber-500 hover:bg-amber-100/80'
-                        : 'bg-slate-50/80 border-slate-400 hover:bg-slate-100/80'
+                    ? 'bg-red-50/80 border-red-500 hover:bg-red-100/80'
+                    : alert.severity === 'MEDIUM'
+                      ? 'bg-amber-50/80 border-amber-500 hover:bg-amber-100/80'
+                      : 'bg-slate-50/80 border-slate-400 hover:bg-slate-100/80'
                     }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`p-2.5 rounded-lg flex-shrink-0 group-hover:scale-110 transition-transform ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
-                        ? 'bg-red-100'
-                        : alert.severity === 'MEDIUM'
-                          ? 'bg-amber-100'
-                          : 'bg-slate-100'
+                      ? 'bg-red-100'
+                      : alert.severity === 'MEDIUM'
+                        ? 'bg-amber-100'
+                        : 'bg-slate-100'
                       }`}>
                       <BellAlertIcon className={`h-5 w-5 ${alert.severity === 'HIGH' || alert.severity === 'CRITICAL'
-                          ? 'text-red-600'
-                          : alert.severity === 'MEDIUM'
-                            ? 'text-amber-600'
-                            : 'text-slate-500'
+                        ? 'text-red-600'
+                        : alert.severity === 'MEDIUM'
+                          ? 'text-amber-600'
+                          : 'text-slate-500'
                         }`} />
                     </div>
                     <div className="flex-1 min-w-0">
