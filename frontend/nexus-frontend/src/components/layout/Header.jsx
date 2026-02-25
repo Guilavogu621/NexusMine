@@ -50,10 +50,17 @@ export default function Header({ onMenuClick }) {
   }, [fetchUnreadAlerts]);
 
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const defaultWsUrl = `${wsProtocol}//${window.location.host}/ws/notifications/`;
-  const wsUrl = import.meta.env.VITE_WS_BASE_URL || defaultWsUrl;
+  const wsBase = import.meta.env.VITE_WS_BASE_URL || `${wsProtocol}//${window.location.host}`;
+  let wsUrl = wsBase;
+  if (!wsUrl.includes('/ws/')) {
+    wsUrl = wsUrl.endsWith('/') ? `${wsUrl}ws/notifications/` : `${wsUrl}/ws/notifications/`;
+  }
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || `${window.location.origin}/api`;
+  const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+  let API_BASE = envApiUrl || `${window.location.origin}/api`;
+  if (envApiUrl && envApiUrl.includes('.') && !envApiUrl.includes('://') && !envApiUrl.startsWith('/')) {
+    API_BASE = `https://${envApiUrl}`;
+  }
   const MEDIA_BASE = API_BASE.replace('/api', '');
 
   useWebSocket(wsUrl, handleWebSocketMessage);

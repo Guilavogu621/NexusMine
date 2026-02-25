@@ -438,7 +438,7 @@ export default function IntelligenceDashboard() {
                 Seuil de danger détecté par l'IA : {hse_correlation?.dynamic_threshold || 75}%
               </div>
 
-              <div className={`mt-6 w-full p-6 rounded-[2rem] border transition-all duration-500 ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200'}`}>
+              <div className={`mt-6 w-full p-6 rounded-4xl border transition-all duration-500 ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-50 border-rose-200' : 'bg-emerald-50 border-emerald-200'}`}>
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-2xl ${hse_correlation?.landslide_risk === 'CRITIQUE' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'}`}>
                     <ExclamationTriangleIcon className="h-6 w-6" />
@@ -618,7 +618,7 @@ function QuickKPI({ label, value, icon: Icon, color = 'text-white' }) {
           <Icon className="h-5 w-5 text-white" />
         </div>
         <div>
-          <p className="text-[10px] font-black text-blue-100 uppercase tracking-[0.1em]">{label}</p>
+          <p className="text-[10px] font-black text-blue-100 uppercase tracking-widest">{label}</p>
           <p className={`text-2xl font-black ${color} font-outfit`}>{value}</p>
         </div>
       </div>

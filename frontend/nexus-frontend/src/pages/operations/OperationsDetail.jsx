@@ -157,7 +157,7 @@ export default function OperationsDetail() {
       <div className="max-w-6xl mx-auto px-4 pt-8 space-y-6">
 
         {/* ── HEADER PREMIUM ── */}
-        <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 shadow-xl animate-fadeInDown">
+        <div className="relative overflow-hidden rounded-[35px] bg-linear-to-r from-blue-600 via-blue-700 to-indigo-700 shadow-xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
           <div className="relative p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">

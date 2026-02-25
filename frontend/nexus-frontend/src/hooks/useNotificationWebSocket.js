@@ -26,8 +26,12 @@ export function useNotificationWebSocket(options = {}) {
 
   const connect = useCallback(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const defaultWsUrl = `${protocol}//${window.location.host}/ws/notifications/`;
-    const wsUrl = import.meta.env.VITE_WS_BASE_URL || defaultWsUrl;
+    const wsBase = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}`;
+    // S'assurer que le chemin /ws/notifications/ est présent
+    let wsUrl = wsBase;
+    if (!wsUrl.includes('/ws/')) {
+      wsUrl = wsUrl.endsWith('/') ? `${wsUrl}ws/notifications/` : `${wsUrl}/ws/notifications/`;
+    }
 
     try {
       wsRef.current = new WebSocket(wsUrl);

@@ -203,7 +203,7 @@ export default function SiteDetail() {
             </div>
 
             <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
-              <div className="relative group flex-shrink-0">
+              <div className="relative group shrink-0">
                 <div className="absolute inset-0 bg-white/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative">
                   <div className={`h-40 w-40 rounded-[32px] bg-white/10 backdrop-blur-md flex items-center justify-center shadow-2xl ring-4 ring-white/30`}>

@@ -144,7 +144,7 @@ export default function AlertsList() {
   const urgentAlertsCount = alerts.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
       {/* Background decoration */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(239,68,68,0.05),transparent_50%),radial-gradient(circle_at_20%_80%,rgba(59,130,246,0.05),transparent_50%)]"></div>
@@ -153,7 +153,7 @@ export default function AlertsList() {
       <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-7xl mx-auto">
 
         {/* Header Premium */}
-        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
+        <div className="group relative bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="alertsGrid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -190,7 +190,7 @@ export default function AlertsList() {
               {canEdit && (
                 <Link
                   to="/alerts/new"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 flex-shrink-0"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 shrink-0"
                 >
                   <PlusIcon className="h-5 w-5" />
                   Nouvelle alerte
@@ -312,7 +312,7 @@ export default function AlertsList() {
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Severity Left Border Indicator */}
-                    <div className={`absolute top-0 bottom-0 left-0 w-1.5 bg-gradient-to-b ${prioConf.gradient}`}></div>
+                    <div className={`absolute top-0 bottom-0 left-0 w-1.5 bg-linear-to-b ${prioConf.gradient}`}></div>
 
                     <div className="p-5 sm:p-6 ml-2">
                       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5">

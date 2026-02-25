@@ -184,20 +184,31 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
  
-#CORS -Autoriser le frontend React & Flutter web
-# En développement : autoriser toutes les origines (Flutter web utilise un port aléatoire)
+# CORS - Autoriser le frontend React & Flutter web
+frontend_url = os.getenv('FRONTEND_URL')
+
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+    ]
 else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        os.getenv('FRONTEND_URL', ''), # URL de ton frontend Vercel
     ]
     CSRF_TRUSTED_ORIGINS = [
-        os.getenv('FRONTEND_URL', 'http://localhost:5173'),
         "https://*.render.com",
     ]
+    
+    if frontend_url:
+        clean_url = frontend_url.rstrip('/')
+        if clean_url not in CORS_ALLOWED_ORIGINS:
+            CORS_ALLOWED_ORIGINS.append(clean_url)
+        if clean_url not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(clean_url)
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CORS_ALLOW_CREDENTIALS = True

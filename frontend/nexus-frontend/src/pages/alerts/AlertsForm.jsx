@@ -113,14 +113,14 @@ export default function AlertsForm() {
   const currentSeverity = severityConfig[formData.severity] || severityConfig.MEDIUM;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative pb-12">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative pb-12">
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_75%,rgba(99,102,241,0.05),transparent_50%)]"></div>
       </div>
 
       <div className="relative max-w-4xl mx-auto pt-8 px-4 sm:px-6">
         {/* Header Premium */}
-        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 rounded-3xl shadow-2xl overflow-hidden mb-8 animate-fadeInDown">
+        <div className="group relative bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-800 rounded-3xl shadow-2xl overflow-hidden mb-8 animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
@@ -249,8 +249,8 @@ export default function AlertsForm() {
                           type="button"
                           onClick={() => setFormData(p => ({ ...p, severity: sev }))}
                           className={`py-3 px-2 rounded-xl text-xs font-bold border-2 transition-all ${formData.severity === sev
-                              ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md'
-                              : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200'
+                            ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-md'
+                            : 'border-transparent bg-slate-100 text-slate-500 hover:bg-slate-200'
                             }`}
                         >
                           {sev === 'CRITICAL' && '🔥 '}
@@ -323,7 +323,7 @@ export default function AlertsForm() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full sm:w-auto flex items-center justify-center gap-3 px-12 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-2xl font-bold shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 px-12 py-4 bg-linear-to-r from-indigo-600 to-indigo-800 text-white rounded-2xl font-bold shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50"
               >
                 {saving ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

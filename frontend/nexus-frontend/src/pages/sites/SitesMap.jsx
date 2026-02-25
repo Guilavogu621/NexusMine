@@ -109,9 +109,9 @@ export default function SitesMap() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/30">
       {/* Header Premium */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 shadow-2xl mx-4 mt-4 mb-6">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-blue-600 via-blue-700 to-indigo-700 shadow-2xl mx-4 mt-4 mb-6">
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
@@ -268,7 +268,7 @@ export default function SitesMap() {
                               </span>
                             </div>
                           </div>
-                          <ChevronRightIcon className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                          <ChevronRightIcon className="h-4 w-4 text-slate-400 shrink-0" />
                         </div>
                       </button>
                     ))}
@@ -314,7 +314,7 @@ export default function SitesMap() {
             {/* Toggle sidebar */}
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="absolute top-4 left-4 z-[1001] p-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
+              className="absolute top-4 left-4 z-1001 p-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
             >
               {showSidebar ? (
                 <XMarkIcon className="h-5 w-5 text-slate-500" />
