@@ -123,7 +123,7 @@ export default function EnvironmentDetail() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-8">
       {/* Premium Header avec bannière */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-600 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-blue-500 via-blue-600 to-cyan-600 shadow-2xl">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -206,7 +206,7 @@ export default function EnvironmentDetail() {
       </div>
 
       {/* Value Highlight Card */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100">
+      <div className="bg-linear-to-r from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100">
         <div className="text-center">
           <p className="text-base font-semibold text-indigo-600 mb-2">Valeur mesurée</p>
           <p className="text-6xl font-bold text-slate-800">
@@ -221,7 +221,7 @@ export default function EnvironmentDetail() {
         {/* Details card */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+            <div className="border-b border-slate-100 px-6 py-4 bg-linear-to-r from-gray-50 to-white">
               <h2 className="text-lg font-semibold text-slate-800">Détails de la mesure</h2>
             </div>
 
@@ -297,7 +297,7 @@ export default function EnvironmentDetail() {
         <div className="space-y-6">
           {/* History card */}
           <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+            <div className="border-b border-slate-100 px-6 py-4 bg-linear-to-r from-gray-50 to-white">
               <h3 className="text-base font-semibold text-slate-800">Historique</h3>
             </div>
             <div className="p-6 space-y-4">

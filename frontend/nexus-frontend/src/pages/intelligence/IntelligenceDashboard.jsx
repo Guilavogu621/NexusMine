@@ -130,7 +130,7 @@ function PriorityBadge({ priority }) {
 function ChartCard({ title, icon: Icon, subtitle, children, className = '' }) {
   return (
     <div className={`group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 hover:border-white/40 p-6 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+      <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-6">
@@ -183,7 +183,7 @@ export default function IntelligenceDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="relative w-20 h-20 mx-auto">
             <div className="absolute inset-0 rounded-full border-4 border-slate-200 animate-spin border-t-indigo-600 border-r-indigo-500"></div>
@@ -197,7 +197,7 @@ export default function IntelligenceDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 flex items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-center max-w-md shadow-lg space-y-4">
           <div className="p-4 bg-red-100 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
             <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
@@ -228,7 +228,7 @@ export default function IntelligenceDashboard() {
   } = data;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
       {/* Background Orbs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
@@ -236,7 +236,7 @@ export default function IntelligenceDashboard() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fadeIn pt-8">
 
         {/* ── HEADER PREMIUM ── */}
-        <div className="group relative overflow-hidden rounded-[40px] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-[40px] bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="intelGrid" width="10" height="10" patternUnits="userSpaceOnUse">

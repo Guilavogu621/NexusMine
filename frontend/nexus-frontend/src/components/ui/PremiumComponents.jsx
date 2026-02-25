@@ -20,10 +20,10 @@ export const PageContainer = ({ children, className = '' }) => (
 );
 
 // Premium Page Header
-export const PremiumPageHeader = ({ 
-  title, 
-  subtitle, 
-  icon: Icon, 
+export const PremiumPageHeader = ({
+  title,
+  subtitle,
+  icon: Icon,
   iconColor = 'bg-indigo-500',
   badge,
   actions,
@@ -67,9 +67,8 @@ export const PremiumPageHeader = ({
               <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
               <p className="text-sm text-slate-500">{stat.label}</p>
               {stat.trend && (
-                <div className={`flex items-center justify-center gap-1 mt-1 text-xs font-medium ${
-                  stat.trendUp ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`flex items-center justify-center gap-1 mt-1 text-xs font-medium ${stat.trendUp ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {stat.trendUp ? (
                     <ArrowTrendingUpIcon className="h-3 w-3" />
                   ) : (
@@ -87,15 +86,15 @@ export const PremiumPageHeader = ({
 );
 
 // Premium Button
-export const PremiumButton = ({ 
-  children, 
-  variant = 'primary', 
+export const PremiumButton = ({
+  children,
+  variant = 'primary',
   size = 'md',
   icon: Icon,
   iconPosition = 'left',
   loading = false,
   className = '',
-  ...props 
+  ...props
 }) => {
   const variants = {
     primary: 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-700',
@@ -139,12 +138,12 @@ export const PremiumButton = ({
 };
 
 // Premium Search & Filters Bar
-export const PremiumFiltersBar = ({ 
-  searchValue, 
-  onSearchChange, 
+export const PremiumFiltersBar = ({
+  searchValue,
+  onSearchChange,
   searchPlaceholder = 'Rechercher...',
   filters = [],
-  children 
+  children
 }) => (
   <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 mb-6">
     <div className="flex flex-col lg:flex-row gap-4">
@@ -208,8 +207,8 @@ export const PremiumDataCard = ({
       className="group relative bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-lg hover:border-indigo-100 transition-all duration-300 cursor-pointer"
     >
       {/* Hover gradient */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/0 to-violet-500/0 group-hover:from-indigo-500/[0.02] group-hover:to-violet-500/[0.02] transition-all"></div>
-      
+      <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-indigo-500/0 to-violet-500/0 group-hover:from-indigo-500/2 group-hover:to-violet-500/2 transition-all"></div>
+
       <div className="relative">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
@@ -226,7 +225,7 @@ export const PremiumDataCard = ({
               )}
             </div>
           </div>
-          
+
           {/* Badges */}
           {badges.length > 0 && (
             <div className="flex gap-2">
@@ -303,17 +302,16 @@ export const PremiumStatsCard = ({
   return (
     <div className="relative overflow-hidden bg-white rounded-2xl border border-slate-100 p-6 hover:shadow-lg transition-all group">
       {/* Background decoration */}
-      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${c.bg} opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`}></div>
-      
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${c.bg} opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`}></div>
+
       <div className="relative">
         <div className="flex items-center justify-between mb-4">
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${c.bg} shadow-lg`}>
+          <div className={`p-3 rounded-xl bg-linear-to-br ${c.bg} shadow-lg`}>
             <Icon className="h-6 w-6 text-white" />
           </div>
           {trend && (
-            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-              trendUp ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}>
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${trendUp ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              }`}>
               {trendUp ? (
                 <ArrowTrendingUpIcon className="h-3 w-3" />
               ) : (
@@ -323,7 +321,7 @@ export const PremiumStatsCard = ({
             </div>
           )}
         </div>
-        
+
         <h3 className="text-sm font-medium text-slate-500 mb-1">{title}</h3>
         <p className="text-3xl font-bold text-slate-800">{value}</p>
         {subtitle && (
@@ -344,7 +342,7 @@ export const PremiumEmptyState = ({
   <div className="flex flex-col items-center justify-center py-16 px-6">
     <div className="relative">
       <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl"></div>
-      <div className="relative w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
+      <div className="relative w-20 h-20 bg-linear-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
         <IconComponent className="h-10 w-10 text-slate-400" />
       </div>
     </div>
@@ -470,11 +468,11 @@ export const ActionButton = ({ icon: Icon, label, onClick, variant = 'default' }
 };
 
 // Export des icônes utilisées fréquemment
-export { 
-  PlusIcon, 
-  EyeIcon, 
-  PencilSquareIcon, 
-  TrashIcon, 
+export {
+  PlusIcon,
+  EyeIcon,
+  PencilSquareIcon,
+  TrashIcon,
   MagnifyingGlassIcon,
-  FunnelIcon 
+  FunnelIcon
 };

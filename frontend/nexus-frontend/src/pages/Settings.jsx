@@ -169,8 +169,8 @@ export default function Settings() {
       {message.text && (
         <div
           className={`flex items-center gap-3 p-4 rounded-2xl shadow-sm ${message.type === 'success'
-              ? 'bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200'
-              : 'bg-linear-to-r from-red-50 to-rose-50 text-red-700 border border-red-200'
+            ? 'bg-linear-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200'
+            : 'bg-linear-to-r from-red-50 to-rose-50 text-red-700 border border-red-200'
             }`}
         >
           <div className={`p-2 rounded-xl ${message.type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -193,8 +193,8 @@ export default function Settings() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2.5 px-5 py-3 text-base font-semibold rounded-xl transition-all duration-300 ${activeTab === tab.id
-                    ? `bg-linear-to-r ${tab.color} text-white shadow-lg`
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                  ? `bg-linear-to-r ${tab.color} text-white shadow-lg`
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                   }`}
               >
                 <tab.icon className="h-5 w-5" />
@@ -450,7 +450,6 @@ export default function Settings() {
                 {/* Delete Account Card */}
                 <div className="bg-linear-to-r from-red-50 to-rose-50 rounded-2xl p-6 border border-red-100">
                   <div className="flex items-start gap-4">
-                    # ── CONTENU ──
                     <div className="p-3 bg-red-100 rounded-xl">
                       <TrashIcon className="h-6 w-6 text-red-600" />
                     </div>

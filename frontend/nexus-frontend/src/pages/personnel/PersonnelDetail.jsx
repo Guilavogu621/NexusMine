@@ -114,7 +114,7 @@ export default function PersonnelDetail() {
   const config = statusConfig[person.status] || statusConfig.ACTIVE;
   const StatusIcon = config.icon;
   const avatarColor = avatarColors[parseInt(id) % avatarColors.length];
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || `${window.location.origin}/api`;
   const MEDIA_BASE = API_BASE.replace('/api', '');
   const photoUrl = person.photo_url
     ? (person.photo_url.startsWith('http') ? person.photo_url : `${MEDIA_BASE}${person.photo_url}`)

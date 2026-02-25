@@ -359,7 +359,6 @@ export default function Profile() {
               disabled={saving}
               className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 px-8 py-3 text-base font-semibold text-white shadow-sm"
             >
-              # ── CONTENU ──
               {saving ? (
                 <>
                   <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

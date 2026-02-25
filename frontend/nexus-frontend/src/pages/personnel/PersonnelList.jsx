@@ -159,14 +159,14 @@ export default function PersonnelList() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100">
       {/* Background Orbs */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
       <div className="relative space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8">
         {/* Header Premium */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="personnelGrid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -311,7 +311,7 @@ export default function PersonnelList() {
           <div className="bg-white/60 backdrop-blur-md rounded-3xl border border-white/40 p-20 text-center animate-fadeInUp shadow-lg">
             <div className="relative inline-block mb-8">
               <div className="absolute inset-0 bg-indigo-500 blur-[80px] opacity-10"></div>
-              <div className="relative w-28 h-28 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl flex items-center justify-center border border-white/60 shadow-inner">
+              <div className="relative w-28 h-28 bg-linear-to-br from-indigo-50 to-blue-50 rounded-3xl flex items-center justify-center border border-white/60 shadow-inner">
                 <UsersIcon className="h-14 w-14 text-indigo-300" />
               </div>
             </div>
@@ -341,10 +341,10 @@ export default function PersonnelList() {
                   className="group relative bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20 p-6 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer overflow-hidden"
                   style={{ animationDelay: `${idx * 40}ms` }}
                 >
-                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${getAvatarColor(idx)} opacity-80`}></div>
+                  <div className={`absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r ${getAvatarColor(idx)} opacity-80`}></div>
 
                   <div className="flex items-center gap-5 mb-6">
-                    <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${getAvatarColor(idx)} shadow-lg flex items-center justify-center group-hover:rotate-6 transition-transform duration-500 ring-4 ring-white`}>
+                    <div className={`relative w-16 h-16 rounded-2xl bg-linear-to-br ${getAvatarColor(idx)} shadow-lg flex items-center justify-center group-hover:rotate-6 transition-transform duration-500 ring-4 ring-white`}>
                       <span className="text-xl font-black text-white">{p.first_name?.[0]}{p.last_name?.[0]}</span>
                       <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${sConf.dot}`}></span>
                     </div>
@@ -423,7 +423,7 @@ export default function PersonnelList() {
                     <tr key={p.id} onClick={() => navigate(`/personnel/${p.id}`)} className="hover:bg-slate-50/50 cursor-pointer transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(idx)} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
+                          <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${getAvatarColor(idx)} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
                             {p.first_name?.[0]}{p.last_name?.[0]}
                           </div>
                           <div>

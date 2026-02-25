@@ -61,12 +61,12 @@ export default function AnalyticsList() {
       if (searchQuery) params.append('search', searchQuery);
       if (filterType) params.append('indicator_type', filterType);
       if (filterSite) params.append('site', filterSite);
-      
+
       const [indicatorsRes, sitesRes] = await Promise.all([
         api.get(`/indicators/?${params.toString()}`),
         api.get('/sites/'),
       ]);
-      
+
       setIndicators(indicatorsRes.data.results || indicatorsRes.data);
       setSites(sitesRes.data.results || sitesRes.data);
     } catch (error) {
@@ -115,23 +115,23 @@ export default function AnalyticsList() {
   return (
     <div className="space-y-6 pb-8">
       {/* Premium Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-500 via-indigo-600 to-violet-600 shadow-2xl">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <pattern id="analyticsListGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#analyticsListGrid)" />
           </svg>
         </div>
-        
+
         {/* Gradient orbs */}
         <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-violet-400 opacity-10 blur-3xl"></div>
-        
+
         <div className="relative px-8 py-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -155,7 +155,7 @@ export default function AnalyticsList() {
               </Link>
             )}
           </div>
-          
+
           {/* Stats row */}
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
@@ -224,7 +224,7 @@ export default function AnalyticsList() {
             </select>
             <button
               type="submit"
-              className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-base font-semibold text-white hover:from-indigo-700 hover:to-violet-700 shadow-sm hover:shadow-md transition-all duration-200"
+              className="rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 px-6 py-3 text-base font-semibold text-white hover:from-indigo-700 hover:to-violet-700 shadow-sm hover:shadow-md transition-all duration-200"
             >
               Rechercher
             </button>
@@ -257,7 +257,7 @@ export default function AnalyticsList() {
             {indicators.map((indicator, index) => {
               const typeConf = typeConfig[indicator.indicator_type] || typeConfig.PRODUCTION;
               const percentage = getPerformancePercentage(indicator.calculated_value, indicator.target_value);
-              
+
               return (
                 <div
                   key={indicator.id}
@@ -297,11 +297,11 @@ export default function AnalyticsList() {
                       )}
                     </div>
                   </div>
-                  
+
                   <h3 className="font-semibold text-slate-800 mb-3">
                     {indicator.name}
                   </h3>
-                  
+
                   <div className="flex items-end justify-between">
                     <div>
                       <p className={`text-2xl font-semibold ${getPerformanceColor(indicator.calculated_value, indicator.target_value)}`}>
@@ -315,15 +315,14 @@ export default function AnalyticsList() {
                       </p>
                     </div>
                     {percentage !== null && (
-                      <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg ${
-                        percentage >= 100 
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : percentage >= 80
+                      <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg ${percentage >= 100
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : percentage >= 80
                           ? 'bg-indigo-50 text-indigo-700'
                           : percentage >= 60
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-red-100 text-red-700'
-                      }`}>
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}>
                         {percentage >= 100 ? (
                           <ArrowTrendingUpIcon className="h-4 w-4" />
                         ) : (
@@ -333,23 +332,22 @@ export default function AnalyticsList() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Progress bar */}
                   {percentage !== null && (
                     <div className="mt-3">
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-500 ${
-                            percentage >= 100 ? 'bg-emerald-500' :
+                          className={`h-full transition-all duration-500 ${percentage >= 100 ? 'bg-emerald-500' :
                             percentage >= 80 ? 'bg-indigo-500' :
-                            percentage >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                          }`}
+                              percentage >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                            }`}
                           style={{ width: `${Math.min(percentage, 100)}%` }}
                         />
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="text-base text-slate-400 pt-3 mt-3 border-t border-slate-200/60">
                     <p>📍 {indicator.site_name || 'Tous sites'}</p>
                   </div>

@@ -64,12 +64,12 @@ export const SkeletonTable = ({ rows = 5, cols = 4 }) => (
 );
 
 // Empty State
-export const EmptyState = ({ 
-  icon: Icon, 
-  title, 
-  description, 
+export const EmptyState = ({
+  icon: Icon,
+  title,
+  description,
   action,
-  className = '' 
+  className = ''
 }) => (
   <div className={`text-center py-12 ${className}`}>
     {Icon && (
@@ -84,12 +84,12 @@ export const EmptyState = ({
 );
 
 // Confirmation Modal
-export const ConfirmModal = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title, 
-  message, 
+export const ConfirmModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
   confirmText = 'Confirmer',
   cancelText = 'Annuler',
   variant = 'danger',
@@ -107,7 +107,7 @@ export const ConfirmModal = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4">
         {/* Backdrop */}
-        <div 
+        <div
           className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
           onClick={onClose}
         ></div>
@@ -115,14 +115,12 @@ export const ConfirmModal = ({
         {/* Modal */}
         <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-modalIn">
           <div className="text-center">
-            <div className={`mx-auto flex items-center justify-center h-14 w-14 rounded-full mb-4 ${
-              variant === 'danger' ? 'bg-red-100' : 
-              variant === 'warning' ? 'bg-amber-100' : 'bg-blue-100'
-            }`}>
-              <svg className={`h-7 w-7 ${
-                variant === 'danger' ? 'text-red-600' : 
-                variant === 'warning' ? 'text-amber-600' : 'text-blue-600'
-              }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className={`mx-auto flex items-center justify-center h-14 w-14 rounded-full mb-4 ${variant === 'danger' ? 'bg-red-100' :
+                variant === 'warning' ? 'bg-amber-100' : 'bg-blue-100'
+              }`}>
+              <svg className={`h-7 w-7 ${variant === 'danger' ? 'text-red-600' :
+                  variant === 'warning' ? 'text-amber-600' : 'text-blue-600'
+                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
@@ -247,7 +245,7 @@ export const StatsMini = ({ label, value, trend, trendUp, icon: IconComponent, c
 // Progress Bar
 export const ProgressBar = ({ value, max = 100, color = 'blue', showLabel = true, size = 'md' }) => {
   const percent = Math.min((value / max) * 100, 100);
-  
+
   const colors = {
     blue: 'bg-blue-500',
     green: 'bg-emerald-500',
@@ -271,7 +269,7 @@ export const ProgressBar = ({ value, max = 100, color = 'blue', showLabel = true
         </div>
       )}
       <div className={`w-full bg-gray-100 rounded-full overflow-hidden ${sizes[size]}`}>
-        <div 
+        <div
           className={`${colors[color]} ${sizes[size]} rounded-full transition-all duration-500 ease-out`}
           style={{ width: `${percent}%` }}
         ></div>
@@ -310,13 +308,13 @@ export const Avatar = ({ src, name, size = 'md', status }) => {
   return (
     <div className="relative inline-flex">
       {src ? (
-        <img 
-          src={src} 
-          alt={name} 
+        <img
+          src={src}
+          alt={name}
           className={`${sizes[size]} rounded-full object-cover ring-2 ring-white`}
         />
       ) : (
-        <div className={`${sizes[size]} rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-semibold ring-2 ring-white`}>
+        <div className={`${sizes[size]} rounded-full bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-semibold ring-2 ring-white`}>
           {initials}
         </div>
       )}

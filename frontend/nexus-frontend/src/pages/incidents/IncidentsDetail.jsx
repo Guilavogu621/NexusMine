@@ -145,7 +145,7 @@ export default function IncidentsDetail() {
       <div className="max-w-5xl mx-auto px-4 pt-8 space-y-6">
 
         {/* ── HEADER BLEU PREMIUM (Design Capture) ── */}
-        <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 shadow-xl">
+        <div className="relative overflow-hidden rounded-[35px] bg-linear-to-r from-blue-500 via-blue-600 to-cyan-500 shadow-xl">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           </div>

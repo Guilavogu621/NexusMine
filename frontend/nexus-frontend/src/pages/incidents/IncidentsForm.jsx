@@ -175,7 +175,7 @@ export default function IncidentsForm() {
       <div className="max-w-5xl mx-auto px-4 pt-8 space-y-6">
 
         {/* ── HEADER BLEU (Design Capture) ── */}
-        <div className="relative overflow-hidden rounded-[35px] bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 shadow-xl animate-fadeInDown">
+        <div className="relative overflow-hidden rounded-[35px] bg-linear-to-r from-blue-500 via-blue-600 to-cyan-500 shadow-xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
           </div>
@@ -331,7 +331,7 @@ export default function IncidentsForm() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-10 py-3 rounded-2xl font-extrabold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg shadow-blue-200 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                className="px-10 py-3 rounded-2xl font-extrabold text-white bg-linear-to-r from-blue-600 to-blue-700 shadow-lg shadow-blue-200 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
               >
                 {saving ? 'Enregistrement...' : isEdit ? "Mettre à jour" : "Enregistrer l'incident"}
               </button>

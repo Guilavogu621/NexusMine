@@ -119,9 +119,9 @@ export default function FloatingChatbot() {
     <>
       {/* ── Panneau Chat ── */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-[9999] w-[380px] max-h-[550px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-24 right-6 z-9999 w-[380px] max-h-[550px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 flex items-center justify-between flex-shrink-0">
+          <div className="bg-linear-to-r from-indigo-600 to-purple-600 px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
               <img
                 src="/logo_nexuss.png"
@@ -174,8 +174,8 @@ export default function FloatingChatbot() {
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${msg.role === 'user'
-                      ? 'bg-indigo-600 text-white rounded-br-md'
-                      : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-md'
+                    ? 'bg-indigo-600 text-white rounded-br-md'
+                    : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-md'
                     }`}
                 >
                   {msg.role === 'assistant' && (
@@ -220,7 +220,7 @@ export default function FloatingChatbot() {
           </div>
 
           {/* Input */}
-          <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
+          <div className="p-3 bg-white border-t border-gray-200 shrink-0">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -235,7 +235,7 @@ export default function FloatingChatbot() {
               <button
                 onClick={sendMessage}
                 disabled={!input.trim() || isLoading}
-                className="flex-shrink-0 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="shrink-0 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <PaperAirplaneIcon className="w-4 h-4" />
               </button>
@@ -250,9 +250,9 @@ export default function FloatingChatbot() {
       {/* ── Bouton Flottant (toujours en bas à droite) ── */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${isOpen
-            ? 'bg-gray-600 hover:bg-gray-700 rotate-0'
-            : 'bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
+        className={`fixed bottom-6 right-6 z-9999 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${isOpen
+          ? 'bg-gray-600 hover:bg-gray-700 rotate-0'
+          : 'bg-linear-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
           }`}
         title="NexusMine Copilot"
       >

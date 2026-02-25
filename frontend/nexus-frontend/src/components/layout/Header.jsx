@@ -53,7 +53,7 @@ export default function Header({ onMenuClick }) {
   const defaultWsUrl = `${wsProtocol}//${window.location.host}/ws/notifications/`;
   const wsUrl = import.meta.env.VITE_WS_BASE_URL || defaultWsUrl;
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || `${window.location.origin}/api`;
   const MEDIA_BASE = API_BASE.replace('/api', '');
 
   useWebSocket(wsUrl, handleWebSocketMessage);

@@ -147,14 +147,14 @@ export default function SiteDetail() {
   const StatusIcon = config.icon;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
       {/* Background Orbs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pt-8">
         {/* ── HEADER PREMIUM ── */}
-        <div className="group relative overflow-hidden rounded-[40px] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-[40px] bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="siteGridPattern" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -286,7 +286,7 @@ export default function SiteDetail() {
           {/* Details card */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-              <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+              <div className="border-b border-slate-100 px-6 py-4 bg-linear-to-r from-gray-50 to-white">
                 <h2 className="text-lg font-semibold text-slate-800">Informations générales</h2>
               </div>
 
@@ -343,7 +343,7 @@ export default function SiteDetail() {
             <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
               <div className="p-6">
                 <div className="flex items-center gap-4 mb-5">
-                  <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-sm">
+                  <div className="p-3 bg-linear-to-br from-blue-500 to-cyan-600 rounded-xl shadow-sm">
                     <MapPinIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -357,7 +357,7 @@ export default function SiteDetail() {
                     href={`https://www.google.com/maps?q=${site.latitude},${site.longitude}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-3 text-sm font-semibold text-white shadow-sm"
+                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 px-4 py-3 text-sm font-semibold text-white shadow-sm"
                   >
                     <GlobeAltIcon className="h-5 w-5" />
                     Voir sur Google Maps
@@ -368,7 +368,7 @@ export default function SiteDetail() {
 
             {/* History card */}
             <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-              <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+              <div className="border-b border-slate-100 px-6 py-4 bg-linear-to-r from-gray-50 to-white">
                 <h3 className="text-base font-semibold text-slate-800">Historique</h3>
               </div>
               <div className="p-6 space-y-4">

@@ -154,7 +154,7 @@ function MapController({ center, zoom }) {
 /* --- Loader --- */
 function MapLoader() {
   return (
-    <div className="absolute inset-0 z-[1100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+    <div className="absolute inset-0 z-1100 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
       <div className="text-center">
         <div className="relative w-16 h-16 mx-auto mb-3">
           <div className="absolute inset-0 rounded-full border-4 border-indigo-200/30"></div>
@@ -214,7 +214,7 @@ export default function GuineaMap({
       {!mapReady && <MapLoader />}
 
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-[1000] bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-indigo-900/95 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4">
+      <div className="absolute top-0 left-0 right-0 z-1000 bg-linear-to-r from-slate-900/95 via-slate-800/95 to-indigo-900/95 backdrop-blur-md px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-500/20 rounded-xl">
@@ -394,7 +394,7 @@ export default function GuineaMap({
 
                 <Link
                   to={`/sites/${site.id}`}
-                  className="block w-full text-center py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-sm"
+                  className="block w-full text-center py-2.5 px-4 bg-linear-to-r from-indigo-600 to-blue-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all shadow-sm"
                 >
                   Voir les détails →
                 </Link>
@@ -443,7 +443,7 @@ export default function GuineaMap({
       </MapContainer>
 
       {/* Overlay infos en bas */}
-      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-12 sm:right-16 z-[1000]">
+      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-12 sm:right-16 z-1000">
         <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-lg px-3 sm:px-5 py-3 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
             <div className="flex items-center gap-2">
@@ -474,7 +474,7 @@ export default function GuineaMap({
 
           <Link
             to="/sites"
-            className="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:shadow-lg transition-all whitespace-nowrap"
+            className="hidden sm:inline-flex px-4 py-2 bg-linear-to-r from-indigo-600 to-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:shadow-lg transition-all whitespace-nowrap"
           >
             Voir tous →
           </Link>

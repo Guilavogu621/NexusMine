@@ -53,7 +53,8 @@ export default function NotificationCenter() {
 
   const connectWebSocket = () => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/notifications/`;
+    const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}`;
+    const wsUrl = `${wsBaseUrl}/ws/notifications/`;
 
     try {
       wsRef.current = new WebSocket(wsUrl);
@@ -243,7 +244,7 @@ export default function NotificationCenter() {
       {isOpen && (
         <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4">
+          <div className="bg-linear-to-r from-indigo-600 to-indigo-700 text-white p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <BellIcon className="h-5 w-5" />
@@ -492,7 +493,7 @@ function PreferencesModal({ preferences, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4 flex items-center justify-between">
+        <div className="bg-linear-to-r from-indigo-600 to-indigo-700 text-white p-4 flex items-center justify-between">
           <h3 className="font-bold">Préférences de notification</h3>
           <button onClick={onClose} className="hover:bg-indigo-500/20 p-1 rounded">
             <XMarkIcon className="h-5 w-5" />

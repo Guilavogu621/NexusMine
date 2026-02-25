@@ -65,7 +65,7 @@ export default function ForgotPassword() {
 
   /* ---- rendu ---- */
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-indigo-50/30 px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8 justify-center">

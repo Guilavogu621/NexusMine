@@ -26,7 +26,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-for-dev-only')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2').split(',')
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 # Application definition
 
 INSTALLED_APPS = [
@@ -194,9 +195,11 @@ else:
         os.getenv('FRONTEND_URL', ''), # URL de ton frontend Vercel
     ]
     CSRF_TRUSTED_ORIGINS = [
-        os.getenv('FRONTEND_URL', ''),
+        os.getenv('FRONTEND_URL', 'http://localhost:5173'),
+        "https://*.render.com",
     ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CORS_ALLOW_CREDENTIALS = True
 
 # Headers autorisés

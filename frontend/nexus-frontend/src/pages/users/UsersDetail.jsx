@@ -18,7 +18,7 @@ import {
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || `${window.location.origin}/api`;
 const MEDIA_BASE = API_BASE.replace('/api', '');
 
 function getPhotoUrl(user) {

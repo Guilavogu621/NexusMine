@@ -43,7 +43,7 @@ const roleConfig = {
   MMG: { bg: 'bg-amber-100/80', text: 'text-amber-700', dot: 'bg-amber-500', border: 'border-amber-200', gradient: 'from-amber-500 to-amber-600' },
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || `${window.location.origin}/api`;
 const MEDIA_BASE = API_BASE.replace('/api', '');
 
 function getPhotoUrl(user) {
