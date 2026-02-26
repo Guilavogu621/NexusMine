@@ -43,7 +43,7 @@ export default function StockLocationForm() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const sitesRes = await api.get('/mining-sites/');
+                const sitesRes = await api.get('/sites/');
                 setSites(sitesRes.data.results || sitesRes.data);
 
                 if (isEdit) {
@@ -124,7 +124,7 @@ export default function StockLocationForm() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] shadow-sm border border-slate-200 p-8">
+                <form onSubmit={handleSubmit} className="bg-white rounded-4xl shadow-sm border border-slate-200 p-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div className="space-y-2 text-left">
@@ -139,7 +139,9 @@ export default function StockLocationForm() {
                             >
                                 <option value="">Sélectionner le site</option>
                                 {sites.map(s => (
-                                    <option key={s.id} value={s.id}>{s.name}</option>
+                                    <option key={s.id} value={s.id}>
+                                        {s.code ? `[${s.code}] ${s.name}` : s.name}
+                                    </option>
                                 ))}
                             </select>
                         </div>

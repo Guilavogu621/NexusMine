@@ -58,6 +58,7 @@ export default function SiteForm() {
   const [assignLoading, setAssignLoading] = useState(false);
 
   const [formData, setFormData] = useState({
+    code: '',
     name: '',
     location: '',
     latitude: '',
@@ -82,6 +83,7 @@ export default function SiteForm() {
       setLoading(true);
       const response = await api.get(`/sites/${id}/`);
       setFormData({
+        code: response.data.code || '',
         name: response.data.name || '',
         location: response.data.location || '',
         latitude: response.data.latitude || '',
@@ -203,14 +205,14 @@ export default function SiteForm() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 pb-12">
       {/* Background Orbs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pt-8">
         {/* ── HEADER PREMIUM ── */}
-        <div className="group relative overflow-hidden rounded-[40px] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-[40px] bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="formGrid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -272,6 +274,17 @@ export default function SiteForm() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <InputField
+                  label="Code du site"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ex: SM-001"
+                  icon={BuildingOffice2Icon}
+                  helper="Identifiant unique du site (ex: SM-001, SIGUIRI-01)"
+                />
+
+                <InputField
                   label="Nom du site"
                   name="name"
                   value={formData.name}
@@ -279,7 +292,6 @@ export default function SiteForm() {
                   required
                   placeholder="Ex: Mine de Siguiri"
                   icon={BuildingOffice2Icon}
-                  className="md:col-span-2"
                 />
 
                 <InputField
