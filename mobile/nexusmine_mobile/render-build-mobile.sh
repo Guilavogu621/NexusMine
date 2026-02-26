@@ -34,7 +34,13 @@ echo "⚙️ Configuration de Flutter..."
 flutter config --no-analytics
 flutter config --enable-web
 
-# 5. Vérification
+# 5. Vérification et Diagnostic
+echo "📂 Dossier actuel : $(pwd)"
+echo "📂 Contenu du dossier :"
+ls -la
+echo "📂 Vérification du dossier lib :"
+ls -la lib/ || echo "❌ Dossier lib non trouvé !"
+
 flutter --version
 
 # 6. Installation des dépendances
@@ -42,13 +48,13 @@ echo "📥 Installation des dépendances (flutter pub get)..."
 flutter pub get
 
 # 7. Build de l'application Web
-# On utilise des variables d'environnement pour les URLs de l'API
 echo "🏗️ Construction de l'application Web..."
-# Note : Si les variables ne sont pas définies dans Render, on utilise des valeurs par défaut
 API_URL=${BASE_URL:-"https://votre-app-backend.onrender.com/api"}
 WEB_SOCKET_URL=${WS_URL:-"wss://votre-app-backend.onrender.com/ws/notifications/"}
 
+# On force l'utilisation de lib/main.dart explicitement
 flutter build web --release \
+  --target lib/main.dart \
   --dart-define=BASE_URL=$API_URL \
   --dart-define=WS_URL=$WEB_SOCKET_URL
 
