@@ -209,6 +209,11 @@ else:
             CORS_ALLOWED_ORIGINS.append(clean_url)
         if clean_url not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(clean_url)
+    
+    # Autoriser dynamiquement toutes les apps sur onrender.com
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^https://.*\.onrender\.com$",
+    ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CORS_ALLOW_CREDENTIALS = True

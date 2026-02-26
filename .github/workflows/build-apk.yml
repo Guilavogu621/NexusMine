@@ -1,0 +1,42 @@
+name: Build NexusMine APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'latest'
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: |
+          cd mobile/nexusmine_mobile
+          flutter pub get
+          
+      - name: Build APK
+        run: |
+          cd mobile/nexusmine_mobile
+          flutter build apk --release \
+            --dart-define=BASE_URL=https://nexus-backend-n9be.onrender.com/api \
+            --dart-define=WS_URL=wss://nexus-backend-n9be.onrender.com/ws/notifications/
+            
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexusmine-mobile-apk
+          path: mobile/nexusmine_mobile/build/app/outputs/flutter-apk/app-release.apk
