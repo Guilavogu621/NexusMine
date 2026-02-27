@@ -72,3 +72,7 @@ app.*.map.json
 *.g.dart
 *.freezed.dart
 *.mocks.dart
+
+# Unignore flutter lib which is ignored by the root Python .gitignore
+!lib/
+!lib/**
