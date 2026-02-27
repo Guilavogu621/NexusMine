@@ -110,6 +110,12 @@ class MiningSite(models.Model):
         help_text="Calculé par l'IA basée sur les sols et l'humidité"
     )
     
+    # Date de mise en service
+    commissioning_date = models.DateField(
+        null=True, blank=True,
+        verbose_name="Mise en service du site"
+    )
+    
     # Date d'obtention de la licence
     license_date = models.DateField(
         null=True, blank=True,

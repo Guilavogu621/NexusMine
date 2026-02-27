@@ -23,7 +23,7 @@ class MiningSiteSerializer(serializers.ModelSerializer):
             'status', 'status_display',
             'operator_name', 'description',
             'geological_reserve', 'geology_risk_index',
-            'license_date', 'license_expiry',
+            'commissioning_date', 'license_date', 'license_expiry',
             'personnel_count', 'equipment_count', 'incidents_count',
             'created_at', 'updated_at'
         ]
@@ -57,6 +57,6 @@ class MiningSiteListSerializer(serializers.ModelSerializer):
             'id', 'code', 'name', 'region', 'prefecture',
             'mineral_type', 'mineral_type_display',
             'site_type', 'status', 'status_display',
-            'operator_name', 'latitude', 'longitude',
-            'personnel_count', 'equipment_count', 'incidents_count'
+            'operator_name', 'location', 'latitude', 'longitude',
+            'commissioning_date', 'personnel_count', 'equipment_count', 'incidents_count'
         ]
