@@ -26,7 +26,23 @@ export function useNotificationWebSocket(options = {}) {
 
   const connect = useCallback(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsBase = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}`;
+
+    // Récupérer la base du backend depuis les variables d'environnement ou axios
+    let apiBase = import.meta.env.VITE_API_BASE_URL || '';
+    let wsHost = window.location.host;
+
+    if (apiBase.startsWith('http')) {
+      // Extraire le host de l'URL de l'API (ex: nexus-backend-n9be.onrender.com)
+      try {
+        const url = new URL(apiBase);
+        wsHost = url.host;
+      } catch (e) {
+        console.error("Invalid VITE_API_BASE_URL", e);
+      }
+    }
+
+    const wsBase = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${wsHost}`;
+
     // S'assurer que le chemin /ws/notifications/ est présent
     let wsUrl = wsBase;
     if (!wsUrl.includes('/ws/')) {

@@ -52,7 +52,7 @@ const typeColors = {
 export default function EnvironmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSupervisor } = useAuthStore();
+  const { isSupervisor, user } = useAuthStore();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);

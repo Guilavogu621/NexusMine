@@ -53,8 +53,22 @@ export default function NotificationCenter() {
 
   const connectWebSocket = () => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${window.location.host}`;
-    const wsUrl = `${wsBaseUrl}/ws/notifications/`;
+
+    // Récupérer le host du backend depuis l'URL de l'API
+    const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+    let wsHost = window.location.host;
+
+    if (apiBase.startsWith('http')) {
+      try {
+        const url = new URL(apiBase);
+        wsHost = url.host;
+      } catch (e) {
+        console.error("Invalid VITE_API_BASE_URL", e);
+      }
+    }
+
+    const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${wsHost}`;
+    const wsUrl = wsBaseUrl.includes('/ws/') ? wsBaseUrl : `${wsBaseUrl}/ws/notifications/`;
 
     try {
       wsRef.current = new WebSocket(wsUrl);

@@ -75,7 +75,7 @@ const statusConfig = {
 export default function AlertsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
+  const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien, isSupervisor } = useAuthStore();
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);

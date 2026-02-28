@@ -50,7 +50,21 @@ export default function Header({ onMenuClick }) {
   }, [fetchUnreadAlerts]);
 
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsBase = import.meta.env.VITE_WS_BASE_URL || `${wsProtocol}//${window.location.host}`;
+
+  // Récupérer le host du backend depuis l'URL de l'API
+  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+  let wsHost = window.location.host;
+
+  if (apiBase.startsWith('http')) {
+    try {
+      const url = new URL(apiBase);
+      wsHost = url.host;
+    } catch (e) {
+      console.error("Invalid VITE_API_BASE_URL", e);
+    }
+  }
+
+  const wsBase = import.meta.env.VITE_WS_BASE_URL || `${wsProtocol}//${wsHost}`;
   let wsUrl = wsBase;
   if (!wsUrl.includes('/ws/')) {
     wsUrl = wsUrl.endsWith('/') ? `${wsUrl}ws/notifications/` : `${wsUrl}/ws/notifications/`;
