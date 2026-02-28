@@ -196,17 +196,17 @@ if DEBUG:
         "http://localhost:8000",
     ]
 else:
-    CORS_ALLOW_ALL_ORIGINS = True  # Autoriser temporairement tout pour débloquer le mobile
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*.onrender.com",
         "https://nexusmine-mobile.onrender.com",
         "https://nexus-frontend-03s4.onrender.com",
     ]
-    CSRF_TRUSTED_ORIGINS = [
-        "https://*.onrender.com",  # Correction de .render.com en .onrender.com
+    CORS_ALLOWED_ORIGINS = [
         "https://nexusmine-mobile.onrender.com",
         "https://nexus-frontend-03s4.onrender.com",
+        "http://localhost:5173",
     ]
     
     if frontend_url:
