@@ -62,9 +62,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Doit impérativement être en premier
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS doit être en haut
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',    
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -195,6 +195,7 @@ if DEBUG:
         "http://localhost:8000",
     ]
 else:
+    CORS_ALLOW_ALL_ORIGINS = True  # Autoriser temporairement tout pour débloquer le mobile
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
@@ -202,7 +203,7 @@ else:
         "https://nexus-frontend-03s4.onrender.com",
     ]
     CSRF_TRUSTED_ORIGINS = [
-        "https://*.render.com",
+        "https://*.onrender.com",  # Correction de .render.com en .onrender.com
         "https://nexusmine-mobile.onrender.com",
         "https://nexus-frontend-03s4.onrender.com",
     ]
