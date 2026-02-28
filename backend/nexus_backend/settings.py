@@ -198,9 +198,13 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://nexusmine-mobile.onrender.com",
+        "https://nexus-frontend-03s4.onrender.com",
     ]
     CSRF_TRUSTED_ORIGINS = [
         "https://*.render.com",
+        "https://nexusmine-mobile.onrender.com",
+        "https://nexus-frontend-03s4.onrender.com",
     ]
     
     if frontend_url:
