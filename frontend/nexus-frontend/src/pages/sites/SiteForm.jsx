@@ -22,6 +22,7 @@ import {
   FormSection,
   Separator,
   Alert,
+  DateField,
 } from '../../components/ui';
 import PageHeader from '../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../components/ui/UIComponents';
@@ -325,13 +326,11 @@ export default function SiteForm() {
                   options={STATUS_OPTIONS}
                 />
 
-                <InputField
+                <DateField
                   label="Date de mise en service"
                   name="commissioning_date"
-                  type="date"
                   value={formData.commissioning_date}
                   onChange={handleChange}
-                  icon={DocumentTextIcon}
                 />
               </div>
             </FormSection>
