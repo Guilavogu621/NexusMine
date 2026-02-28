@@ -58,10 +58,12 @@ class MiningSite(models.Model):
     # Coordonnées GPS
     latitude = models.DecimalField(
         max_digits=9, decimal_places=6,
+        null=True, blank=True,
         verbose_name="Latitude"
     )
     longitude = models.DecimalField(
         max_digits=9, decimal_places=6,
+        null=True, blank=True,
         verbose_name="Longitude"
     )
     

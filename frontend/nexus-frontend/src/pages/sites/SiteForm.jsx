@@ -66,6 +66,7 @@ export default function SiteForm() {
     site_type: 'OPEN_PIT',
     status: 'ACTIVE',
     description: '',
+    commissioning_date: '',
   });
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function SiteForm() {
         site_type: response.data.site_type || 'OPEN_PIT',
         status: response.data.status || 'ACTIVE',
         description: response.data.description || '',
+        commissioning_date: response.data.commissioning_date || '',
       });
     } catch (error) {
       console.error('Erreur lors du chargement du site:', error);
@@ -321,6 +323,15 @@ export default function SiteForm() {
                   onChange={handleChange}
                   required
                   options={STATUS_OPTIONS}
+                />
+
+                <InputField
+                  label="Date de mise en service"
+                  name="commissioning_date"
+                  type="date"
+                  value={formData.commissioning_date}
+                  onChange={handleChange}
+                  icon={DocumentTextIcon}
                 />
               </div>
             </FormSection>

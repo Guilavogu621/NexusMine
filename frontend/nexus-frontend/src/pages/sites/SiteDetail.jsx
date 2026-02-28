@@ -326,6 +326,18 @@ export default function SiteDetail() {
                     </dd>
                   </div>
 
+                  <div className="bg-slate-50 rounded-xl p-4">
+                    <dt className="text-base font-semibold text-slate-500 mb-1">Date de mise en service</dt>
+                    <dd className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                      <CalendarIcon className="h-5 w-5 text-slate-400" />
+                      {site.commissioning_date ? new Date(site.commissioning_date).toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      }) : 'Non renseignée'}
+                    </dd>
+                  </div>
+
                   <div className="sm:col-span-2 bg-slate-50 rounded-xl p-4">
                     <dt className="text-base font-semibold text-slate-500 mb-2">Description</dt>
                     <dd className="text-base text-slate-600 leading-relaxed">
