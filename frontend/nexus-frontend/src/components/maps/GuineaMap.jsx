@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, GeoJSON, Circle, ZoomControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, GeoJSON, Circle, ZoomControl, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
@@ -188,13 +188,24 @@ export default function GuineaMap({
 
   /* --- Styles --- */
   const borderStyle = {
-    color: '#6366F1',
-    weight: 2.5,
-    opacity: 0.7,
-    fillColor: '#6366F1',
-    fillOpacity: 0.04,
-    dashArray: '8, 6',
+    color: '#1e293b', // Sombre pour bien délimiter la frontière
+    weight: 3,
+    opacity: 0.85,
+    fillColor: 'transparent', // Transparent pour voir le relief
+    fillOpacity: 0,
+    dashArray: '8, 8',
   };
+
+  /* --- Itinéraire Principal (Exemple: Transguinéen) --- */
+  const simandouRoute = [
+    [9.33, -13.25],  // Port de Moribaya
+    [9.50, -13.00],  // Forécariah
+    [10.06, -12.86], // Kindia
+    [10.40, -12.10], // Mamou (contournement)
+    [10.10, -10.85], // Faranah
+    [9.55, -9.60],   // Kissidougou
+    [8.85, -8.90],   // Simandou / Kérouané
+  ];
 
   const getMarkerIcon = (site) => {
     let color = statusColors[site.status] || statusColors.ACTIVE;
@@ -253,14 +264,28 @@ export default function GuineaMap({
         {/* Zoom controls — bottom-right */}
         {interactive && <ZoomControl position="bottomright" />}
 
-        {/* Fond de carte — CartoDB Voyager (clean & modern) */}
+        {/* Fond de carte — Topographique (Esri World Topo Map) */}
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
         />
 
         {/* Frontière de la Guinée */}
         {showBorder && <GeoJSON data={guineaBorder} style={() => borderStyle} />}
+
+        {/* Itinéraire Principal (Rail Simandou) */}
+        {showBorder && (
+          <>
+            <Polyline
+              positions={simandouRoute}
+              pathOptions={{ color: '#1e293b', weight: 4, opacity: 0.9 }}
+            />
+            <Polyline
+              positions={simandouRoute}
+              pathOptions={{ color: '#ffffff', weight: 4, dashArray: '6, 8', opacity: 0.9 }}
+            />
+          </>
+        )}
 
         {/* Zones d'exploitation (cercles) autour de chaque site actif */}
         {showZones && sites
