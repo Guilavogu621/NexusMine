@@ -258,7 +258,105 @@ class PDFExportMixin:
         doc.build(elements)
         buffer.seek(0)
         
-        # Retourner le fichier
-        filename = f"{slugify(model_name)}-{obj.id}.pdf"
+    @action(detail=False, methods=['get'])
+    def export_pdf_list(self, request):
+        """
+        Exporte les données filtrées en format PDF (Tableau Premium)
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        model_name = self.get_queryset().model._meta.verbose_name_plural.upper()
+        
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, 
+            pagesize=A4, # A4 par défaut, ou paysage si beaucoup de colonnes?
+            rightMargin=30, leftMargin=30,
+            topMargin=50, bottomMargin=50
+        )
+        elements = []
+        
+        # Couleurs Premium
+        PREMIUM_INDIGO = colors.HexColor('#4F46E5')
+        BORDER_LIGHT = colors.HexColor('#E2E8F0')
+        DARK_TEXT = colors.HexColor('#0F172A')
+        
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'ListTitle',
+            fontSize=18,
+            textColor=PREMIUM_INDIGO,
+            spaceAfter=20,
+            fontName='Helvetica-Bold',
+        )
+        
+        header_style = ParagraphStyle(
+            'TableHeader',
+            fontSize=8,
+            textColor=colors.whitesmoke,
+            fontName='Helvetica-Bold',
+        )
+        
+        cell_style = ParagraphStyle(
+            'TableCell',
+            fontSize=7,
+            textColor=DARK_TEXT,
+        )
+        
+        # Header
+        elements.append(Paragraph(f"RAPPORT DES {model_name}", title_style))
+        elements.append(Paragraph(f"Généré le {datetime.now().strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
+        elements.append(Spacer(1, 0.3*inch))
+        
+        # Déterminer les colonnes
+        if hasattr(self, 'export_fields'):
+            fields = self.export_fields
+        else:
+            fields = [f.name for f in queryset.model._meta.fields if not f.name in ['id', 'created_at', 'updated_at']]
+            
+        # Préparer les données du tableau
+        table_data = [[Paragraph(f.replace('_', ' ').upper(), header_style) for f in fields]]
+        
+        for obj in queryset:
+            row = []
+            for field in fields:
+                try:
+                    val = getattr(obj, field)
+                    if hasattr(val, 'all') and callable(val.all): # M2M
+                        val = ", ".join([str(item) for item in val.all()])
+                    elif isinstance(val, (datetime, date)) or hasattr(val, 'strftime'):
+                        val = val.strftime('%d/%m/%Y')
+                    elif hasattr(val, 'email'): val = val.email
+                    elif hasattr(val, 'name'): val = val.name
+                except Exception:
+                    val = ""
+                row.append(Paragraph(str(val) if val is not None else "", cell_style))
+            table_data.append(row)
+        
+        # Créer le tableau (auto-size)
+        table = Table(table_data, repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), PREMIUM_INDIGO),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F8FAFC')),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_LIGHT),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        
+        elements.append(table)
+        
+        # Footer
+        elements.append(Spacer(1, 0.5*inch))
+        elements.append(Paragraph(
+            f"Extraction NexusMine - {queryset.count()} éléments exportés.",
+            ParagraphStyle('Footer', fontSize=8, textColor=colors.grey, alignment=1)
+        ))
+        
+        doc.build(elements)
+        buffer.seek(0)
+        
+        filename = f"export_{slugify(model_name)}_{datetime.now().strftime('%Y%m%d')}.pdf"
         return FileResponse(buffer, as_attachment=True, filename=filename, content_type='application/pdf')
 

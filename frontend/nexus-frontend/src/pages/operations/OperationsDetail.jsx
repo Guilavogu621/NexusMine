@@ -91,8 +91,30 @@ export default function OperationsDetail() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [validating, setValidating] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
+
+  const handleExportPDF = async () => {
+    try {
+      setExporting(true);
+      const response = await api.get(`/operations/${id}/export_pdf/`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `operation_${operation.operation_code}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Erreur lors de la génération du PDF');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     api.get(`/operations/${id}/`)
@@ -177,6 +199,18 @@ export default function OperationsDetail() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleExportPDF}
+                disabled={exporting}
+                className="px-5 py-2.5 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold shadow-lg hover:bg-white/30 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                {exporting ? (
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <DocumentTextIcon className="h-5 w-5" />
+                )}
+                Exporter PDF
+              </button>
               {isSiteManager() && operation.validation_status === 'PENDING' && (
                 <>
                   <button onClick={() => handleValidate('approve')} disabled={validating} className="px-5 py-2.5 bg-emerald-500 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-600 transition-all flex items-center gap-2">

@@ -21,6 +21,7 @@ import {
   FunnelIcon,
   XMarkIcon,
   ArrowDownTrayIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -120,6 +121,36 @@ export default function OperationsList() {
     } catch (error) {
       console.error('Erreur export:', error);
       alert('Erreur lors de l\'exportation');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      setExportLoading(true);
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (filterStatus) params.append('status', filterStatus);
+      if (filterType) params.append('operation_type', filterType);
+      if (filterSite) params.append('site', filterSite);
+      if (filterDateGte) params.append('date__gte', filterDateGte);
+      if (filterDateLte) params.append('date__lte', filterDateLte);
+
+      const response = await api.get(`/operations/export_pdf_list/?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `operations_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Erreur export PDF:', error);
+      alert('Erreur lors de l\'exportation PDF');
     } finally {
       setExportLoading(false);
     }
@@ -231,6 +262,18 @@ export default function OperationsList() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <button
+                  onClick={handleExportPDF}
+                  disabled={exportLoading}
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:bg-slate-50 transition-all duration-300 disabled:opacity-50"
+                >
+                  {exportLoading ? (
+                    <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <DocumentTextIcon className="h-5 w-5" />
+                  )}
+                  Exporter PDF
+                </button>
                 <button
                   onClick={handleExport}
                   disabled={exportLoading}

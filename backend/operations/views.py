@@ -53,9 +53,10 @@ class ShiftViewSet(SiteScopedMixin, viewsets.ModelViewSet):
         serializer = ShiftSerializer(shifts, many=True)
         return Response(serializer.data)
 from nexus_backend.csv_export import CSVExportMixin
+from nexus_backend.pdf_export import PDFExportMixin
 
 
-class OperationViewSet(CSVExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
+class OperationViewSet(CSVExportMixin, PDFExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des opérations
 
     Permissions:
