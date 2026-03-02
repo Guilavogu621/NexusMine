@@ -342,11 +342,25 @@ export default function IncidentsList() {
                         </div>
                       </div>
                     </div>
-                    {/* Code Display */}
-                    <div className={`text-center py-5 bg-linear-to-r ${typeConf.gradient} rounded-xl mb-4 shadow-sm group-hover:shadow-md transition-shadow`}>
-                      <p className="text-3xl font-bold text-white font-outfit">
-                        {incident.incident_code}
-                      </p>
+                    {/* Code Display / Thumbnail */}
+                    <div className="relative h-32 rounded-xl mb-4 overflow-hidden group/img shadow-sm group-hover:shadow-md transition-all">
+                      {incident.photo ? (
+                        <img
+                          src={incident.photo}
+                          alt={incident.incident_code}
+                          className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className={`absolute inset-0 bg-linear-to-r ${typeConf.gradient} flex items-center justify-center opacity-90`}>
+                          <span className="text-4xl opacity-50">{typeEmojis[incident.incident_type]}</span>
+                        </div>
+                      )}
+                      {/* Overlay code */}
+                      <div className="absolute inset-0 bg-slate-900/30 flex flex-col items-center justify-center backdrop-blur-[1px] group-hover:bg-slate-900/10 transition-all duration-300">
+                        <p className="text-2xl font-black text-white font-outfit tracking-tighter drop-shadow-lg">
+                          {incident.incident_code}
+                        </p>
+                      </div>
                     </div>
                     {/* Details */}
                     <div className="space-y-3 mb-4">

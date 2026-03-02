@@ -13,17 +13,21 @@ import {
   XCircleIcon,
   WrenchScrewdriverIcon,
   BeakerIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  PhotoIcon,
+  CloudArrowUpIcon
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useFormPermissions from '../../hooks/useFormPermissions';
 import ReadOnlyBanner from '../../components/ui/ReadOnlyBanner';
 
 const INCIDENT_TYPES = [
-  { value: 'SAFETY', label: 'Sécurité', emoji: '🛡️', gradient: 'from-blue-500 to-blue-600', bg: 'bg-blue-100 text-blue-700' },
-  { value: 'EQUIPMENT', label: 'Équipement', emoji: '🔧', gradient: 'from-orange-500 to-orange-600', bg: 'bg-orange-100 text-orange-700' },
-  { value: 'ENVIRONMENTAL', label: 'Environnement', emoji: '🌿', gradient: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-100 text-emerald-700' },
-  { value: 'OPERATIONAL', label: 'Opérationnel', emoji: '⚙️', gradient: 'from-purple-500 to-purple-600', bg: 'bg-purple-100 text-purple-700' },
+  { value: 'ACCIDENT', label: 'Accident corporel', emoji: '🚑', gradient: 'from-red-500 to-red-600', bg: 'bg-red-100 text-red-700' },
+  { value: 'EQUIPMENT_FAILURE', label: 'Panne équipement', emoji: '🔧', gradient: 'from-orange-500 to-orange-600', bg: 'bg-orange-100 text-orange-700' },
+  { value: 'ENVIRONMENTAL', label: 'Incident environnemental', emoji: '🌿', gradient: 'from-emerald-500 to-emerald-600', bg: 'bg-emerald-100 text-emerald-700' },
+  { value: 'SECURITY', label: 'Incident de sécurité', emoji: '🔒', gradient: 'from-purple-500 to-purple-600', bg: 'bg-purple-100 text-purple-700' },
+  { value: 'LANDSLIDE', label: 'Glissement de terrain', emoji: '⛰️', gradient: 'from-amber-500 to-amber-600', bg: 'bg-amber-100 text-amber-700' },
+  { value: 'FIRE', label: 'Incendie', emoji: '🔥', gradient: 'from-red-500 to-red-600', bg: 'bg-red-100 text-red-700' },
   { value: 'OTHER', label: 'Autre', emoji: '📋', gradient: 'from-slate-500 to-slate-600', bg: 'bg-slate-100 text-slate-700' },
 ];
 
@@ -71,6 +75,8 @@ export default function IncidentsForm() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [sites, setSites] = useState([]);
+  const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
 
   const [formData, setFormData] = useState({
     incident_code: '',
@@ -107,21 +113,37 @@ export default function IncidentsForm() {
     try {
       setLoading(true);
       const response = await api.get(`/incidents/${id}/`);
+      const data = response.data;
       setFormData({
-        incident_code: response.data.incident_code || '',
-        incident_type: response.data.incident_type || 'OTHER',
-        site: response.data.site || '',
-        date: response.data.date || '',
-        time: response.data.time || '',
-        severity: response.data.severity || 'LOW',
-        status: response.data.status || 'REPORTED',
-        description: response.data.description || '',
-        actions_taken: response.data.actions_taken || '',
+        incident_code: data.incident_code || '',
+        incident_type: data.incident_type || 'OTHER',
+        site: data.site || '',
+        date: data.date || '',
+        time: data.time || '',
+        severity: data.severity || 'LOW',
+        status: data.status || 'REPORTED',
+        description: data.description || '',
+        actions_taken: data.actions_taken || '',
       });
+      if (data.photo) {
+        setPhotoPreview(data.photo);
+      }
     } catch (err) {
       setError('Impossible de charger les données');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -136,11 +158,30 @@ export default function IncidentsForm() {
     setError(null);
     setSaving(true);
     try {
-      const dataToSend = { ...formData, time: formData.time || null };
+      const formDataToSend = new FormData();
+
+      // On ajoute tous les champs classiques
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      // Ajout de la photo si présente
+      if (photo) {
+        formDataToSend.append('photo', photo);
+      }
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
       if (isEdit) {
-        await api.put(`/incidents/${id}/`, dataToSend);
+        await api.put(`/incidents/${id}/`, formDataToSend, config);
       } else {
-        await api.post('/incidents/', dataToSend);
+        await api.post('/incidents/', formDataToSend, config);
       }
       setSuccess(true);
       setTimeout(() => navigate('/incidents'), 1500);
@@ -313,6 +354,45 @@ export default function IncidentsForm() {
                 <textarea name="actions_taken" value={formData.actions_taken} onChange={handleChange}
                   rows={3} disabled={readOnly}
                   className={inputCls + ' resize-none'} placeholder="Mesures immédiates..." />
+              </div>
+            </div>
+          </StyledSection>
+
+          {/* ── 5 · Preuves visuelles (Photo) ── */}
+          <StyledSection icon={PhotoIcon} title="Preuves visuelles (Photo)" iconBg="bg-blue-100">
+            <div className="space-y-4">
+              <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl p-8 bg-slate-50/50 hover:bg-slate-100 transition-all cursor-pointer relative overflow-hidden group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                  disabled={readOnly}
+                />
+
+                {photoPreview ? (
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-md">
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                    {!readOnly && (
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <p className="text-white font-bold flex items-center gap-2">
+                          <CloudArrowUpIcon className="h-6 w-6" />
+                          Changer la photo
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="p-4 bg-blue-100 rounded-2xl text-blue-600">
+                      <PhotoIcon className="h-10 w-10" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-slate-700 font-bold">Cliquez ou glissez une photo ici</p>
+                      <p className="text-slate-500 text-sm">PNG, JPG jusqu'à 10MB</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </StyledSection>

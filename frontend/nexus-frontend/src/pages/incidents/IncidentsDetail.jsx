@@ -16,7 +16,8 @@ import {
   DocumentTextIcon,
   WrenchScrewdriverIcon,
   BeakerIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -232,6 +233,22 @@ export default function IncidentsDetail() {
                 {incident.description || 'Aucune description fournie.'}
               </div>
             </StyledSection>
+
+            {/* 2.1 Photo */}
+            {incident.photo && (
+              <StyledSection icon={PhotoIcon} title="Preuve visuelle (Photo)" iconBg="bg-blue-100">
+                <div className="rounded-[24px] overflow-hidden border border-slate-100 shadow-sm relative group cursor-pointer" onClick={() => window.open(incident.photo, '_blank')}>
+                  <img
+                    src={incident.photo}
+                    alt="Illustration de l'incident"
+                    className="w-full h-auto max-h-[500px] object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <MagnifyingGlassIcon className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+              </StyledSection>
+            )}
 
             {/* 3. Actions (Si présentes) */}
             {incident.actions_taken && (

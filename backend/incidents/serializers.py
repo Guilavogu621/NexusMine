@@ -104,5 +104,5 @@ class IncidentListSerializer(serializers.ModelSerializer):
             'severity', 'severity_display',
             'site', 'site_name', 'date',
             'status', 'status_display',
-            'description', 'photo_count',
+            'description', 'photo_count', 'photo',
         ]
