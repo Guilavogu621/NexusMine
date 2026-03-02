@@ -8,9 +8,10 @@ from .models import Personnel
 from .serializers import PersonnelSerializer, PersonnelListSerializer
 from accounts.permissions import CanManagePersonnel, IsAdmin
 from accounts.mixins import SiteScopedMixin
+from nexus_backend.csv_export import CSVExportMixin
 
 
-class PersonnelViewSet(SiteScopedMixin, viewsets.ModelViewSet):
+class PersonnelViewSet(CSVExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion du personnel
 
     Permissions:

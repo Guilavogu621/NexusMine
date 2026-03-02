@@ -13,9 +13,10 @@ from .serializers import (
 )
 from accounts.permissions import CanManageEquipment
 from accounts.mixins import SiteScopedMixin
+from nexus_backend.csv_export import CSVExportMixin
 
 
-class EquipmentViewSet(SiteScopedMixin, viewsets.ModelViewSet):
+class EquipmentViewSet(CSVExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des équipements
 
     Permissions:

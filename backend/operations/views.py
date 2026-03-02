@@ -52,9 +52,10 @@ class ShiftViewSet(SiteScopedMixin, viewsets.ModelViewSet):
         shifts = self.get_queryset().filter(date=today)
         serializer = ShiftSerializer(shifts, many=True)
         return Response(serializer.data)
+from nexus_backend.csv_export import CSVExportMixin
 
 
-class OperationViewSet(SiteScopedMixin, viewsets.ModelViewSet):
+class OperationViewSet(CSVExportMixin, SiteScopedMixin, viewsets.ModelViewSet):
     """ViewSet pour la gestion des opérations
 
     Permissions:
@@ -70,11 +71,24 @@ class OperationViewSet(SiteScopedMixin, viewsets.ModelViewSet):
     ).prefetch_related('personnel', 'equipment', 'photos').all()
     permission_classes = [permissions.IsAuthenticated, CanManageOperations]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['operation_type', 'status', 'validation_status', 'site', 'work_zone', 'date']
+    filterset_fields = {
+        'operation_type': ['exact'],
+        'status': ['exact'],
+        'validation_status': ['exact'],
+        'site': ['exact'],
+        'work_zone': ['exact'],
+        'date': ['exact', 'gte', 'lte'],
+    }
     search_fields = ['operation_code', 'description']
     ordering_fields = ['date', 'created_at', 'operation_code']
     ordering = ['-date']
     
+    export_fields = [
+        'operation_code', 'operation_type', 'site', 'work_zone', 'date', 
+        'status', 'quantity_extracted', 'quantity_transported', 'quantity_processed',
+        'personnel', 'equipment'
+    ]
+
     def get_serializer_class(self):
         if self.action == 'list':
             return OperationListSerializer

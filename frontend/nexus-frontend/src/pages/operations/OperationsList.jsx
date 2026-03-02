@@ -20,6 +20,7 @@ import {
   SparklesIcon,
   FunnelIcon,
   XMarkIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -87,9 +88,42 @@ export default function OperationsList() {
   const [filterStatus, setFilterStatus] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterSite, setFilterSite] = useState('');
+  const [filterDateGte, setFilterDateGte] = useState('');
+  const [filterDateLte, setFilterDateLte] = useState('');
   const [viewMode, setViewMode] = useState('grid');
+  const [exportLoading, setExportLoading] = useState(false);
   const { isAdmin, isSiteManager, isAnalyst, isMMG, isTechnicien } = useAuthStore();
   const navigate = useNavigate();
+
+  const handleExport = async () => {
+    try {
+      setExportLoading(true);
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (filterStatus) params.append('status', filterStatus);
+      if (filterType) params.append('operation_type', filterType);
+      if (filterSite) params.append('site', filterSite);
+      if (filterDateGte) params.append('date__gte', filterDateGte);
+      if (filterDateLte) params.append('date__lte', filterDateLte);
+
+      const response = await api.get(`/operations/export_csv/?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `operations_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Erreur export:', error);
+      alert('Erreur lors de l\'exportation');
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const canEdit = isAdmin() || isSiteManager() || isAnalyst() || isTechnicien();
 
@@ -110,6 +144,8 @@ export default function OperationsList() {
       if (filterStatus) params.append('status', filterStatus);
       if (filterType) params.append('operation_type', filterType);
       if (filterSite) params.append('site', filterSite);
+      if (filterDateGte) params.append('date__gte', filterDateGte);
+      if (filterDateLte) params.append('date__lte', filterDateLte);
 
       const [opsRes, sitesRes] = await Promise.all([
         api.get(`/operations/?${params.toString()}`),
@@ -127,7 +163,7 @@ export default function OperationsList() {
 
   useEffect(() => {
     fetchData();
-  }, [search, filterStatus, filterType, filterSite]);
+  }, [search, filterStatus, filterType, filterSite, filterDateGte, filterDateLte]);
 
   const handleDelete = async (id, code, e) => {
     e.stopPropagation();
@@ -146,9 +182,11 @@ export default function OperationsList() {
     setFilterStatus('');
     setFilterType('');
     setFilterSite('');
+    setFilterDateGte('');
+    setFilterDateLte('');
   };
 
-  const hasActiveFilters = search || filterStatus || filterType || filterSite;
+  const hasActiveFilters = search || filterStatus || filterType || filterSite || filterDateGte || filterDateLte;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative">
@@ -192,15 +230,29 @@ export default function OperationsList() {
                 </div>
               </div>
 
-              {canEdit && (
-                <Link
-                  to="/operations/new"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 shrink-0"
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <button
+                  onClick={handleExport}
+                  disabled={exportLoading}
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-xl font-bold shadow-lg hover:bg-white/30 transition-all duration-300 disabled:opacity-50"
                 >
-                  <PlusIcon className="h-5 w-5" />
-                  Nouvelle opération
-                </Link>
-              )}
+                  {exportLoading ? (
+                    <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <ArrowDownTrayIcon className="h-5 w-5" />
+                  )}
+                  Exporter CSV
+                </button>
+                {canEdit && (
+                  <Link
+                    to="/operations/new"
+                    className="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-white text-indigo-700 rounded-xl font-bold shadow-lg hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto text-center"
+                  >
+                    <PlusIcon className="h-5 w-5" />
+                    Nouvelle opération
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* Stats Grid */}
@@ -290,7 +342,7 @@ export default function OperationsList() {
               </div>
 
               {/* Filters Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <select
                   value={filterSite}
                   onChange={(e) => setFilterSite(e.target.value)}
@@ -323,6 +375,26 @@ export default function OperationsList() {
                     <option key={value} value={value}>{label}</option>
                   ))}
                 </select>
+
+                <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-4 py-3 focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-300">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Du</span>
+                  <input
+                    type="date"
+                    value={filterDateGte}
+                    onChange={(e) => setFilterDateGte(e.target.value)}
+                    className="bg-transparent border-none outline-none text-slate-900 font-medium text-sm w-full"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 bg-white/50 border border-slate-200/60 rounded-xl px-4 py-3 focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-300">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Au</span>
+                  <input
+                    type="date"
+                    value={filterDateLte}
+                    onChange={(e) => setFilterDateLte(e.target.value)}
+                    className="bg-transparent border-none outline-none text-slate-900 font-medium text-sm w-full"
+                  />
+                </div>
               </div>
             </div>
           </div>
