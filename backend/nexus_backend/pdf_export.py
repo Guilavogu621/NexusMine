@@ -258,6 +258,9 @@ class PDFExportMixin:
         doc.build(elements)
         buffer.seek(0)
         
+        filename = f"{slugify(model_name)}_{obj.id}.pdf"
+        return FileResponse(buffer, as_attachment=True, filename=filename, content_type='application/pdf')
+        
     @action(detail=False, methods=['get'])
     def export_pdf_list(self, request):
         """

@@ -12,6 +12,7 @@ import {
   UserCircleIcon,
   IdentificationIcon,
   LockClosedIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import api from '../../api/axios';
 import useAuthStore from '../../stores/authStore';
@@ -50,7 +51,7 @@ export default function UsersForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [availableSites, setAvailableSites] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     email: '',
     first_name: '',
@@ -116,7 +117,7 @@ export default function UsersForm() {
   const rc = roleConfig[formData.role] || roleConfig.TECHNICIEN;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative pb-12">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100 relative pb-12">
       {/* Background decoration */}
       <div className="fixed inset-0 opacity-40 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_25%,rgba(99,102,241,0.05),transparent_50%)]"></div>
@@ -124,16 +125,16 @@ export default function UsersForm() {
 
       <div className="relative max-w-4xl mx-auto pt-8 px-4 sm:px-6">
         {/* Header Premium */}
-        <div className="group relative bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden mb-8 animate-fadeInDown">
+        <div className="group relative bg-linear-to-br from-indigo-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden mb-8 animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="formGrid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
               </pattern>
               <rect width="100" height="100" fill="url(#formGrid)" />
             </svg>
           </div>
-          
+
           <div className="relative px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-5">
               <Link to="/users" className="p-3 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-white/30 transition-all">
@@ -148,10 +149,10 @@ export default function UsersForm() {
                 </p>
               </div>
             </div>
-            
+
             {isEdit && (
               <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
-                <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${rc.gradient} flex items-center justify-center text-white font-bold shadow-lg`}>
+                <div className={`h-10 w-10 rounded-lg bg-linear-to-br ${rc.gradient} flex items-center justify-center text-white font-bold shadow-lg`}>
                   {formData.first_name?.[0]}{formData.last_name?.[0]}
                 </div>
                 <div className="text-left">
@@ -164,15 +165,15 @@ export default function UsersForm() {
         </div>
 
         {loading ? (
-           <div className="bg-white/80 backdrop-blur-md rounded-3xl p-20 shadow-xl flex flex-col items-center justify-center">
-             <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-             <p className="mt-4 text-slate-500 font-bold">Chargement du formulaire...</p>
-           </div>
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl p-20 shadow-xl flex flex-col items-center justify-center">
+            <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p className="mt-4 text-slate-500 font-bold">Chargement du formulaire...</p>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="animate-fadeInUp bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl shadow-sm flex items-center gap-3">
-                <XCircleIcon className="h-6 w-6 flex-shrink-0" />
+                <XCircleIcon className="h-6 w-6 shrink-0" />
                 <p className="font-medium">{error}</p>
               </div>
             )}
@@ -283,17 +284,16 @@ export default function UsersForm() {
                     {availableSites.map(site => (
                       <label
                         key={site.id}
-                        className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                          formData.assigned_sites.includes(site.id)
-                            ? 'border-indigo-500 bg-indigo-50 shadow-md'
-                            : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'
-                        }`}
+                        className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer ${formData.assigned_sites.includes(site.id)
+                          ? 'border-indigo-500 bg-indigo-50 shadow-md'
+                          : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
                           checked={formData.assigned_sites.includes(site.id)}
                           onChange={(e) => {
-                            const sites = e.target.checked 
+                            const sites = e.target.checked
                               ? [...formData.assigned_sites, site.id]
                               : formData.assigned_sites.filter(s => s !== site.id);
                             setFormData(prev => ({ ...prev, assigned_sites: sites }));
@@ -364,10 +364,10 @@ export default function UsersForm() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-10 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:translate-y-0"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-10 py-4 bg-linear-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-bold shadow-lg hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:translate-y-0"
               >
                 {saving ? (
-                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <CheckCircleIcon className="h-5 w-5" />
                 )}

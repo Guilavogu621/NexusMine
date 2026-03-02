@@ -56,7 +56,7 @@ const SectionCard = ({ children, delay = '0s' }) => (
     className="group relative bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-lg hover:shadow-xl hover:border-white/40 transition-all duration-500 overflow-hidden animate-fadeInUp"
     style={{ animationDelay: delay }}
   >
-    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+    <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
     <div className="relative z-10">{children}</div>
   </div>
 );
@@ -190,7 +190,7 @@ export default function PersonnelForm() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
           <p className="text-slate-600 font-medium">Chargement des données...</p>
@@ -200,7 +200,7 @@ export default function PersonnelForm() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-slate-50 via-blue-50/20 to-slate-100">
       {/* Background Orbs */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
@@ -208,7 +208,7 @@ export default function PersonnelForm() {
       <div className="relative z-10 space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-8 max-w-4xl mx-auto animate-fadeIn">
 
         {/* ── HEADER PREMIUM ── */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
+        <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-indigo-600 via-blue-600 to-indigo-700 shadow-2xl animate-fadeInDown">
           <div className="absolute inset-0 opacity-10">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <pattern id="formGrid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -292,7 +292,7 @@ export default function PersonnelForm() {
             />
             <div className="flex flex-col md:flex-row gap-6">
               {/* Avatar / Photo */}
-              <div className="flex flex-col items-center gap-3 flex-shrink-0">
+              <div className="flex flex-col items-center gap-3 shrink-0">
                 <div
                   className="relative group cursor-pointer"
                   onClick={() => !readOnly && document.getElementById('personnel-photo-input')?.click()}
@@ -300,7 +300,7 @@ export default function PersonnelForm() {
                   {photoPreview ? (
                     <img src={photoPreview} alt="Photo" className="h-20 w-20 rounded-2xl object-cover ring-2 ring-slate-200 shadow-md" />
                   ) : (
-                    <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${avatarGradient} shadow-lg flex items-center justify-center`}>
+                    <div className={`w-20 h-20 rounded-2xl bg-linear-to-br ${avatarGradient} shadow-lg flex items-center justify-center`}>
                       <span className="text-2xl font-bold text-white">{initials || '?'}</span>
                     </div>
                   )}
@@ -463,11 +463,11 @@ export default function PersonnelForm() {
 
           {/* ── RÉSUMÉ ── */}
           <div
-            className="group relative overflow-hidden rounded-2xl border border-indigo-200/60 p-6 shadow-lg bg-gradient-to-r from-indigo-50/80 to-blue-50/80 animate-fadeInUp"
+            className="group relative overflow-hidden rounded-2xl border border-indigo-200/60 p-6 shadow-lg bg-linear-to-r from-indigo-50/80 to-blue-50/80 animate-fadeInUp"
             style={{ animationDelay: '0.2s' }}
           >
             <div className="flex items-center gap-4">
-              <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${avatarGradient} shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 flex-shrink-0`}>
+              <div className={`relative w-14 h-14 rounded-2xl bg-linear-to-br ${avatarGradient} shadow-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shrink-0`}>
                 <span className="text-xl font-bold text-white">{initials || '?'}</span>
                 <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${currentStatus.dot}`} />
               </div>
@@ -511,7 +511,7 @@ export default function PersonnelForm() {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-linear-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 hover:from-indigo-600 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <CheckCircleIcon className="h-5 w-5" />
                 {saving ? 'Enregistrement...' : isEdit ? 'Enregistrer les modifications' : "Ajouter l'employé"}

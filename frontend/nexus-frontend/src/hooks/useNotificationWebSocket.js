@@ -49,8 +49,15 @@ export function useNotificationWebSocket(options = {}) {
       wsUrl = wsUrl.endsWith('/') ? `${wsUrl}ws/notifications/` : `${wsUrl}/ws/notifications/`;
     }
 
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      console.log('[WebSocket] No token, waiting...');
+      scheduleReconnect();
+      return;
+    }
+
     try {
-      wsRef.current = new WebSocket(wsUrl);
+      wsRef.current = new WebSocket(`${wsUrl}?token=${token}`);
 
       wsRef.current.onopen = () => {
         console.log('[WebSocket] Connected');

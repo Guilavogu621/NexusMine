@@ -70,8 +70,15 @@ export default function NotificationCenter() {
     const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}//${wsHost}`;
     const wsUrl = wsBaseUrl.includes('/ws/') ? wsBaseUrl : `${wsBaseUrl}/ws/notifications/`;
 
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      console.log('Pas de token, attente de connexion...');
+      connectionTimeoutRef.current = setTimeout(connectWebSocket, 5000);
+      return;
+    }
+
     try {
-      wsRef.current = new WebSocket(wsUrl);
+      wsRef.current = new WebSocket(`${wsUrl}?token=${token}`);
 
       wsRef.current.onopen = () => {
         console.log('WebSocket connecté');

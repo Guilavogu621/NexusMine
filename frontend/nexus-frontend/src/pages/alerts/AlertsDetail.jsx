@@ -164,7 +164,7 @@ export default function AlertsDetail() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-8">
       {/* Premium Header avec bannière */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-orange-500 via-orange-600 to-amber-600 shadow-2xl">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -264,7 +264,7 @@ export default function AlertsDetail() {
         {/* Message card */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+            <div className="border-b border-slate-100 px-6 py-4 bg-linear-to-r from-gray-50 to-white">
               <h2 className="text-lg font-semibold text-slate-800">Message de l'alerte</h2>
             </div>
 
@@ -324,7 +324,7 @@ export default function AlertsDetail() {
 
           {/* Timeline card */}
           <div className="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-            <div className="border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-gray-50 to-white">
+            <div className="border-b border-slate-100 px-6 py-4 bg-linear-to-r from-gray-50 to-white">
               <h3 className="text-base font-semibold text-slate-800">Chronologie</h3>
             </div>
             <div className="p-6 space-y-4">

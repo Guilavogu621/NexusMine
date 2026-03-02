@@ -17,6 +17,7 @@ import {
 import api from "../../api/axios";
 import DateRangeInput from "../../components/ui/DateRangeInput";
 import useFormPermissions from "../../hooks/useFormPermissions";
+import useAuthStore from "../../stores/authStore";
 
 const OPERATION_TYPES = [
   { value: "EXTRACTION", label: "Extraction", emoji: "⛏️", gradient: "from-amber-500 to-amber-600", bg: "bg-amber-100 text-amber-700" },
